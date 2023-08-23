@@ -1,25 +1,14 @@
-import Image from "next/image";
-import { Slider, Stack, Button } from "@mui/material";
-import { VolumeDown, VolumeUp } from "@mui/icons-material";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <main>
-      <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
-        <VolumeDown />
-        <Slider aria-label="Volume" value={10} />
-        <VolumeUp />
-      </Stack>
-      <Slider disabled defaultValue={30} aria-label="Disabled slider" />
-      <Button variant="contained" sx={{width:'100%', height:'44px'}}>
-        Hello World
-      </Button>
-      <Button variant="outlined" sx={{width:'100%', height:'44px'}}>
-        Hello World
-      </Button>
-      <Button variant="text" sx={{width:'100%', height:'44px'}}>
-        Hello World
-      </Button>
-    </main>
+    <div className="min-h-screen">
+      <h1 className="text-4xl">Learn This</h1>
+      <Button>Click me</Button>
+      <Alert>
+        <AlertTitle>This is an alert</AlertTitle>Alert description
+      </Alert>
+    </div>
   );
 }
