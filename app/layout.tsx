@@ -5,7 +5,6 @@ import Header from "@/components/header";
 import TabBar from "@/components/tab-bar";
 import { Roboto } from "next/font/google";
 
-
 const roboto = Roboto({
   weight: ["400", "700"],
   style: ["normal", "italic"],
@@ -25,10 +24,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Header />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
-          <TabBar />
         </ThemeProvider>
       </body>
     </html>
