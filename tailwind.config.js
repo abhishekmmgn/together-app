@@ -5,6 +5,18 @@ module.exports = {
   darkMode: ["class"],
   content: ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}"],
   theme: {
+    fontSize: {
+      'sm': '.875rem',
+      'sm+': '.9375rem',
+      'base': '1rem',
+      'lg': '1.125rem',
+      'xl': '1.25rem',
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
+      '4xl': '2rem',
+      '5xl': '2.25rem',
+      '6xl': '3rem',
+    },
     container: {
       center: true,
       padding: "2rem",
