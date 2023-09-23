@@ -17,7 +17,6 @@ import { Input } from "@/components/ui/input";
 
 const FormSchema = z
   .object({
-    email: z.string().email(),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -32,7 +31,7 @@ const FormSchema = z
     message: "Passwords do not match",
   });
 
-export function RegisterForm() {
+export function ResetPasswordForm() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
@@ -47,27 +46,10 @@ export function RegisterForm() {
         <div className="space-y-2">
           <FormField
             control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="johndoe@email.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>New Password</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="********" {...field} />
                 </FormControl>
@@ -89,7 +71,7 @@ export function RegisterForm() {
             )}
           />
         </div>
-        <Button type="submit">Create Account</Button>
+        <Button type="submit">Reset Password</Button>
       </form>
     </Form>
   );
