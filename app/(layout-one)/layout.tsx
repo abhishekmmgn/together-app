@@ -2,9 +2,10 @@ import "../globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import { Sidebar } from "@/components/sidebar";
 
 const roboto = Roboto({
-  weight: ["100", "300", "400", "500", "700", "900"],
+  weight: ["100", "300", "400", "500", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"],
   display: "swap",
@@ -28,7 +29,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <Sidebar />
+          <div className="w-full h-[calc(100vh-56px)] mt-14 sm:ml-[210px] md:ml-[232px] xl:ml-[248px] sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

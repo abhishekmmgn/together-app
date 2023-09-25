@@ -1,12 +1,15 @@
-import { Button } from "@/components/ui/button";
+import Header from "@/components/header";
+import EventPost from "@/components/event-post";
+import Post from "@/components/post";
 
 export default function Home() {
   return (
-    <div className="w-full flex items-center justify-center">
-      <div className="px-4 min-h-screen flex flex-col items-center justify-center max-w-sm">
-        <h1 className="text-5xl">Hello, Next</h1>
-        <Button>Hello, Next!</Button>
+    <>
+      <Header />
+      <div>
+        <Post />
+        <EventPost />
       </div>
-    </div>
+    </>
   );
 }
