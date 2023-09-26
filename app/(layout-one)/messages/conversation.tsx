@@ -7,10 +7,10 @@ type propsType = {
   read?: boolean;
 };
 
-export default function Message(props: propsType) {
+export default function conversation(props: propsType) {
   const read = true;
   return (
-    <>
+    <div className="bg-background dark:bg-background">
       <div
         className={`w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted hover:dark:bg-muted ${
           !read && "bg-muted dark:bg-muted"
@@ -38,7 +38,7 @@ export default function Message(props: propsType) {
               Hello, we are looking to see that the new update is working.
             </p>
             {!read && (
-              <div className="w-[22px] h-[22px] rounded-full line-clamp-1 text-sm bg-[#0081ff] dark:bg-[#0072ff] text-white flex items-center justify-center">
+              <div className="w-[22px] h-[22px] rounded-full line-clamp-1 text-sm bg-[#007aff] dark:bg-[#007aff] text-white flex items-center justify-center">
                 1
               </div>
             )}
@@ -46,6 +46,6 @@ export default function Message(props: propsType) {
         </div>
       </div>
       <Separator />
-    </>
+    </div>
   );
 }

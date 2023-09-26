@@ -1,6 +1,6 @@
 "use client";
 import MessageHeading from "./message-heading";
-import { MessageRecieved, MessageSent } from "./messages";
+import { MessageRecieved, MessageSent } from "./message";
 import SendMessage from "./send-message";
 
 export default function MessageRoomPage() {
