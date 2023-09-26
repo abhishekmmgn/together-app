@@ -30,7 +30,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Sidebar />
-          <div className="w-full h-[calc(100vh-56px)] mt-14 sm:ml-[210px] md:ml-[232px] xl:ml-[248px] sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl">
+          <div className="w-full h-[calc(100vh-56px)] mt-[90px] sm:mt-14 sm:ml-[210px] md:ml-[232px] xl:ml-[248px] sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl">
             {children}
           </div>
         </ThemeProvider>

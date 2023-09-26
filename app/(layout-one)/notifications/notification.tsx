@@ -13,7 +13,7 @@ type propsType = {
 export default function Notification(props: propsType) {
   const read = true;
   return (
-    <>
+    <div className="bg-background dark:bg-background">
       <div
         className={`w-full flex items-center px-5 py-2 gap-4 ${
           !read && "bg-muted dark:bg-muted"
@@ -34,6 +34,6 @@ export default function Notification(props: propsType) {
         </div>
       </div>
       <Separator />
-    </>
+    </div>
   );
 }

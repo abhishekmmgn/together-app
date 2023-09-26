@@ -9,13 +9,15 @@ module.exports = {
       'sm': '.875rem',
       'sm+': '.9375rem',
       'base': '1rem',
+      'base+': '1.0625rem',
       'lg': '1.125rem',
-      'xl': '1.25rem',
+      'xl': '1.3125rem',
       '2xl': '1.5rem',
-      '3xl': '1.875rem',
+      '3xl': '1.75rem',
       '4xl': '2rem',
       '5xl': '2.25rem',
-      '6xl': '3rem',
+      '6xl': '2.5rem',
+      '7xl': '2.75rem'
     },
     container: {
       center: true,
