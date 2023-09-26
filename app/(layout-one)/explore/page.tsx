@@ -4,7 +4,7 @@ import { useState } from "react";
 import Navbar from "@/components/navbar";
 import SearchBar from "@/components/searchbar";
 import TableRow from "@/components/table-row";
-import SearchResult from "./search-result";
+import OrgCard from "./org-card";
 
 export default function SearchPage() {
   const [isActive, setActive] = useState(false);
@@ -26,9 +26,9 @@ export default function SearchPage() {
           handleFocus={toggleSearchBarOn}
         />
         {isActive ? (
-          <div className="w-full h-full py-2 transition-all ease-in-out duration-300">
-            <SearchResult />
-            <SearchResult />
+          <div className="w-full h-full px-5 py-2 transition-all ease-in-out duration-300">
+            <OrgCard />
+            <OrgCard />
           </div>
         ) : (
           <>
