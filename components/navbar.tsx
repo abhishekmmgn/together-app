@@ -8,7 +8,7 @@ export default function Navbar(props: Propstype) {
   const isActive = false;
   const hasNotification = false;
   return (
-    <div className="fixed w-full z-50 top-0 inset-x-0 backdrop-filter backdrop-blur-xl bg-opacity-80 border-b border-border">
+    <div className="fixed w-full z-50 top-0 inset-x-0 bg-background backdrop-filter bg-white backdrop-blur-xl bg-opacity-80 border-b border-border dark:bg-background">
       <div className="h-14 flex items-center justify-between px-5 sm:px-7 gap-1">
         <p className="font-medium text-xl">{props.title}</p>
       </div>

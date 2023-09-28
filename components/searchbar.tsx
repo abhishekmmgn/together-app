@@ -9,7 +9,7 @@ type PropsType = {
 };
 export default function SearchBar(props: PropsType) {
   return (
-    <div className="z-40 px-5 py-4 backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14">
+    <div className="z-40 px-5 py-4 bg-white backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14 lg:px-0 dark:bg-background">
       <Input
         type="search"
         placeholder={props.placeholder}
@@ -17,9 +17,9 @@ export default function SearchBar(props: PropsType) {
       />
       {props.active && (
         <Button
-          variant="ghost"
+          variant="secondary"
           size={"sm"}
-          className="transform px-0 sm:hidden"
+          className="transform px-0 bg-background hover:bg-background"
           onClick={props.handleClick}
         >
           Cancel
