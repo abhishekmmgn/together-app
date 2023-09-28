@@ -1,5 +1,10 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import PostSkeleton from "./post/post-skeleton";
 
 export default function Loading() {
-  return <Skeleton className="w-[100px] h-[20px] rounded-full" />;
+  return (
+    <div className="p-5 space-y-6">
+      <PostSkeleton />
+      <PostSkeleton />
+    </div>
+  );
 }

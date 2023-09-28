@@ -1,5 +1,5 @@
 import "../globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/app/(layout-one)/settings/theme-provider";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { Sidebar } from "@/components/sidebar";
