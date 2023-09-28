@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Navbar from "@/components/navbar";
-import SearchBar from "@/components/explore/searchbar";
+import SearchBar from "@/components/searchbar";
 import TableRow from "@/components/table-row";
-import OrgCard from "../../../components/explore/org-card";
+import OrgCard from "./org-card";
 
 export default function SearchPage() {
   const [isActive, setActive] = useState(false);
@@ -17,7 +17,7 @@ export default function SearchPage() {
   }
   return (
     <>
-      <Navbar title="Search" />
+      <Navbar title="Explore" />
       <>
         <SearchBar
           active={isActive}
@@ -33,7 +33,7 @@ export default function SearchPage() {
         ) : (
           <>
             <h2 className="pt-3 pb-1 px-5 text-2xl font-medium">
-              Search by Cause
+              Explore by Cause
             </h2>
             <>
               <TableRow title="Environment" />
