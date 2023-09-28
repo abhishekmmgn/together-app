@@ -10,11 +10,11 @@ export default function Notifications() {
     <>
       <Navbar title="Notifications" />
       <div
-        className={`flex justify-end py-2 px-5 ${allRead && "hidden"}`}
+        className={`flex justify-end py-2 px-5  ${allRead && "hidden"}`}
       >
-        <div className="cursor-pointer text-muted-foreground dark:text-muted-foreground" onClick={() => setAllRead(true)}>Mark all as read</div>
+        <div className="cursor-pointer text-muted-foreground" onClick={() => setAllRead(true)}>Mark all as read</div>
       </div>
-      <div className="w-full">
+      <div className="h-screen w-full ">
         <Notification />
         <Notification />
         <Notification />

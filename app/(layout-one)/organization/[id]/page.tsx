@@ -4,18 +4,18 @@ import Navbar from "@/components/navbar";
 import Back from "@/components/back";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import OrgCard from "../../explore/org-card";
-import Post from "@/components/post";
-import EventPost from "@/components/event-post";
+import OrgCard from "@/components/explore/org-card";
+import Post from "@/components/posts/post";
+import EventPost from "@/components/posts/event-post";
 
 export default function OrganizationProfile() {
   return (
     <>
-      <div className="hidden md:block">
+      <div className="hidden sm:block">
         <Navbar title="Together" />
       </div>
-      <Back />
       <div>
+        <Back />
         <Image
           src={"/images/organization.png"}
           alt="Cover Photo"
@@ -37,11 +37,15 @@ export default function OrganizationProfile() {
               <p className="-mt-1 text-[#464646]">We Delete Blood Cancer</p>
             </div>
             <div className="space-y-2">
-              <Button className="mx-auto">Follow</Button>
+              {false ? (
+                <Button className="mx-auto">Follow</Button>
+              ) : (
+                <Button variant="ghost" className="mx-auto">Unfollow</Button>
+              )}
               <Separator />
             </div>
             <div>
-              <h1 className="font-medium space-y-[2px]">About</h1>
+              <h1 className="font-medium space-y-[2px] mb-2">About</h1>
               <p className="text-[#464646] line-clamp-6">
                 DKMS is an international nonprofit where creativity, initiative,
                 compassion, collaboration and strategic thinking are rewarded as
@@ -57,19 +61,19 @@ export default function OrganizationProfile() {
             </div>
             <div>
               <h1 className="font-medium space-y-[2px]">Email</h1>
-              <p className="text-[#464646]">support@dkms.org</p>
+              <p className="text-primary">support@dkms.org</p>
             </div>
             <div>
               <h1 className="font-medium space-y-[2px]">Website</h1>
-              <p className="text-[#464646]">www.dkms.org/uk</p>
+              <p className="text-primary">www.dkms.org/uk</p>
             </div>
             <div>
               <h1 className="font-medium space-y-[2px]">Location Served</h1>
-              <p className="text-[#464646]">United Kingdom</p>
+              <p className="text-primary">United Kingdom</p>
             </div>
             <div>
               <h1 className="font-medium space-y-[2px]">Category</h1>
-              <p className="text-[#464646]">Non Profit</p>
+              <p className="text-primary">Non Profit</p>
             </div>
           </div>
           <Separator />
@@ -77,21 +81,19 @@ export default function OrganizationProfile() {
           <div className="py-6 space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <h1 className="font-medium text-2xl md:text-3xl">
-                  Activity
-                </h1>
+                <h1 className="font-medium text-2xl">Activity</h1>
                 <Link href="/explore">
                   <p className="text-primary text-sm">See All</p>
                 </Link>
               </div>
               <div className="">
-                <Post />
+                <Post paddingX={true} />
                 <Separator />
               </div>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <h1 className="font-medium text-2xl md:text-3xl">
+                <h1 className="font-medium text-2xl">
                   Recent Events
                 </h1>
                 <Link href="/explore">
@@ -99,13 +101,13 @@ export default function OrganizationProfile() {
                 </Link>
               </div>
               <div className="">
-                <EventPost />
+                <EventPost paddingX={true} />
                 <Separator />
               </div>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <h1 className="font-medium text-2xl md:text-3xl">
+                <h1 className="font-medium text-2xl">
                   Similar Organizations
                 </h1>
                 <Link href="/explore">

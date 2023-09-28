@@ -51,7 +51,7 @@ export default function CreateProfileForm() {
                   <Input
                     type="file"
                     {...field}
-                    className="bg-background border-0 mx-auto w-fit"
+                    className=" border-0 mx-auto w-fit"
                   />
                 </FormControl>
                 <FormLabel>Photo</FormLabel>
@@ -69,7 +69,7 @@ export default function CreateProfileForm() {
                   <Input
                     type="text"
                     placeholder="John Doe"
-                    className="bg-background"
+                    className=""
                     {...field}
                   />
                 </FormControl>

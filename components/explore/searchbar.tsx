@@ -9,7 +9,7 @@ type PropsType = {
 };
 export default function SearchBar(props: PropsType) {
   return (
-    <div className="sticky top-14 inset-x-0 z-40 px-5 py-2 bg-background backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between dark:bg-background dark:bg-opacity-0 dark:backdrop-blur-0">
+    <div className="z-40 px-5 py-4 backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14">
       <Input
         type="search"
         placeholder={props.placeholder}

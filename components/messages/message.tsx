@@ -4,7 +4,7 @@ type propsType = {
 
 export function MessageRecieved(props: propsType) {
   return (
-    <div className="w-fit max-w-[75%] py-[6px] px-[12px] rounded-lg bg-[#f2f2f2]">
+    <div className="w-fit max-w-[75%] py-[6px] px-[12px] rounded-lg bg-secondary">
       {props.message}
     </div>
   );

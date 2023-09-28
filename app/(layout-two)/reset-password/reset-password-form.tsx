@@ -54,7 +54,7 @@ export default function ResetPasswordForm() {
                   <Input
                     type="password"
                     placeholder="********"
-                    className="bg-background"
+                    className=""
                     {...field}
                   />
                 </FormControl>
@@ -72,7 +72,7 @@ export default function ResetPasswordForm() {
                   <Input
                     type="password"
                     placeholder="********"
-                    className="bg-background"
+                    className=""
                     {...field}
                   />
                 </FormControl>

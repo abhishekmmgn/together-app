@@ -1,27 +1,34 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "../ui/button";
+import Link from "next/link";
 
 type propsType = {
   last?: boolean;
   uid?: string;
 };
 
-export default function ProfileCard(props: propsType) {
+export default function OrgProfileCard(props: propsType) {
   return (
-    <div className="bg-background dark:bg-background ">
-      <div className="w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted hover:dark:bg-muted">
-        <Avatar className="w-14 h-14 rounded-full">
+    <div className="py-2  dark: hover:bg-muted hover:dark:bg-muted">
+      <div className="w-full h-[72px] flex items-center px-5 py-2 gap-4">
+        <Avatar className="w-14 h-14">
           <AvatarImage src="https://www.unsplash.com/random" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <div className="w-full flex flex-col justify-center items-center">
           <h1 className="w-full overflow-x-hidden line-clamp-1 text-lg font-medium">
-            Terry Banks
+            DKMS UK
           </h1>
           <p className="w-full overflow-x-hidden text-sm line-clamp-1 text-[#3c3c3e] dark:text-[#a1a1a1]">
-            banks.terry@icloud.com
+            We Delete Blood Cancer
           </p>
         </div>
+      </div>
+      <div className="px-5 w-full">
+        <Button variant="secondary" asChild>
+          <Link href="/login">Edit Profile</Link>
+        </Button>
       </div>
       {!props.last && <Separator />}
     </div>

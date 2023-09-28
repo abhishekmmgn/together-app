@@ -15,21 +15,32 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 
-export default function EventPost() {
+type PropsType = {
+  paddingX?: boolean;
+};
+export default function EventPost(props: PropsType) {
   return (
     <>
       <div className="pt-1 pb-3">
-        <div className="px-4 py-2 flex items-center justify-between">
+        <div
+          className={`${
+            !props.paddingX && "px-4"
+          }  py-2 flex items-center justify-between`}
+        >
           <div className="w-full flex items-center gap-2">
-            <Avatar className="h-11 w-11">
-              <AvatarImage
-                src="https://www.unsplash.com/random"
-                alt="@shadcn"
-              />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            <Link href="/organization/1">
+              <Avatar className="h-11 w-11">
+                <AvatarImage
+                  src="https://www.unsplash.com/random"
+                  alt="@shadcn"
+                />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </Link>
             <div className="w-full flex flex-col gap-[2px]">
-              <h1 className="line-clamp-1 font-medium">DKMS UK</h1>
+              <h1 className="line-clamp-1 font-medium">
+                <Link href="/organization/1">DKMS UK</Link>
+              </h1>
               <p className="text-sm line-clamp-1 text-[#464646]">12/8/2023</p>
             </div>
             <Menubar className="border-0">
@@ -55,8 +66,10 @@ export default function EventPost() {
           alt="Event Photo"
           className="w-full aspect-[3/2] bg-secondary"
         />
-        <div className="px-4 mt-2 mb-1">
-          <h2 className="font-medium md:text-base+">2023 TCS London Marathon US</h2>
+        <div className={`${!props.paddingX && "px-4"} mt-2 mb-1`}>
+          <h2 className="font-medium md:text-base+">
+            2023 TCS London Marathon US
+          </h2>
           <p className="text-sm text-[#464646] line-clamp-3 md:mb-3 md:mt-1 md:text-sm+">
             DKMS is an international nonprofit where creativity, initiative,
             compassion, collaboration and strategic thinking are rewarded as we
@@ -70,7 +83,11 @@ export default function EventPost() {
             donors for patients in need of a
           </p>
         </div>
-        <div className="px-4 h-11 w-full flex items-center justify-between">
+        <div
+          className={`${
+            !props.paddingX && "px-4"
+          } h-11 w-full flex items-center justify-between`}
+        >
           <div className="flex gap-4">
             <AiOutlineLike className="text-xl text-[#464646]" />
             <FaRegComment className="text-xl text-[#464646]" />
@@ -81,7 +98,11 @@ export default function EventPost() {
           </Link>
         </div>
 
-        <div className="px-4 h-8 w-full flex gap-4 items-start">
+        <div
+          className={`${
+            !props.paddingX && "px-4"
+          } h-8 w-full flex gap-4 items-start`}
+        >
           <p className="text-sm text-[#464646]">12 Likes</p>
           <p className="text-sm text-[#464646]">18 Comments</p>
           <p className="text-sm text-[#464646]">18 Interested</p>

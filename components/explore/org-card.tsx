@@ -7,7 +7,7 @@ type propsType = {
 
 export default function OrgCard(props: propsType) {
   return (
-    <div className="bg-background dark:bg-background">
+    <div className=" dark:">
       <div className="w-full h-[68px] flex items-center gap-3 hover:bg-muted hover:dark:bg-muted">
         <Avatar className="h-14 w-14">
           <AvatarImage src="https://www.unsplash.com/random" alt="@shadcn" />

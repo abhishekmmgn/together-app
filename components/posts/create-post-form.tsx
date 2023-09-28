@@ -57,7 +57,7 @@ export default function CreatePostForm() {
                   <Input
                     type="email"
                     placeholder="johndoe@email.com"
-                    className="bg-background"
+                    className=""
                     {...field}
                   />
                 </FormControl>
@@ -75,7 +75,7 @@ export default function CreatePostForm() {
                   <Input
                     type="password"
                     placeholder="********"
-                    className="bg-background"
+                    className=""
                     {...field}
                   />
                 </FormControl>
@@ -93,7 +93,7 @@ export default function CreatePostForm() {
                   <Input
                     type="password"
                     placeholder="********"
-                    className="bg-background"
+                    className=""
                     {...field}
                   />
                 </FormControl>

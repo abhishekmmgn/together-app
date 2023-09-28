@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Navbar from "@/components/navbar";
-import Conversation from "./conversation";
-import Link from "next/link";
-import SearchBar from "@/components/searchbar";
+import Conversation from "@/components/messages/conversation";
+import SearchBar from "@/components/explore/searchbar";
 
 export default function ConversationsPage() {
   const [isActive, setActive] = useState(false);
@@ -24,7 +23,6 @@ export default function ConversationsPage() {
         handleClick={handleSearchBarToggle}
         handleFocus={toggleSearchBarOn}
       />
-      <Link href={`/Conversations/1`}>
         {isActive ? (
           <div className="w-full h-full py-2 transition-all ease-in-out duration-300">
           </div>
@@ -34,7 +32,6 @@ export default function ConversationsPage() {
             <Conversation />
           </>
         )}
-      </Link>
     </>
   );
 }

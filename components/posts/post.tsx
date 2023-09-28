@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -17,25 +18,38 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 
-export default function Post() {
+type PropsType = {
+  paddingX?: boolean;
+};
+
+export default function Post(props: PropsType) {
   const [liked, setLiked] = useState(false);
+
   return (
     <>
       <div className="pt-1 pb-3">
-        <div className="px-4 py-2 flex items-center justify-between">
+        <div
+          className={`${
+            !props.paddingX && "px-4"
+          } py-2 flex items-center justify-between`}
+        >
           <div className="w-full flex items-center gap-2">
-            <Avatar className="h-11 w-11">
-              <AvatarImage
-                src="https://www.unsplash.com/random"
-                alt="@shadcn"
-              />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            <Link href="/organization/1">
+              <Avatar className="h-11 w-11">
+                <AvatarImage
+                  src="https://www.unsplash.com/random"
+                  alt="@shadcn"
+                />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </Link>
             <div className="w-full flex flex-col gap-[2px]">
-              <h1 className="line-clamp-1 font-medium">DKMS UK</h1>
+              <h1 className="line-clamp-1 font-medium">
+                <Link href="/organization/1">DKMS UK</Link>
+              </h1>
               <p className="text-sm line-clamp-1 text-[#464646]">12/8/2023</p>
             </div>
-            <Menubar className="border-0">
+            <Menubar className="border-0 bg-transparent">
               <MenubarMenu>
                 <MenubarTrigger>
                   <FiMoreHorizontal className="text-2xl" />
@@ -47,13 +61,19 @@ export default function Post() {
                   <MenubarSeparator />
                   <MenubarItem>Share</MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem>Unfollow</MenubarItem>
+                  <MenubarItem className="text-destructive">
+                    Unfollow
+                  </MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
             </Menubar>
           </div>
         </div>
-        <p className="px-4 mb-2 text-sm text-[#464646] line-clamp-3 md:mb-3 md:mt-1 md:text-sm+">
+        <p
+          className={`${
+            !props.paddingX && "px-4"
+          } mb-2 text-sm text-[#464646] line-clamp-3 md:mb-3 md:mt-1 md:text-sm+`}
+        >
           DKMS is an international nonprofit where creativity, initiative,
           compassion, collaboration and strategic thinking are rewarded as we
           work together to expand our reach, recruit more bone marrow donors and
@@ -67,10 +87,14 @@ export default function Post() {
         </p>
         <Image
           src=""
-          alt="Event Photo"
+          alt="Post Photo"
           className="w-full aspect-[4/3] bg-secondary"
         />
-        <div className="px-4 h-11 w-full flex gap-4 items-center">
+        <div
+          className={`${
+            !props.paddingX && "px-4"
+          } h-11 w-full flex gap-4 items-center`}
+        >
           {liked ? (
             <AiFillLike
               className="text-2xl text-[#007aff]"
@@ -85,7 +109,11 @@ export default function Post() {
           <FaRegComment className="text-xl text-[#464646]" />
           <GoShare className="text-xl text-[#464646]" />
         </div>
-        <div className="px-4 h-8 w-full flex gap-4 items-start">
+        <div
+          className={`${
+            !props.paddingX && "px-4"
+          } h-8 w-full flex gap-4 items-start`}
+        >
           <p className="text-sm text-[#464646]">128 Likes</p>
           <p className="text-sm text-[#464646]">18 Comments</p>
         </div>

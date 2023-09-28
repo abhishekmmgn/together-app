@@ -3,18 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import NotificationsPrefrences from "@/components/settings/notifications-prefrences";
 import ChangePassword from "@/components/settings/change-password";
-import ThemeToggle from "@/components/theme-toggler";
 
 export default function SettingsPage() {
   return (
     <>
       <Navbar title="Settings" />
-      <div className="p-4 px-5 space-y-5 bg-background text-foreground">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium">Theme</h3>
-          <ThemeToggle />
-        </div>
-        <Separator />
+      <div className="p-4 px-5 space-y-5 ">
         <NotificationsPrefrences />
         <Separator />
         <ChangePassword />

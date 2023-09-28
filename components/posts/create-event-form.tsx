@@ -60,7 +60,7 @@ export default function CreateEventForm() {
               <FormItem>
                 <FormLabel>Event Name</FormLabel>
                 <FormControl>
-                  <Input type="text" className="bg-background" {...field} />
+                  <Input type="text" className="" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -89,7 +89,7 @@ export default function CreateEventForm() {
                   <Input
                     type="password"
                     placeholder="********"
-                    className="bg-background"
+                    className=""
                     {...field}
                   />
                 </FormControl>
