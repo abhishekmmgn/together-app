@@ -14,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 
 const formSchema = z
@@ -27,6 +28,7 @@ const formSchema = z
       .string()
       .min(8, "Password must be at least 8 characters")
       .max(48, "Password must be less than 48 characters"),
+    is_organization: z.boolean().default(false).optional()
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
@@ -39,12 +41,7 @@ export default function RegisterForm() {
   const router = useRouter();
 
   const form = useForm<formSchemaType>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
+    resolver: zodResolver(formSchema)
   });
 
   async function onSubmit(data: formSchemaType) {
@@ -146,6 +143,25 @@ export default function RegisterForm() {
                   />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="is_organization"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border-border py-2">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">
+                    Register as an organization
+                  </FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />

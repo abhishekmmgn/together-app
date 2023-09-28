@@ -40,7 +40,7 @@ export default function CreateProfileForm() {
           <Image
             src=""
             alt="Profile Photo"
-            className="w-24 aspect-square bg-[#fafafa] rounded-full border mx-auto"
+            className="w-24 aspect-square bg-secondary rounded-full border mx-auto"
           />
           <FormField
             control={form.control}
