@@ -4,9 +4,9 @@ import Navbar from "@/components/navbar";
 import Back from "@/components/back";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import OrgCard from "@/components/explore/org-card";
-import Post from "@/components/posts/post";
-import EventPost from "@/components/posts/event-post";
+import OrgCard from "../../explore/org-card";
+import Post from "../../post/post";
+import EventPost from "../../post/event-post";
 
 export default function OrganizationProfile() {
   return (
@@ -34,7 +34,7 @@ export default function OrganizationProfile() {
           <div className="py-4 space-y-4">
             <div>
               <h1 className="font-medium text-3xl md:text-4xl">DKMS US</h1>
-              <p className="-mt-1 text-[#464646]">We Delete Blood Cancer</p>
+              <p className="-mt-1 text-muted-foreground">We Delete Blood Cancer</p>
             </div>
             <div className="space-y-2">
               {false ? (
@@ -46,7 +46,7 @@ export default function OrganizationProfile() {
             </div>
             <div>
               <h1 className="font-medium space-y-[2px] mb-2">About</h1>
-              <p className="text-[#464646] line-clamp-6">
+              <p className="text-muted-foreground line-clamp-6">
                 DKMS is an international nonprofit where creativity, initiative,
                 compassion, collaboration and strategic thinking are rewarded as
                 we work together to expand our reach, recruit more bone marrow
