@@ -1,4 +1,4 @@
-import ConversationSkeleton from "@/components/messages/conversation-skeleton";
+import ConversationSkeleton from "./conversation-skeleton";
 
 export default function Loading() {
   return (

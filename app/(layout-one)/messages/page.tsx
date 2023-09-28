@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Navbar from "@/components/navbar";
-import Conversation from "@/components/messages/conversation";
-import SearchBar from "@/components/explore/searchbar";
+import Conversation from "./conversation";
+import SearchBar from "@/components/searchbar";
 
 export default function ConversationsPage() {
   const [isActive, setActive] = useState(false);
