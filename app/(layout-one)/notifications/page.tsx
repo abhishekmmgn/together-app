@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/components/navbar";
-import Notification from "./notification";
+import Notification from "@/components/notifications/notification";
 
 export default function Notifications() {
   const [allRead, setAllRead] = useState(false);
   return (
     <>
-      <Navbar title="Notifications" />
       <div
         className={`flex justify-end py-2 px-5 lg:px-0 ${allRead && "hidden"}`}
       >

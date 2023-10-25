@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import ExploreSkeleton from "./explore-skeleton";
+import ExploreSkeleton from "@/components/explore/explore-skeleton";
 
 export default function Loading() {
   return (

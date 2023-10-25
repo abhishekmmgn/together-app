@@ -1,4 +1,4 @@
-import MessageSkeleton from "./message-skeleton";
+import MessageSkeleton from "@/components/messages/message-skeleton";
 
 export default function Loading() {
   return (

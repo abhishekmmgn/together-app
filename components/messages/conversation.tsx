@@ -16,14 +16,14 @@ type propsType = {
   read?: boolean;
 };
 
-export default function conversation(props: propsType) {
+export default function Conversation(props: propsType) {
   const read = true;
   return (
     <div className="relative  dark: group">
       <Link href={`/messages/1`}>
         <div
-          className={`w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted hover:dark:bg-muted lg:px-0 ${
-            !read && "bg-muted dark:bg-muted"
+          className={`w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted/60 lg:px-0 ${
+            !read && "bg-muted"
           }`}
         >
           <Avatar className="w-14 h-14">
@@ -78,7 +78,7 @@ export default function conversation(props: propsType) {
           <MenubarContent>
             <MenubarItem>Mark as Read</MenubarItem>
             <MenubarSeparator />
-            <MenubarItem className="text-destructive">Delete</MenubarItem>
+            <MenubarItem className="text-destructive hover:text-destructive">Delete</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
       </Menubar>

@@ -14,6 +14,7 @@ export default function SearchBar(props: PropsType) {
         type="search"
         placeholder={props.placeholder}
         onFocus={props.handleFocus}
+        // on typing call handleFocus if esc is entered by the user
       />
       {props.active && (
         <Button

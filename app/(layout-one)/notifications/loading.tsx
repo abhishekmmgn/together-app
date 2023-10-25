@@ -1,4 +1,4 @@
-import NotificationSkeleton from "@/app/(layout-one)/notifications/notification-skeleton";
+import NotificationSkeleton from "@/components/notifications/notification-skeleton";
 
 export default function Loading() {
   return (

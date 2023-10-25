@@ -1,14 +1,22 @@
-import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import NotificationsPrefrences from "./notifications-prefrences";
-import ChangePassword from "@/app/(layout-one)/settings/change-password";
-import ThemeToggle from "@/app/(layout-one)/settings/theme-toggler";
+import NotificationsPrefrences from "@/components/settings/notifications-prefrences";
+import ChangePassword from "@/components/settings/change-password";
+import ThemeToggle from "@/components/settings/theme-toggler";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function SettingsPage() {
+  function logout() {}
   return (
     <>
-      <Navbar title="Settings" />
       <div className="p-4 px-5 space-y-5 lg:px-0">
         <div className="flex justify-between items-center">
           <h3 className="mb-1 text-lg font-medium">Theme</h3>
@@ -21,18 +29,24 @@ export default function SettingsPage() {
         <Separator />
         <div>
           <h3 className="mb-1 text-lg font-medium">Sign Out</h3>
-          <p className="mb-3 text-sm text-muted-foreground">
-            Sign out from current session.
-          </p>
-          <Button variant="secondary" className="mx-auto mb-5">
-            Sign Out of This Devices
-          </Button>
-          <p className="mb-3 text-sm text-muted-foreground">
-            Sign out of all devices and browsers. You will need to sign in again
-          </p>
-          <Button variant="secondary" className="mx-auto">
-            Sign Out of All Devices
-          </Button>
+          <p className="mb-3 text-sm text-muted-foreground">Sign out of your current session</p>
+          <Dialog>
+            <DialogTrigger className="w-full" asChild>
+              <Button variant="secondary" className="mx-auto">
+                Sign Out
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Sign Out</DialogTitle>
+              </DialogHeader>
+              <DialogFooter>
+                <Button type="submit" variant="secondary">
+                  Confirm
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
         <Separator />
         <div>
@@ -42,11 +56,31 @@ export default function SettingsPage() {
             authentication associations. Delete any and all content you have,
             such as posts, comments, or your messages.
           </p>
-          <Button variant="destructive" className="mx-auto">
-            Delete Account
-          </Button>
+          <Dialog>
+            <DialogTrigger className="w-full" asChild>
+              <Button
+                variant="destructive"
+                className="mx-auto"
+              >
+                Delete Account
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete
+                  your account and remove your data from our servers.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button type="submit" variant="destructive">
+                  Delete
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
-        <Separator />
       </div>
     </>
   );

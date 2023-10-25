@@ -33,7 +33,7 @@ export default function Post(props: PropsType) {
             !props.paddingX && "px-4"
           } py-2 flex items-center justify-between lg:px-0`}
         >
-          <div className="w-full flex items-center gap-2">
+          <div className="w-full flex items-center gap-3">
             <Link href="/organization/1">
               <Avatar className="h-11 w-11">
                 <AvatarImage
@@ -56,8 +56,6 @@ export default function Post(props: PropsType) {
                 </MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem>Copy link</MenubarItem>
-                  <MenubarSeparator />
-                  <MenubarItem>Save</MenubarItem>
                   <MenubarSeparator />
                   <MenubarItem>Share</MenubarItem>
                   <MenubarSeparator />

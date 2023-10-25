@@ -15,7 +15,7 @@ export default function Notification(props: propsType) {
   return (
     <div className="">
       <div
-        className={`w-full flex items-center px-5 py-2 gap-4 lg:px-0 ${
+        className={`w-full flex items-center px-5 py-2 gap-4 lg:px-0 hover:bg-muted/60 ${
           !read && "bg-muted"
         }`}
       >

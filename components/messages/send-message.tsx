@@ -10,7 +10,7 @@ export default function SendMessage() {
       <form className="flex gap-3">
         <Input type="text" placeholder="Type a message" />
         <Button size={"icon"} type="submit" className="w-12">
-          <BsSend />
+          <BsSend className="w-5 h-5 text-primary-foreground" />
         </Button>
       </form>
     </div>
