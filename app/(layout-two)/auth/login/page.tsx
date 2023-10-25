@@ -13,7 +13,7 @@ export default function LoginPage() {
           </h1>
           <LoginForm />
           <Link
-            href="/register"
+            href="/auth/register"
             className={cn(
               "mt-3",
               buttonVariants({
@@ -24,7 +24,7 @@ export default function LoginPage() {
             Create Account
           </Link>
           <Link
-            href="/forgot-password"
+            href="/auth/forgot-password"
             className={cn(
               "mt-2",
               buttonVariants({
@@ -37,11 +37,11 @@ export default function LoginPage() {
         </div>
         <p className="absolute mt-8 inset-x-0 px-8 text-center text-sm text-muted-foreground lg:mt-0 lg:bottom-10">
           By clicking continue, you agree to our{" "}
-          <Link href="/" className="underline">
+          <Link href="/" className="underline underline-offset-4">
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/" className="underline">
+          <Link href="/" className="underline underline-offset-4">
             Privacy Policy
           </Link>
           .

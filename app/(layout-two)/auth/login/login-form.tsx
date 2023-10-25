@@ -3,7 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
+import { useRouter } from "next/navigation";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,8 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import toast from "react-hot-toast";
+import { useState } from "react";
 
-const FormSchema = z.object({
+const formSchema = z.object({
   email: z.string().email(),
   password: z
     .string()
@@ -23,18 +26,51 @@ const FormSchema = z.object({
     .max(48, "Password must be less than 48 characters"),
 });
 
+type formSchemaType = z.infer<typeof formSchema>;
+
 export default function LoginForm() {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const router = useRouter();
+  const [disabled, setDisabled] = useState<boolean>(false);
+
+  const form = useForm<formSchemaType>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+  async function onSubmit(data: formSchemaType) {
+    setDisabled(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+      if (res.ok) {
+        console.log("Success");
+        toast.success("Logged in successfully");
+        form.reset();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        router.push("/");
+      }
+    } catch (err: any) {
+      console.log("Error: ", err.message);
+      toast.error(err.message);
+    } finally {
+      setDisabled(false);
+    }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-3">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
         <div className="space-y-2">
           <FormField
             control={form.control}
@@ -45,8 +81,8 @@ export default function LoginForm() {
                 <FormControl>
                   <Input
                     type="email"
+                    autoComplete="email"
                     placeholder="johndoe@email.com"
-                    className=""
                     {...field}
                   />
                 </FormControl>
@@ -63,8 +99,8 @@ export default function LoginForm() {
                 <FormControl>
                   <Input
                     type="password"
+                    autoComplete="current-password"
                     placeholder="********"
-                    className=""
                     {...field}
                   />
                 </FormControl>
@@ -73,7 +109,12 @@ export default function LoginForm() {
             )}
           />
         </div>
-        <Button type="submit">Sign In</Button>
+        <Button type="submit" disabled={disabled}>
+          {disabled && (
+            <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
+          )}
+          Sign In
+        </Button>
       </form>
     </Form>
   );

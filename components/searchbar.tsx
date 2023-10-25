@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 
 type PropsType = {
   active: boolean,
-  handleClick: () => void,
-  handleFocus: () => void,
-  placeholder: string
+  handleClick: () => void;
+  handleFocus: () => void;
+  placeholder: string;
 };
 export default function SearchBar(props: PropsType) {
   return (

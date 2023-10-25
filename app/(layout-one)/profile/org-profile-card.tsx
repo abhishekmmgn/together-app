@@ -27,7 +27,7 @@ export default function OrgProfileCard(props: propsType) {
       </div>
       <div className="px-5 w-full lg:px-0">
         <Button variant="secondary" asChild>
-          <Link href="/login">Edit Profile</Link>
+          <Link href="../../(layout-two)/auth/login">Edit Profile</Link>
         </Button>
       </div>
       {!props.last && <Separator />}

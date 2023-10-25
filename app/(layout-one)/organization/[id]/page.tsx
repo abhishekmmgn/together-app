@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import OrgCard from "../../explore/org-card";
 import Post from "../../post/post";
-import EventPost from "../../post/event-post";
 
 export default function OrganizationProfile() {
   return (
@@ -88,20 +87,6 @@ export default function OrganizationProfile() {
               </div>
               <div className="">
                 <Post paddingX={true} />
-                <Separator />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <h1 className="font-medium text-2xl">
-                  Recent Events
-                </h1>
-                <Link href="/explore">
-                  <p className="text-primary text-sm">See All</p>
-                </Link>
-              </div>
-              <div className="">
-                <EventPost paddingX={true} />
                 <Separator />
               </div>
             </div>

@@ -4,8 +4,8 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import {
   Form,
   FormControl,
@@ -14,8 +14,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import toast from "react-hot-toast";
+import { useState } from "react";
 
 const formSchema = z
   .object({
@@ -28,7 +29,6 @@ const formSchema = z
       .string()
       .min(8, "Password must be at least 8 characters")
       .max(48, "Password must be less than 48 characters"),
-    is_organization: z.boolean().default(false).optional()
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
@@ -39,34 +39,21 @@ type formSchemaType = z.infer<typeof formSchema>;
 
 export default function RegisterForm() {
   const router = useRouter();
+  const [disabled, setDisabled] = useState<boolean>(false);
 
   const form = useForm<formSchemaType>({
-    resolver: zodResolver(formSchema)
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: ""
+    },
   });
 
   async function onSubmit(data: formSchemaType) {
-    // try {
-    //   const userExists = await fetch("api/user-exists", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({
-    //       email: data.email,
-    //     }),
-    //   });
-    //   const { user } = await userExists.json();
-
-    //   if (user) {
-    //     console.log("User already exists.");
-    //     return;
-    //   }
-    // } catch (err) {
-    //   console.log("Error checking if user exists: ", err);
-    // }
-
+    setDisabled(true);
     try {
-      const res = await fetch("api/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -78,13 +65,16 @@ export default function RegisterForm() {
       });
       if (res.ok) {
         console.log("Success");
+        toast.success("Account created successfully");
         form.reset();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         router.push("/create-profile");
-      } else {
-        console.log("User Registration Failed");
       }
-    } catch (err) {
-      console.log("Error during registration: ", err);
+    } catch (err: any) {
+      console.log("Error: ", err.message);
+      toast.error(err.message);
+    } finally {
+      setDisabled(false);
     }
   }
 
@@ -101,8 +91,8 @@ export default function RegisterForm() {
                 <FormControl>
                   <Input
                     type="email"
+                    autoComplete="email"
                     placeholder="johndoe@email.com"
-                    className=""
                     {...field}
                   />
                 </FormControl>
@@ -120,7 +110,7 @@ export default function RegisterForm() {
                   <Input
                     type="password"
                     placeholder="********"
-                    className=""
+                    autoComplete="new-password"
                     {...field}
                   />
                 </FormControl>
@@ -137,8 +127,8 @@ export default function RegisterForm() {
                 <FormControl>
                   <Input
                     type="password"
+                    autoComplete="new-password"
                     placeholder="********"
-                    className=""
                     {...field}
                   />
                 </FormControl>
@@ -146,27 +136,13 @@ export default function RegisterForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="is_organization"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border-border py-2">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">
-                    Register as an organization
-                  </FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
         </div>
-        <Button type="submit">Create Account</Button>
+        <Button type="submit" disabled={disabled}>
+          {disabled && (
+            <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
+          )}
+          Create Account
+        </Button>
       </form>
     </Form>
   );
