@@ -22,7 +22,7 @@ export default function Conversation(props: propsType) {
     <div className="relative  dark: group">
       <Link href={`/messages/1`}>
         <div
-          className={`w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted/60 lg:px-0 ${
+          className={`w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted lg:px-0 ${
             !read && "bg-muted"
           }`}
         >

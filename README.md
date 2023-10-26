@@ -1,6 +1,6 @@
 # Together App
 
-Together App is a social app designed to help organizations collaborate with the public to create positive change in society.
+Together App is a social app to connect with your family, friends and others.
 
 ## Experience Here
 

@@ -8,7 +8,7 @@ type propsType = {
 export default function ProfileCard(props: propsType) {
   return (
     <>
-      <div className="w-full h-[68px] flex items-center gap-3 hover:bg-muted/60">
+      <div className="w-full h-[68px] flex items-center gap-3 hover:bg-muted">
         <Avatar className="h-14 w-14">
           <AvatarImage src="https://www.unsplash.com/random" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>

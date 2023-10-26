@@ -1,10 +1,6 @@
 "use client";
 
-import { HiOutlineHome } from "react-icons/hi";
-import { BiMessageRounded } from "react-icons/bi";
-import { BsPersonCircle, BsSearch } from "react-icons/bs";
-import { IoSettingsOutline } from "react-icons/io5";
-import { IoIosNotificationsOutline } from "react-icons/io";
+import { IoHomeOutline, IoChatbubbleOutline, IoNotificationsOutline, IoSearchOutline,IoPersonOutline,  IoSettingsOutline } from "react-icons/io5";
 import { useSelectedLayoutSegment } from "next/navigation";
 import Link from "next/link";
 
@@ -12,27 +8,27 @@ const tabs = [
   {
     link: "/",
     name: "Home",
-    icon: <HiOutlineHome className="w-5 h-5 xl:w-6 xl:h-6" />,
+    icon: <IoHomeOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
   },
   {
     link: "/explore",
     name: "Explore",
-    icon: <BsSearch className="w-4 h-4 xl:w-5 xl:h-5" />,
+    icon: <IoSearchOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
   },
   {
     link: "/messages",
     name: "Messages",
-    icon: <BiMessageRounded className="w-5 h-5 xl:w-6 xl:h-6" />,
+    icon: <IoChatbubbleOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
   },
   {
     link: "/notifications",
     name: "Notifications",
-    icon: <IoIosNotificationsOutline className="w-5 h-5 xl:w-6 xl:h-6" />,
+    icon: <IoNotificationsOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
   },
   {
     link: "/profile",
     name: "Profile",
-    icon: <BsPersonCircle className="w-4 h-4 xl:w-5 xl:h-5" />,
+    icon: <IoPersonOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
   },
   {
     link: "/settings",
@@ -53,7 +49,7 @@ export function Sidebar() {
             href={tab.link}
             className={`h-10 flex justify-start items-center gap-3 px-3 py-1 rounded-lg ${
               segment === tab.link || segment.startsWith(`${tab.link}/`)
-                ? "bg-secondary text-secondary-foreground"
+                ? "bg-tertiary"
                 : "hover:bg-secondary"
             }`}
             key={index}

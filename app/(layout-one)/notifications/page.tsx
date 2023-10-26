@@ -6,7 +6,7 @@ import Notification from "@/components/notifications/notification";
 export default function Notifications() {
   const [allRead, setAllRead] = useState(false);
   return (
-    <>
+    <div className="lg:py-2">
       <div
         className={`flex justify-end py-2 px-5 lg:px-0 ${allRead && "hidden"}`}
       >
@@ -19,6 +19,6 @@ export default function Notifications() {
         <Notification />
         <Notification />
       </div>
-    </>
+    </div>
   );
 }

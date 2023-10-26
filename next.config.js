@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  // host: ["picsum.photos"]
+}
 
 module.exports = nextConfig

@@ -71,7 +71,7 @@ export default function Post(props: PropsType) {
         <p
           className={`${
             !props.paddingX && "px-4"
-          } mb-2 text-sm text-muted-foreground line-clamp-3 md:mb-3 md:mt-1 md:text-sm+ lg:px-0`}
+          } mb-2 text-sm text-tertiary-foreground line-clamp-3 md:mb-3 md:mt-1 md:text-sm+ lg:px-0`}
         >
           DKMS is an international nonprofit where creativity, initiative,
           compassion, collaboration and strategic thinking are rewarded as we
@@ -87,7 +87,7 @@ export default function Post(props: PropsType) {
         <Image
           src=""
           alt="Post Photo"
-          className="w-full aspect-[4/3] bg-secondary"
+          className="w-full aspect-[4/3] bg-secondary shadow-sm"
         />
         <div
           className={`${

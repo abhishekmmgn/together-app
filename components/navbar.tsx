@@ -1,40 +1,35 @@
 "use client";
 
-import { HiOutlineHome } from "react-icons/hi";
-import { BiMessageRounded } from "react-icons/bi";
-import { BsPersonCircle, BsSearch } from "react-icons/bs";
-import { IoIosNotificationsOutline } from "react-icons/io";
+import { IoHomeOutline, IoChatbubbleOutline, IoNotificationsOutline, IoSearchOutline,IoPersonOutline } from "react-icons/io5";
 import { useSelectedLayoutSegment } from "next/navigation";
 import Link from "next/link";
 
 const tabs = [
   {
     link: "/",
-    icon: <HiOutlineHome className="w-7 h-7" />,
+    icon: <IoHomeOutline className="w-6 h-6" />,
   },
   {
     link: "/messages",
-    icon: <BiMessageRounded className="w-7 h-7" />,
+    icon: <IoChatbubbleOutline className="w-6 h-6" />,
   },
   {
     link: "/notifications",
-    icon: <IoIosNotificationsOutline className="w-7 h-7" />,
+    icon: <IoNotificationsOutline className="w-6 h-6" />,
   },
   {
     link: "/profile",
-    icon: <BsPersonCircle className="w-6 h-6" />,
+    icon: <IoPersonOutline className="w-6 h-6" />,
   },
   {
     link: "/explore",
-    icon: <BsSearch className="w-6 h-6" />,
+    icon: <IoSearchOutline className="w-6 h-6" />,
   },
 ];
 
 export default function Navbar() {
   const routeSegment = useSelectedLayoutSegment();
   const segment = `/${routeSegment || ""}`;
-
-  const isActive = false;
   return (
     <div className="fixed w-full z-50 top-0 inset-x-0 bg-background backdrop-filter bg-white backdrop-blur-xl bg-opacity-80 border-b border-border dark:bg-background">
       <div className="h-14 flex items-center justify-between px-5 sm:px-6 gap-1">
