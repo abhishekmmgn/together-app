@@ -3,7 +3,7 @@ import RegisterForm from "./register-form";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <div className="relative container w-full px-5 pt-16 pb-5  h-screen flex flex-col items-center justify-start md:py-40 lg:py-0 md:px-0 lg:justify-center">
       <div className="w-full max-w-md md:max-w-2xl">

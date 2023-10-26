@@ -57,11 +57,22 @@ export default function LoginForm() {
         console.log("Success");
         toast.success("Logged in successfully");
         form.reset();
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         router.push("/");
       }
+      else if (res.status === 400) {
+        toast.error("Incorrect email or password");
+      }
+      else if (res.status === 404) {
+        toast.error("Account does not exist");
+      }
+      else if (res.status === 500) {
+        console.log("Server error");
+        toast.error("Server error");
+      }
+      
+
     } catch (err: any) {
-      console.log("Error: ", err.message);
+      // console.log("Error: ", err.message);
       toast.error(err.message);
     } finally {
       setDisabled(false);

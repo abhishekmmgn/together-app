@@ -43,7 +43,7 @@ export default function NotificationsPrefrences() {
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">
-                      Turn of Notifications
+                      Turn off Notifications
                     </FormLabel>
                     <FormDescription>
                       Turn off notifications about new posts, features, and more.

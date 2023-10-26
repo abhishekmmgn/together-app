@@ -20,6 +20,7 @@ import {
 
 type PropsType = {
   paddingX?: boolean;
+  
 };
 
 export default function Post(props: PropsType) {

@@ -67,7 +67,6 @@ export default function RegisterForm() {
         console.log("Success");
         toast.success("Account created successfully");
         form.reset();
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         router.push("/create-profile");
       }
     } catch (err: any) {
