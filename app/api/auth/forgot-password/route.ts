@@ -8,35 +8,28 @@ export async function POST(request: NextRequest) {
   try {
     await connectDB();
 
-    const { email, password } = await request.json();
+    const { email } = await request.json();
 
     //check if user already exists
     const user = await User.findOne({ email });
 
-    if (user) {
+    console.log(user);
+    
+    if (!user) {
       return NextResponse.json(
-        { error: "User already exists" },
+        { error: "User doesn't exist." },
         { status: 400 }
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-    });
-
-    const savedUser = await newUser.save();
-    // console.log(savedUser);
 
     // send verification email
-    await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id });
+    await sendEmail({ email, emailType: "RESET", userId: user._id });
 
     return NextResponse.json({
-      message: "User created successfully",
+      message: "Email send successfully",
       success: true,
-      savedUser,
+      user,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

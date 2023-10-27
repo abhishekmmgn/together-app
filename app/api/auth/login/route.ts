@@ -7,9 +7,9 @@ import jwt from "jsonwebtoken";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
-
     await connectDB();
+    
+    const { email, password } = await request.json();
 
     //check if user already exists
     const user = await User.findOne({ email });
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     if (!validPassword) {
       return NextResponse.json({ error: "Password is wrong" }, { status: 400 });
     }
-    console.log(user);
+    // console.log(user);
 
     //create token data
     const tokenData = {
@@ -43,14 +43,13 @@ export async function POST(request: NextRequest) {
       success: true,
       token,
     });
-    
+
     cookies().set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 24,
-
     });
 
     return response;

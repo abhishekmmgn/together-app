@@ -17,6 +17,7 @@ import { useState } from "react";
 export default function LogoutComponent() {
   const [disabled, setDisabled] = useState<boolean>(false);
   const router = useRouter();
+
   async function handleLogout() {
     setDisabled(true);
     try {
@@ -38,7 +39,7 @@ export default function LogoutComponent() {
     }
   }
   return (
-    <div>
+    <>
       <Toaster />
       <h3 className="mb-1 text-lg font-medium">Sign Out</h3>
       <p className="mb-3 text-sm text-muted-foreground">
@@ -68,6 +69,6 @@ export default function LogoutComponent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

@@ -49,7 +49,7 @@ export default function CreateProfileForm() {
   async function onSubmit(data: formSchemaType) {
     setDisabled(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("/api/profile/create-profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,15 +61,15 @@ export default function CreateProfileForm() {
         }),
       });
       if (res.ok) {
-        console.log("Success");
-        toast.success("Done!");
+        console.log("Profile created successfully");
+        toast.success("Profile created successfully");
         form.reset();
       } else if (res.status === 500) {
         console.log("Server error");
         toast.error("Server error");
       }
     } catch (err: any) {
-      // console.log("Error: ", err.message);
+      console.log("Error: ", err.message);
       toast.error(err.message);
     } finally {
       setDisabled(false);
@@ -86,7 +86,7 @@ export default function CreateProfileForm() {
         >
           <div className="space-y-2">
             <Image
-              src=""
+              src={form.getValues("photo")}
               alt="Profile Photo"
               className="w-24 aspect-square bg-secondary rounded-full border mx-auto"
             />

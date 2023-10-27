@@ -1,4 +1,5 @@
 import { Separator } from "./ui/separator";
+import {IoChevronForwardSharp} from "react-icons/io5"
 
 type PropsType = {
   title: string;
@@ -13,6 +14,7 @@ export default function TableRow(props: PropsType) {
         }`}
       >
         <p>{props.title}</p>
+        <IoChevronForwardSharp className="h-5 w-5" />
       </div>
       <Separator />
     </>

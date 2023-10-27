@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
   const isPublicPath =
     path === "/auth/login" ||
     path === "/auth/register" ||
-    path === "/auth/verifyemail";
+    path === "/auth/verify-mail";
 
   const token = request.cookies.get("token")?.value || "";
 
@@ -25,5 +25,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/", "/messages", "/notifications", "/settings", "/profile:page*", "/auth/login", "/auth/register", "/auth/verifyemail"]
+  matcher: ["/", "/messages", "/notifications", "/settings", "/profile", "/auth/login", "/auth/register", "/auth/verify-mail"]
 };

@@ -1,10 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useRouter } from "next/navigation";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,54 +14,61 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { Input } from "@/components/ui/input";
-import { toast, Toaster } from "react-hot-toast";
 import { useState } from "react";
+import { toast, Toaster } from "react-hot-toast";
 
 const formSchema = z.object({
-  email: z.string().email(),
-  password: z
+  photo: z.string().min(2),
+  name: z
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(48, "Password must be less than 48 characters"),
+    .min(2, "Name must be at least 2 characters")
+    .max(20, "Name must be less than 20 characters"),
+  bio: z
+    .string()
+    .min(10, "Name must be at least 2 characters")
+    .max(128, "Name must be less than 20 characters"),
 });
 
 type formSchemaType = z.infer<typeof formSchema>;
 
-export default function LoginForm() {
-  const router = useRouter();
+type propsType = {
+  name: string;
+  photo: string;
+  bio: string;
+};
+export default function EditProfileForm(props: propsType) {
   const [disabled, setDisabled] = useState<boolean>(false);
 
   const form = useForm<formSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      photo: props.photo,
+      name: props.name,
+      bio: props.bio,
     },
   });
 
   async function onSubmit(data: formSchemaType) {
     setDisabled(true);
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
+      const res = await fetch("/api/profile/update-profile", {
+        method: "UPDATE",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: data.email,
-          password: data.password,
+          photo: data.photo,
+          name: data.name,
+          bio: data.bio,
         }),
       });
       if (res.ok) {
-        console.log("Success");
-        toast.success("Logged in successfully");
+        console.log("Profile updated successfully");
+        toast.success("Profile updated successfully");
         form.reset();
-        router.push("/");
-      } else if (res.status === 400) {
-        toast.error("Incorrect email or password");
-      } else if (res.status === 404) {
-        toast.error("Account does not exist");
       } else if (res.status === 500) {
         console.log("Server error");
         toast.error("Server error");
@@ -83,17 +90,39 @@ export default function LoginForm() {
           className="w-full space-y-4"
         >
           <div className="space-y-2">
+            <Image
+              src={form.getValues("photo")}
+              alt="Profile Photo"
+              className="w-24 aspect-square bg-secondary rounded-full border mx-auto"
+            />
             <FormField
               control={form.control}
-              name="email"
+              name="photo"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
+                <FormItem className="flex flex-col items-center gap-2">
                   <FormControl>
                     <Input
-                      type="email"
-                      autoComplete="email"
-                      placeholder="johndoe@email.com"
+                      type="file"
+                      {...field}
+                      className=" border-0 mx-auto w-fit"
+                    />
+                  </FormControl>
+                  <FormLabel>Photo</FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="John Doe"
+                      autoComplete="name"
                       {...field}
                     />
                   </FormControl>
@@ -103,17 +132,12 @@ export default function LoginForm() {
             />
             <FormField
               control={form.control}
-              name="password"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Bio</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      autoComplete="current-password"
-                      placeholder="********"
-                      {...field}
-                    />
+                    <Textarea placeholder="..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,7 +148,7 @@ export default function LoginForm() {
             {disabled && (
               <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Sign In
+            Update Profile
           </Button>
         </form>
       </Form>

@@ -2,26 +2,33 @@ import { IoPencil } from "react-icons/io5";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import CreateProfileForm from "@/app/(layout-two)/create-profile/create-profile-form";
+import EditProfileForm from "@/components/forms/edit-profile";
 
-export default function EditProfile() {
+type propsType = {
+  name: string;
+  photo: string;
+  bio: string;
+};
+export default function EditProfile(props: propsType) {
   return (
     <Dialog>
       <DialogTrigger className="w-full" asChild>
         <IoPencil className="w-5 h-5 text-primary" />
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="h-[80vh]">
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
         <div>
-          <CreateProfileForm />
+          <EditProfileForm
+            name={props.name}
+            photo={props.photo}
+            bio={props.bio}
+          />
         </div>
       </DialogContent>
     </Dialog>

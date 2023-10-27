@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ForgotPasswordForm from "./forgot-password-form";
-import { GoMail } from "react-icons/go";
+import { IoMailOutline } from "react-icons/io5";
 
 export default function ForgotPasswordPage() {
   const [formFilled, setFormFilled] = useState(false);
@@ -12,9 +12,9 @@ export default function ForgotPasswordPage() {
       {formFilled ? (
         <div className="h-full mx-auto flex w-full flex-col justify-center sm:w-[512px] lg:gap-5">
           <div>
-            <GoMail className="mx-auto text-5xl md:text-6xl mb-2" />
-            <h1 className="text-center leading-tight text-2xl font-medium md:text-3xl lg:text-4xl mb-7 md:mb-10">
-              We have sent you a mail with link to reset the password.
+            <IoMailOutline className="mx-auto text-5xl md:text-6xl mb-2" />
+            <h1 className="text-center leading-tight text-2xl font-medium md:text-3xl mb-7 md:mb-10">
+              A mail has been sent to you with the link to reset password.
             </h1>
           </div>
         </div>
@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
             <h1 className="text-center text-3xl font-semibold md:text-4xl lg:text-5xl mb-7 md:mb-10">
               Forgot Password
             </h1>
-            <ForgotPasswordForm handleChange={setFormFilled} />
+            <ForgotPasswordForm setFormFilled={setFormFilled} />
           </div>
         </div>
       )}

@@ -65,9 +65,11 @@ export default function RegisterForm() {
       });
       if (res.ok) {
         console.log("Success");
-        toast.success("Account created successfully");
+        toast.success("Verification link sent to your mail.");
         form.reset();
-        router.push("/create-profile");
+        router.push("/auth/verify-mail");
+      } else if (res.status === 400) {
+        toast.error("Email already registered.");
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
