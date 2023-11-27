@@ -8,10 +8,10 @@ import jwt from "jsonwebtoken";
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    
+
     const { email, password } = await request.json();
 
-    //check if user already exists
+    //check if user exists
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -33,15 +33,10 @@ export async function POST(request: NextRequest) {
       id: user._id,
       email: user.email,
     };
+
     //create token
     const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
       expiresIn: "30d",
-    });
-
-    const response = NextResponse.json({
-      message: "Login successful",
-      success: true,
-      token,
     });
 
     cookies().set("token", token, {
@@ -52,7 +47,10 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24,
     });
 
-    return response;
+    return NextResponse.json({
+      message: "Login successful",
+      success: true,
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

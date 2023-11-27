@@ -3,19 +3,17 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/user";
 import bcrypt from "bcryptjs";
 
-export async function UPDATE(request: NextRequest) {
+export async function PUT(request: NextRequest) {
   try {
     await connectDB();
 
-    const { password, _id, token } = await request.json();
+    const { password, _id } = await request.json();
 
     let user;
 
     //check if user already exists
     if (_id) {
       user = await User.findOne({ _id });
-    } else if (token) {
-      user = await User.findOne({ token });
     }
 
     if (!user) {

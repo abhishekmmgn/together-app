@@ -22,7 +22,7 @@ export default function Conversation(props: propsType) {
     <div className="relative  dark: group">
       <Link href={`/messages/1`}>
         <div
-          className={`w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted lg:px-0 ${
+          className={`w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted/50 lg:px-0 ${
             !read && "bg-muted"
           }`}
         >
@@ -30,12 +30,12 @@ export default function Conversation(props: propsType) {
             <AvatarImage src="https://www.unsplash.com/random" alt="@shadcn" />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
-          <div className="w-full flex flex-col justify-center items-center gap-1">
+          <div className="w-full flex flex-col justify-center items-center">
             <div className="w-full flex items-center justify-between gap-5">
               <h1 className="w-[70%] overflow-x-hidden line-clamp-1 text-lg font-medium">
                 DKMS UK
               </h1>
-              <p className="w-[30%] overflow-x-hidden text-right text-sm line-clamp-1 text-[#3c3c3e] dark:text-[#a1a1a1]">
+              <p className="w-[30%] overflow-x-hidden text-right text-sm line-clamp-1 text-muted-foreground">
                 12/8/2023
               </p>
             </div>
@@ -43,7 +43,7 @@ export default function Conversation(props: propsType) {
               <p
                 className={`${
                   !read ? "w-[80%] sm:w-[85%]" : "w-[90%] sm:w-[95%]"
-                } overflow-x-hidden line-clamp-1 text-[#171717] dark:text-[#a1a1a1]`}
+                } overflow-x-hidden line-clamp-1 text-tertiary-foreground`}
               >
                 Hello, we are looking to see that the new update is working.
                 Hello, we are looking to see that the new update is working.

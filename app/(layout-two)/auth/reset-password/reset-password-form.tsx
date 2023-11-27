@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast, Toaster } from "react-hot-toast";
+import { toast,  } from "react-hot-toast";
 import { useState } from "react";
 
 const formSchema = z
@@ -36,8 +36,7 @@ const formSchema = z
 type formSchemaType = z.infer<typeof formSchema>;
 
 type propsType = {
-  token?: string | undefined;
-  _id?: string | undefined;
+  userId: string;
 };
 
 export default function ResetPasswordForm(props: propsType) {
@@ -56,14 +55,13 @@ export default function ResetPasswordForm(props: propsType) {
     setDisabled(true);
     try {
       const res = await fetch("/api/auth/change-password", {
-        method: "UPDATE",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           password: data.password,
-          token: props.token,
-          _id: props._id,
+          _id: props.userId,
         }),
       });
       if (res.ok) {
@@ -73,11 +71,11 @@ export default function ResetPasswordForm(props: propsType) {
         router.push("/auth/login");
       } else if (res.status === 400) {
         console.log("User doesn't exist");
-        toast.error("Something went wrong");
-        router.push("/auth/forgot-password");
+        toast.error("User doesn't exist");
+        router.push("/auth/login");
       } else if (res.status === 500) {
-        console.log("Server error");
-        toast.error("Server error");
+        console.log(res.statusText);
+        toast.error("Something went wrong");
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
@@ -89,7 +87,7 @@ export default function ResetPasswordForm(props: propsType) {
 
   return (
     <>
-      <Toaster />
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

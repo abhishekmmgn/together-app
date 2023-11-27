@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -8,6 +9,20 @@ module.exports = {
     './src/**/*.{ts,tsx}',
 	],
   theme: {
+    fontSize: {
+      'sm': '.875rem',
+      'sm+': '.9375rem',
+      'base': '1rem',
+      'base+': '1.0625rem',
+      'lg': '1.125rem',
+      'xl': '1.3125rem',
+      '2xl': '1.5rem',
+      '3xl': '1.75rem',
+      '4xl': '2rem',
+      '5xl': '2.25rem',
+      '6xl': '2.5rem',
+      '7xl': '2.75rem'
+    },
     container: {
       center: true,
       padding: "2rem",
@@ -29,6 +44,10 @@ module.exports = {
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+        },
+        tertiary: {
+          DEFAULT: "hsl(var(--tertiary))",
+          foreground: "hsl(var(--tertiary-foreground))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

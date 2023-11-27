@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast, Toaster } from "react-hot-toast";
+import { toast,  } from "react-hot-toast";
 import { useState } from "react";
 
 type PropsType = {
@@ -62,7 +62,7 @@ export default function ForgotPasswordForm(props: PropsType) {
 
   return (
     <>
-      <Toaster />
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

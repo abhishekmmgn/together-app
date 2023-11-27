@@ -1,41 +1,8 @@
 "use client";
 
-import { IoHomeOutline, IoChatbubbleOutline, IoNotificationsOutline, IoSearchOutline,IoPersonOutline,  IoSettingsOutline } from "react-icons/io5";
 import { useSelectedLayoutSegment } from "next/navigation";
 import Link from "next/link";
-
-const tabs = [
-  {
-    link: "/",
-    name: "Home",
-    icon: <IoHomeOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
-  },
-  {
-    link: "/explore",
-    name: "Explore",
-    icon: <IoSearchOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
-  },
-  {
-    link: "/messages",
-    name: "Messages",
-    icon: <IoChatbubbleOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
-  },
-  {
-    link: "/notifications",
-    name: "Notifications",
-    icon: <IoNotificationsOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
-  },
-  {
-    link: "/profile",
-    name: "Profile",
-    icon: <IoPersonOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
-  },
-  {
-    link: "/settings",
-    name: "Settings",
-    icon: <IoSettingsOutline className="w-4 h-4 xl:w-5 xl:h-5" />,
-  },
-];
+import { tabs } from '@/components/tabs';
 
 export function Sidebar() {
   const routeSegment = useSelectedLayoutSegment();
@@ -49,8 +16,8 @@ export function Sidebar() {
             href={tab.link}
             className={`h-10 flex justify-start items-center gap-3 px-3 py-1 rounded-lg ${
               segment === tab.link || segment.startsWith(`${tab.link}/`)
-                ? "bg-tertiary"
-                : "hover:bg-secondary"
+                ? "bg-tertiary text-primary"
+                : "text-tertiary-foreground hover:bg-secondary"
             }`}
             key={index}
           >

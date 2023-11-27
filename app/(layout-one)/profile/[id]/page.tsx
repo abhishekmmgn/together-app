@@ -5,17 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Post from "@/components/post/post";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-export default function ExternalProfile() {
+type Params = {
+  params: { id: string };
+};
+
+export default function ExternalProfile({ params }: Params) {
   const [userData, setUserData] = useState<{
     name: string;
-    photo: string;
+    profilePhoto: string;
     bio: string;
     posts: [];
     isFriend: boolean;
   }>({
     name: "",
-    photo: "",
+    profilePhoto: "",
     bio: "",
     posts: [],
     isFriend: false,
@@ -23,7 +28,7 @@ export default function ExternalProfile() {
 
   async function getData() {
     try {
-      const res = await fetch("/api/profile/read-external-profile", {
+      const res = await fetch(`/api/user/${params.id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -31,9 +36,10 @@ export default function ExternalProfile() {
       });
       if (res.ok) {
         const data = await res.json();
+        console.log(data);
         setUserData({
           name: data.data.name,
-          photo: data.data.photo,
+          profilePhoto: data.data.profilePhoto,
           bio: data.data.bio,
           posts: data.data.posts,
           isFriend: data.data.isFriend,
@@ -47,11 +53,49 @@ export default function ExternalProfile() {
   useEffect(() => {
     getData();
   }, []);
+
+  async function changeFriendList(action: "add" | "remove") {
+    try {
+      const res = await fetch(`/api/user/${params.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action,
+          _id: params.id,
+        }),
+      });
+      if (res.ok) {
+        setUserData({
+          ...userData,
+          isFriend: !userData.isFriend,
+        });
+      } else {
+        console.log(res.statusText);
+      }
+    } catch (err: any) {
+      console.log("Error: ", err.message);
+    }
+  }
+  function handleCopyLink(
+    event: React.MouseEvent<HTMLElement>,
+  ) {
+    event.preventDefault();
+    try {
+      navigator.clipboard.writeText(`https:togetherx.app${window.location.pathname}`);
+      toast.success("Link copied successfully");
+    } catch (error) {
+      toast.error("Failed to copy link");
+      return false;
+    }
+  }
+
   return (
     <div className="p-5">
       <div className="grid gap-4 pb-4">
         <Image
-          src={userData?.photo}
+          src={userData?.profilePhoto}
           alt={`Profile photo of ${userData?.name}`}
           width={200}
           height={200}
@@ -61,20 +105,38 @@ export default function ExternalProfile() {
           <h1 className="-mt-1 font-medium text-2xl md:text-3xl">
             {userData?.name}
           </h1>
-          <p className="mb-1 text-tertiary-foreground">{userData?.bio}</p>
+          <p className="-mt-1 mb-1 text-tertiary-foreground line-clamp-2">
+            {userData?.bio}
+          </p>
         </div>
-        {userData?.isFriend ? (
-          <div className="flex gap-3">
-            <Button variant="secondary" className="mx-auto">
-              Unfollow
-            </Button>
-            <Button variant="secondary" className="mx-auto">
+        <div className="flex flex-col gap-3">
+          {userData?.isFriend && (
+            <Button variant="outline" className="mx-auto">
               Message
             </Button>
-          </div>
-        ) : (
-          <Button className="mx-auto">Follow</Button>
-        )}
+          )}
+          {!userData?.isFriend && (
+            <Button className="mx-auto" onClick={() => changeFriendList("add")}>
+              Add as Friend
+            </Button>
+          )}
+          <Button
+            variant="secondary"
+            className="mx-auto"
+            onClick={handleCopyLink}
+          >
+            Share Profile
+          </Button>
+          {userData?.isFriend && (
+            <Button
+              variant="secondary"
+              className="mx-auto"
+              onClick={() => changeFriendList("remove")}
+            >
+              Remove as friend
+            </Button>
+          )}
+        </div>
       </div>
       <Separator />
       <div className="py-6 space-y-4">

@@ -16,10 +16,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 const formSchema = z
   .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().email(),
     password: z
       .string()
@@ -44,6 +45,7 @@ export default function RegisterForm() {
   const form = useForm<formSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -59,6 +61,7 @@ export default function RegisterForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          name: data.name,
           email: data.email,
           password: data.password,
         }),
@@ -81,13 +84,30 @@ export default function RegisterForm() {
 
   return (
     <>
-      <Toaster />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full space-y-4"
         >
           <div className="space-y-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="name"
+                      autoComplete="name"
+                      placeholder="John Doe"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"

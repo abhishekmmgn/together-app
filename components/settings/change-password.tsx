@@ -18,12 +18,12 @@ export default function ChangePassword() {
             <IoIosArrowForward className="h-5 w-5" />
           </div>
         </DialogTrigger>
-        <DialogContent className="h-[50vh] ">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Change Password</DialogTitle>
           </DialogHeader>
           <div>
-            <ResetPasswordForm _id="" />
+            <ResetPasswordForm userId={""} />
           </div>
         </DialogContent>
       </Dialog>

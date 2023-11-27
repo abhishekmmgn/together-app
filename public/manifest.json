@@ -1,0 +1,16 @@
+{
+  "theme_color": "#000",
+  "name": "Together App",
+  "short_name": "Together",
+  "description": "A social app with privacy in mind.",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

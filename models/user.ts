@@ -2,10 +2,15 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      required: true,
+      maxlength: 20,
+    },
     email: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     password: {
       type: String,
@@ -15,11 +20,26 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    profilePhoto: {
+      type: String,
+      default: "",
+    },
+    bio: {
+      type: String,
+      default: "",
+    },
+    friends: {
+      type: Array,
+      default: [],
+    },
+    posts: {
+      type: Array,
+      default: [],
+    },
     forgotPasswordToken: String,
     forgotPasswordTokenExpiry: Date,
     verifyToken: String,
     verifyTokenExpiry: Date,
-
   },
   { timestamps: true }
 );

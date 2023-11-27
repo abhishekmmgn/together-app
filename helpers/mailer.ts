@@ -40,19 +40,18 @@ export const sendEmail = async (props: propsType) => {
         props.emailType === "VERIFY"
           ? "Verify your email to join Together app"
           : "Reset your password",
-      html: `<p>Click <a href="${
-        process.env.DOMAIN
-      }/verifyemail?token=${hashedToken}">here</a> to ${
+      html: `<p>Click <a href="${process.env.DOMAIN}/auth/${
+        props.emailType === "VERIFY" ? "verify-mail" : "reset-password"
+      }?token=${hashedToken}">here</a> to ${
         props.emailType === "VERIFY"
           ? "Verify your email to join Together app"
           : "Reset your password"
       }
-            or copy and paste the link below in your browser. <br> 
-            
+            or copy and paste the link below in your browser.
+            <br>
+            <br>
             Thanks,
-            Together app Team.
-            ${process.env.DOMAIN}/verify-mail?token=${hashedToken}
-            </p>`,
+            Together app Team</p>`,
     };
 
     const mailresponse = await transport.sendMail(mailOptions);

@@ -1,28 +1,30 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useState } from "react";
-import { toast, Toaster } from "react-hot-toast";
+import { toast,  } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 export default function DeleteAccountComponent() {
   const router = useRouter();
   const [disabled, setDisabled] = useState<boolean>(false);
 
-  async function delteAccount() {
+  async function deleteAccount() {
     setDisabled(true);
     try {
-      const res = await fetch("/api/auth/delete-account", {
+      const res = await fetch("/api/user", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +50,7 @@ export default function DeleteAccountComponent() {
   }
   return (
     <>
-      <Toaster />
+
       <div>
         <h3 className="mb-1 text-lg font-medium">Delete Account</h3>
         <p className="mb-4 text-sm text-muted-foreground">
@@ -56,30 +58,31 @@ export default function DeleteAccountComponent() {
           authentication associations. Delete any and all content you have, such
           as posts, comments, or your messages.
         </p>
-        <Dialog>
-          <DialogTrigger className="w-full" asChild>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
             <Button variant="destructive" className="mx-auto">
               Delete Account
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Are you sure absolutely sure?</DialogTitle>
-              <DialogDescription>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
                 This action cannot be undone. This will permanently delete your
                 account and remove your data from our servers.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button type="submit" variant="destructive" disabled={disabled}>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={deleteAccount}>
                 {disabled && (
                   <AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-                )}Z
-                Delete
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                )}
+                Delete Account
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );

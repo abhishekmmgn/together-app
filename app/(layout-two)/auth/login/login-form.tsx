@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { useState } from "react";
 
 const formSchema = z.object({
@@ -54,7 +54,6 @@ export default function LoginForm() {
         }),
       });
       if (res.ok) {
-        console.log("Success");
         toast.success("Logged in successfully");
         form.reset();
         router.push("/");
@@ -76,7 +75,6 @@ export default function LoginForm() {
 
   return (
     <>
-      <Toaster />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

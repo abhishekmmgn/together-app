@@ -48,7 +48,9 @@ export default function Post(props: PropsType) {
               <h1 className="line-clamp-1 font-medium">
                 <Link href="/organization/1">DKMS UK</Link>
               </h1>
-              <p className="text-sm line-clamp-1 text-muted-foreground">12/8/2023</p>
+              <p className="text-sm line-clamp-1 text-muted-foreground">
+                12/8/2023
+              </p>
             </div>
             <Menubar className="border-0 bg-transparent">
               <MenubarMenu>
@@ -60,9 +62,16 @@ export default function Post(props: PropsType) {
                   <MenubarSeparator />
                   <MenubarItem>Share</MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem className="text-destructive">
-                    Unfollow
-                  </MenubarItem>
+                  {/* replace like by friend */}
+                  {liked ? (
+                    <MenubarItem className="text-primary">
+                      Add Friend
+                    </MenubarItem>
+                  ) : (
+                    <MenubarItem className="text-destructive">
+                      Unfriend
+                    </MenubarItem>
+                  )}
                 </MenubarContent>
               </MenubarMenu>
             </Menubar>
@@ -71,7 +80,7 @@ export default function Post(props: PropsType) {
         <p
           className={`${
             !props.paddingX && "px-4"
-          } mb-2 text-sm text-tertiary-foreground line-clamp-3 md:mb-3 md:mt-1 md:text-sm+ lg:px-0`}
+          } mb-2 text-sm line-clamp-3 md:mb-3 md:mt-1 md:text-sm+ lg:px-0`}
         >
           DKMS is an international nonprofit where creativity, initiative,
           compassion, collaboration and strategic thinking are rewarded as we
