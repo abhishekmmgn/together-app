@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import SearchBar from "@/components/searchbar";
-import TableRow from "@/components/table-row";
-import ProfileCard from "@/components/explore/profile-card";
+import { useSearchParams } from "next/navigation";
+import SearchSuggestions from "@/components/explore/search-suggestions";
+import SearchDefault from "@/components/explore/search-default";
+import SearchResults from "@/components/explore/search-results";
 
 export default function SearchPage() {
   const [isActive, setActive] = useState(false);
+  const searchParams = useSearchParams();
+
+  const searchQuery = searchParams ? searchParams.get("query") : null;
 
   function handleSearchBarToggle() {
     setActive(!isActive);
@@ -14,29 +19,24 @@ export default function SearchPage() {
   function toggleSearchBarOn() {
     setActive(true);
   }
+  function toggleSearchBarOff() {
+    setActive(false);
+  }
 
   return (
     <>
       <SearchBar
         active={isActive}
         placeholder="Search for friends, family and more"
-        handleClick={handleSearchBarToggle}
-        handleFocus={toggleSearchBarOn}
+        toggleSearchBarOn={toggleSearchBarOn}
+        toggleSearchBarOff={toggleSearchBarOff}
       />
-      {isActive ? (
-        <div className="w-full h-screen transition-all ease-in-out duration-300">
-          <ProfileCard />
-          <ProfileCard />
-        </div>
-      ) : (
-        <>
-          <h2 className="py-2 px-5 text-2xl font-medium md:px-0">People you may know</h2>
-          <>
-            <ProfileCard />
-            <ProfileCard />
-          </>
-        </>
+
+      {searchQuery && !isActive && (
+        <SearchResults query={searchQuery} />
       )}
+      {!searchQuery && !isActive && <SearchDefault />}
+      {isActive && <SearchSuggestions />}
     </>
   );
 }
