@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useState } from "react";
-import { toast,  } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 export default function DeleteAccountComponent() {
@@ -32,11 +32,10 @@ export default function DeleteAccountComponent() {
       });
       if (res.ok) {
         toast.success("Account deleted successfully");
-        console.log("Account deleted successfully");
         router.push("/auth/register");
       } else if (res.status === 400) {
         console.log("Invalid _id");
-        toast.error("Something went wrong. Try again.");
+        toast.error("Please reauthenticate and try again.");
       } else if (res.status === 500) {
         toast.error("Server error");
         console.log("Server error");
@@ -50,7 +49,6 @@ export default function DeleteAccountComponent() {
   }
   return (
     <>
-
       <div>
         <h3 className="mb-1 text-lg font-medium">Delete Account</h3>
         <p className="mb-4 text-sm text-muted-foreground">

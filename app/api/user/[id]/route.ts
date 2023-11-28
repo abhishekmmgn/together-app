@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/user";
+import Post from "@/models/post";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 
 type Params = {
@@ -18,16 +19,15 @@ export async function GET(request: NextRequest, { params }: Params) {
     const curUserId = await getDataFromToken(request);
     const isFriend = user.friends.includes(curUserId);
 
-    const updatedUser = {
-      ...user._doc,
-      isFriend,
-    };
+    const postsList = await Post.find({
+      _id: { $in: user.posts },
+    });
 
-    console.log(updatedUser);
+    const data = [user, postsList, { isFriend }];
 
     return NextResponse.json({
       message: "User found",
-      data: updatedUser,
+      data: data,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
@@ -39,7 +39,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     await connectDB();
 
     const { _id, action } = await request.json();
-    
+
     const user = await User.findOne({ _id }).select("friends");
 
     console.log(user);

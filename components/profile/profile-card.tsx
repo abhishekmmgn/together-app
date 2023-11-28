@@ -43,7 +43,7 @@ export default function ProfileCard(props: propsType) {
         <div className="h-8 w-8 hover:bg-primary/20 flex items-center justify-center rounded-full">
           <Dialog>
             <DialogTrigger className="w-full" asChild>
-              <IoPencil className="w-5 h-5 text-primary" />
+              <IoPencil className="w-5 h-5 text-primary cursor-pointer" />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

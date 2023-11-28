@@ -17,14 +17,42 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { PostType } from "@/types";
+import copyLink from "@/helpers/copyLink";
 
 type PropsType = {
   paddingX?: boolean;
-  
 };
 
-export default function Post(props: PropsType) {
+export default function Post(props: { post: PostType; paddingX?: boolean }) {
   const [liked, setLiked] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+
+  const postDate = new Date(props.post?.createdAt);
+  const currentDate = new Date();
+
+  let formattedDate = "";
+  if (postDate.toDateString() === currentDate.toDateString()) {
+    formattedDate = postDate.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  } else {
+    formattedDate = postDate.toLocaleDateString();
+  }
+
+  async function changeLike() {
+    const res = await fetch("/api/post/like", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ postId: props.post?._id }),
+    });
+    if (res.ok) {
+      setLiked(!liked);
+    }
+  }
 
   return (
     <>
@@ -35,7 +63,7 @@ export default function Post(props: PropsType) {
           } py-2 flex items-center justify-between lg:px-0`}
         >
           <div className="w-full flex items-center gap-3">
-            <Link href="/organization/1">
+            <Link href={`/profile/${props.post?.creator}`}>
               <Avatar className="h-11 w-11">
                 <AvatarImage
                   src="https://www.unsplash.com/random"
@@ -49,29 +77,26 @@ export default function Post(props: PropsType) {
                 <Link href="/organization/1">DKMS UK</Link>
               </h1>
               <p className="text-sm line-clamp-1 text-muted-foreground">
-                12/8/2023
+                {formattedDate}
               </p>
             </div>
             <Menubar className="border-0 bg-transparent">
               <MenubarMenu>
-                <MenubarTrigger>
+                <MenubarTrigger className="hover:text-cursor">
                   <FiMoreHorizontal className="text-2xl" />
                 </MenubarTrigger>
-                <MenubarContent>
-                  <MenubarItem>Copy link</MenubarItem>
+                <MenubarContent className="border-border">
+                  <MenubarItem
+                    onClick={() => copyLink(`/posts/${props.post?._id}`)}
+                  >
+                    Share
+                  </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem>Share</MenubarItem>
+                  <Link href={`/posts/${props.post?._id}`}>
+                    <MenubarItem>Go to Post</MenubarItem>
+                  </Link>
                   <MenubarSeparator />
-                  {/* replace like by friend */}
-                  {liked ? (
-                    <MenubarItem className="text-primary">
-                      Add Friend
-                    </MenubarItem>
-                  ) : (
-                    <MenubarItem className="text-destructive">
-                      Unfriend
-                    </MenubarItem>
-                  )}
+                  <MenubarItem>Not Intrested</MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
             </Menubar>
@@ -82,22 +107,17 @@ export default function Post(props: PropsType) {
             !props.paddingX && "px-4"
           } mb-2 text-sm line-clamp-3 md:mb-3 md:mt-1 md:text-sm+ lg:px-0`}
         >
-          DKMS is an international nonprofit where creativity, initiative,
-          compassion, collaboration and strategic thinking are rewarded as we
-          work together to expand our reach, recruit more bone marrow donors and
-          help save more lives. Following the establishment of DKMS, our German
-          predecessor, we were founded in 2004 in the U.S. as DKMS Americas, and
-          since renamed DKMS. With the firm belief that people everywhere can
-          play an active role in saving the lives of others with blood cancers
-          and blood and bone marrow disorders, our mission is to grow the number
-          of suitable bone marrow and blood stem cell donors for patients in
-          need of a
+          {props.post?.thread}
         </p>
-        <Image
-          src=""
-          alt="Post Photo"
-          className="w-full aspect-[4/3] bg-secondary shadow-sm"
-        />
+        {props.post?.image && (
+          <Image
+            src=""
+            alt="Post Photo"
+            width={480}
+            height={360}
+            className="w-full aspect-[3/2] bg-secondary shadow-sm"
+          />
+        )}
         <div
           className={`${
             !props.paddingX && "px-4 lg:px-0"
@@ -105,25 +125,32 @@ export default function Post(props: PropsType) {
         >
           {liked ? (
             <AiFillLike
-              className="text-2xl text-[#007aff]"
-              onClick={() => setLiked(!liked)}
+              className="text-2xl text-[#007aff] cursor-pointer"
+              onClick={() => changeLike()}
             />
           ) : (
             <AiOutlineLike
-              className="text-2xl text-muted-foreground"
-              onClick={() => setLiked(!liked)}
+              className="text-2xl text-muted-foreground cursor-pointer"
+              onClick={() => changeLike()}
             />
           )}
-          <FaRegComment className="text-xl text-muted-foreground" />
-          <GoShare className="text-xl text-muted-foreground" />
+          <FaRegComment className="text-xl text-muted-foreground cursor-pointer" />
+          <GoShare className="text-xl text-muted-foreground cursor-pointer" />
         </div>
         <div
           className={`${
             !props.paddingX && "px-4 lg:px-0"
           } h-8 w-full flex gap-4 items-start`}
         >
-          <p className="text-sm text-muted-foreground">128 Likes</p>
-          <p className="text-sm text-muted-foreground">18 Comments</p>
+          <p className="text-sm text-muted-foreground">
+            {props.post?.likes.length} Likes
+          </p>
+          <p
+            className="text-sm text-muted-foreground"
+            onClick={() => setShowComments(true)}
+          >
+            {props.post?.comments.length} Comments
+          </p>
         </div>
       </div>
       <Separator />

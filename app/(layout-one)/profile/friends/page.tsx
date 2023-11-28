@@ -1,38 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import ProfileCardSkeleton from "@/components/explore/profile-card-skeleton";
-import { useRouter } from "next/navigation";
-import { IoChevronBack } from "react-icons/io5";
+import Back from "@/components/back";
 import ProfileCard from "@/components/explore/profile-card";
 import { PersonProfileType } from "@/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-const loadingArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+import { useEffect, useState } from "react";
 
 export default function FriendsPage() {
-  const [data, setData] = useState<PersonProfileType[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const router = useRouter();
+  const [friends, setFriends] = useState<PersonProfileType[]>([]);
 
   async function getData() {
     try {
-      const res = await fetch(`/api/user/friends`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch("/api/user/friends/", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        setData(data.data);
-        setLoading(false);
+        console.log(data);
+        setFriends(data.data);
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
-      setLoading(false);
     }
   }
 
@@ -42,33 +29,20 @@ export default function FriendsPage() {
 
   return (
     <div className="w-full h-full px-5 lg:px-0">
-      <div
-        className="w-full h-11 lg:px-0 flex items-center"
-        onClick={() => router.back()}
-      >
-        <div className="w-full hover:cursor-pointer flex items-center">
-          <IoChevronBack className="h-5 w-5" />
-          <p className="text-sm+">Back</p>
-        </div>
-      </div>
-
-      {loading && (
+      <Back />
+      {friends.length > 0 ? (
         <>
-          {loadingArray.map((_, i) => (
-            <ProfileCardSkeleton key={i} />
+          {friends.map((user) => (
+            <ProfileCard
+              key={user._id}
+              _id={user._id}
+              name={user.name}
+              profilePhoto={user.profilePhoto}
+              bio={user.bio}
+            />
           ))}
         </>
-      )}
-      {data.map((user) => (
-        <ProfileCard
-          key={user._id}
-          _id={user._id}
-          name={user.name}
-          profilePhoto={user.profilePhoto}
-          bio={user.bio}
-        />
-      ))}
-      {data.length === 0 && !loading && (
+      ) : (
         <div className="w-full h-full flex flex-col justify-center items-center gap-3">
           <h1 className="text-2xl font-medium text-clip">
             You don&apos;t have any friends yet.

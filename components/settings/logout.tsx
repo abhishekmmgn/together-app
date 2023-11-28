@@ -19,12 +19,7 @@ export default function LogoutComponent() {
 
   async function handleLogout() {
     try {
-      const res = await fetch("/api/auth/logout", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch("/api/auth/logout");
       if (res.ok) {
         toast.success("Logout successfully");
         router.push("/auth/login");

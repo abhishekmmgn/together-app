@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Post from "@/components/post/post";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import copyLink from "@/helpers/copyLink";
+import { PostType } from "@/types";
 
 type Params = {
   params: { id: string };
@@ -16,34 +17,29 @@ export default function ExternalProfile({ params }: Params) {
     name: string;
     profilePhoto: string;
     bio: string;
-    posts: [];
-    isFriend: boolean;
   }>({
     name: "",
     profilePhoto: "",
     bio: "",
-    posts: [],
-    isFriend: false,
   });
+  const [isFriend, setIsFriend] = useState<boolean>(false);
+  const [posts, setPosts] = useState<PostType[]>([]);
 
   async function getData() {
     try {
       const res = await fetch(`/api/user/${params.id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        cache: "no-cache",
       });
       if (res.ok) {
         const data = await res.json();
         console.log(data);
         setUserData({
-          name: data.data.name,
-          profilePhoto: data.data.profilePhoto,
-          bio: data.data.bio,
-          posts: data.data.posts,
-          isFriend: data.data.isFriend,
+          name: data.data[0].name,
+          profilePhoto: data.data[0].profilePhoto,
+          bio: data.data[0].bio,
         });
+        setIsFriend(data.data[2].isFriend);
+        setPosts(data.data[1]);
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
@@ -67,27 +63,12 @@ export default function ExternalProfile({ params }: Params) {
         }),
       });
       if (res.ok) {
-        setUserData({
-          ...userData,
-          isFriend: !userData.isFriend,
-        });
+        setIsFriend(!isFriend);
       } else {
         console.log(res.statusText);
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
-    }
-  }
-  function handleCopyLink(
-    event: React.MouseEvent<HTMLElement>,
-  ) {
-    event.preventDefault();
-    try {
-      navigator.clipboard.writeText(`https:togetherx.app${window.location.pathname}`);
-      toast.success("Link copied successfully");
-    } catch (error) {
-      toast.error("Failed to copy link");
-      return false;
     }
   }
 
@@ -110,12 +91,12 @@ export default function ExternalProfile({ params }: Params) {
           </p>
         </div>
         <div className="flex flex-col gap-3">
-          {userData?.isFriend && (
+          {isFriend && (
             <Button variant="outline" className="mx-auto">
               Message
             </Button>
           )}
-          {!userData?.isFriend && (
+          {!isFriend && (
             <Button className="mx-auto" onClick={() => changeFriendList("add")}>
               Add as Friend
             </Button>
@@ -123,11 +104,11 @@ export default function ExternalProfile({ params }: Params) {
           <Button
             variant="secondary"
             className="mx-auto"
-            onClick={handleCopyLink}
+            onClick={() => copyLink(window.location.pathname)}
           >
             Share Profile
           </Button>
-          {userData?.isFriend && (
+          {isFriend && (
             <Button
               variant="secondary"
               className="mx-auto"
@@ -142,8 +123,8 @@ export default function ExternalProfile({ params }: Params) {
       <div className="py-6 space-y-4">
         <div className="space-y-2">
           <h1 className="font-medium text-2xl">Activity</h1>
-          {userData?.posts?.map((post: any, index) => (
-            <Post paddingX={true} key={index} />
+          {posts?.map((post: PostType) => (
+            <Post paddingX={true} key={post._id} post={post} />
           ))}
         </div>
       </div>

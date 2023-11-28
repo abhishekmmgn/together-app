@@ -3,29 +3,28 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/user";
 import Post from "@/models/post";
 
-export async function GET(request: NextRequest) {
-  console.log(request);
+type Props = {
+  params: { id: string };
+};
+
+export async function GET(request: NextRequest, { params }: Props) {
   try {
     await connectDB();
 
-    // console.log(request.url)
-    // const { query } = await request.json();
-    
-    
+    const query = params.id;
+
+    console.log(query);
+
     const userResults = await User.find({
       $or: [
-        { name: { $regex: "b", $options: "i" } },
-        { email: { $regex: "b", $options: "i" } },
+        { name: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
       ],
-    }).select('_id name bio profilePhoto');
+    }).select("_id name bio profilePhoto");
 
     const postResults = await Post.find({
-      tags: { $in: ["b"] }, // Search posts by tags
-    }).select('_id thread creator image likes comments tags');
-    
-    console.log(userResults, postResults)
-    
-    console.log("Q: ");
+      tags: { $in: [query] }, // Search posts by tags
+    });
 
     return NextResponse.json({
       message: "Search results",

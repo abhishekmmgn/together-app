@@ -3,16 +3,13 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/user";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 
-
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
     const _id = await getDataFromToken(request);
 
-    const user = await User.findOne({ _id }).select(
-      "friends"
-    );
+    const user = await User.findOne({ _id }).select("friends");
 
     const friendsList = await User.find({
       _id: { $in: user.friends },

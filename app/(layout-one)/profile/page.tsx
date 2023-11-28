@@ -8,36 +8,32 @@ import { Separator } from "@/components/ui/separator";
 import Post from "@/components/post/post";
 import TableRow from "@/components/table-row";
 import { useEffect, useState } from "react";
+import { PostType } from "@/types";
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<{
     name: string;
     profilePhoto: string;
     bio: string;
-    firstPost: object;
   }>({
     name: "",
     profilePhoto: "",
     bio: "",
-    firstPost: {},
   });
+  const [postsData, setPostsData] = useState<PostType[]>([]);
 
   async function getData() {
     try {
-      const res = await fetch("/api/user/", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch("/api/user/", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
+        console.log(data);
         setUserData({
-          name: data.data.name,
-          profilePhoto: data.data.profilePhoto,
-          bio: data.data.bio,
-          firstPost: data.data.firstPost,
+          name: data.data[0].name,
+          profilePhoto: data.data[0].profilePhoto,
+          bio: data.data[0].bio,
         });
+        setPostsData(data.data[1]);
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
@@ -61,14 +57,13 @@ export default function ProfilePage() {
         <TableRow title="Friends" textColor={false} />
       </Link>
       <div className="pt-6 px-5 lg:px-0 space-y-2">
-        <div className="flex justify-between items-center">
-          <h2 className="font-medium text-2xl">Activity</h2>
-          <Link href="/">
-            <p className="text-primary text-sm">See All</p>
-          </Link>
-        </div>
-        {userData.firstPost ? (
-          <Post paddingX={true} />
+        <h2 className="font-medium text-2xl">Activity</h2>
+        {postsData?.length > 0 ? (
+          <>
+            {postsData.map((post) => (
+              <Post key={post._id} post={post} paddingX={true} />
+            ))}
+          </>
         ) : (
           <div className="py-10">
             <h3 className="text-center font-medium text-xl">

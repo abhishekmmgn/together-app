@@ -14,30 +14,31 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "../ui/input";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { UploadButton } from "@/helpers/uploadthing";
+import { UploadDropzone } from "@/helpers/uploadthing";
 
 const formSchema = z.object({
-  bio: z.string().max(96, "Name must be less than 96 characters").optional(),
+  thread: z
+    .string()
+    .min(1, "Thread must be not be empty")
+    .max(256, "Thread must be less than 256 characters"),
+  tags: z.string().optional(),
 });
 
 type formSchemaType = z.infer<typeof formSchema>;
 
-type PropsType = {
-  photo: string;
-  bio: string;
-};
-
-export default function EditProfileForm(props: PropsType) {
-  const [image, setImage] = useState<string>(props.photo || "");
+export default function NewPostForm() {
+  const [image, setImage] = useState<string>("");
   const [disabled, setDisabled] = useState<boolean>(false);
 
   const form = useForm<formSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      bio: props.bio,
+      thread: "",
+      tags: "",
     },
   });
   const { watch } = form;
@@ -50,25 +51,29 @@ export default function EditProfileForm(props: PropsType) {
   async function onSubmit(data: formSchemaType) {
     setDisabled(true);
     try {
-      const res = await fetch("/api/user", {
-        method: "PUT",
+      const res = await fetch("/api/post", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          profilePhoto: image,
-          bio: data.bio,
+          image: image,
+          thread: data.thread,
+          tags: data.tags,
         }),
       });
       if (res.ok) {
-        console.log("Profile updated successfully");
-        toast.success("Profile updated successfully");
+        console.log(res.status);
+        toast.success("Post created successfully");
         form.reset();
       } else if (res.status === 400) {
-        console.log(res.statusText);
+        console.log(res.status);
         toast.error(res.statusText);
       } else if (res.status === 500) {
-        console.log(res.statusText);
+        console.log(res.status);
+        toast.error(res.statusText);
+      } else {
+        console.log(res.status);
         toast.error(res.statusText);
       }
     } catch (err: any) {
@@ -86,34 +91,56 @@ export default function EditProfileForm(props: PropsType) {
           className="w-full space-y-4"
         >
           <div className="space-y-2">
-            <div className="flex flex-col items-center gap-2">
+            <div className="relative flex flex-col items-center gap-2 w-full aspect-[4/3]">
               <Image
                 src={image}
                 alt="Profile Photo"
-                width={148}
-                height={148}
-                className="w-24 lg:w-28 aspect-square bg-secondary rounded-full border mx-auto"
+                fill
+                sizes="400px"
+                className="object-cover bg-secondary rounded-md border mx-auto"
               />
-              <UploadButton
+              <UploadDropzone
                 endpoint="imageUploader"
                 onClientUploadComplete={(res) => {
+                  console.log(res);
                   setImage(res[0].url);
                   toast.success("Upload Completed");
                 }}
                 onUploadError={(error: Error) => {
                   toast.error(`ERROR! ${error.message}`);
                 }}
-                className="text-sm"
+                className="absolute z-10 inset-0 bg-black bg-opacity-60"
               />
             </div>
             <FormField
               control={form.control}
-              name="bio"
+              name="thread"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bio</FormLabel>
+                  <FormLabel>Thread</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="..." {...field} />
+                    <Textarea
+                      placeholder="What's on your mind?"
+                      {...field}
+                      className="resize-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Write upto 5 tags..."
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -5,7 +5,7 @@ import CreateComment from "./create-comment";
 export default function PostInfo() {
   return (
     <div className="p-5">
-      <Post paddingX={true} />
+      {/* <Post paddingX={true} />
       <div className="mt-3 space-y-3">
         {true && (
           <>
@@ -14,7 +14,7 @@ export default function PostInfo() {
           </>
         )}
       </div>
-      <CreateComment />
+      <CreateComment /> */}
     </div>
   );
 }

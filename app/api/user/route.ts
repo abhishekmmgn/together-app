@@ -4,15 +4,25 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/user";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { cookies } from "next/headers";
+import Post from "@/models/post";
 
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
+
     const userId = await getDataFromToken(request);
-    const user = await User.findOne({ _id: userId }).select("-password");
+    const user = await User.findOne({ _id: userId }).select(
+      "name profilePhoto bio posts"
+    );
+
+    const postsList = await Post.find({
+      _id: { $in: user.posts },
+    });
+
+    const data = [user, postsList];
     return NextResponse.json({
       message: "User found",
-      data: user,
+      data,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
@@ -36,21 +46,23 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const result = await User.updateOne({ _id }, { $set: { profilePhoto, bio } });
+    const result = await User.updateOne(
+      { _id },
+      { $set: { profilePhoto, bio } }
+    );
     if (result.modifiedCount > 0) {
-      console.log('Document updated successfully.');
+      console.log("Document updated successfully.");
       return NextResponse.json({
         message: "Profile updated successfully.",
         success: true,
       });
     } else {
-      console.log('No document was updated.');
+      console.log("No document was updated.");
       return NextResponse.json({
         message: "Something went wrong.",
         success: false,
       });
     }
-
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

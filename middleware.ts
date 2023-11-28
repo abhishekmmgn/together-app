@@ -33,6 +33,7 @@ export const config = {
     "/notifications",
     "/messages",
     "/profile",
+    "/profile/friends",
     "/settings",
   ],
 };

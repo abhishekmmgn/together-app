@@ -13,6 +13,7 @@ export type PostType = {
   likes: string[];
   comments: string[];
   tags: string[];
+  createdAt: string;
 };
 
 export type CommentsType = {

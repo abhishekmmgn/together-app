@@ -1,5 +1,3 @@
-"use client";
-
 import { Separator } from "@/components/ui/separator";
 import NotificationsPrefrences from "@/components/settings/notifications-prefrences";
 import ChangePassword from "@/components/settings/change-password";

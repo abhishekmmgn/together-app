@@ -19,7 +19,7 @@ export default function Notification(props: propsType) {
           !read && "bg-muted"
         }`}
       >
-        <h1 className="leading-tight line-clamp-3 font-medium sm:line-clamp-2">
+        <h1 className="leading-tight line-clamp-3 sm:line-clamp-2">
           Waste Warriors has new event that you might be interested in joining.
         </h1>
         <p className="mt-1 text-sm line-clamp-1 text-[#171717] dark:text-[#a1a1a1]">

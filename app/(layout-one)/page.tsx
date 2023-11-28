@@ -1,11 +1,18 @@
 import Post from "@/components/post/post";
+import { PostType } from "@/types";
 
-export default function Home() {
+export default async function Home() {
+  const res = await fetch("http://localhost:3000/api/posts", {
+    cache: "no-cache",
+  });
+  const data = await res.json();
+  const posts: PostType[] = data.data;
+  
   return (
     <div>
-      <Post />
-      <Post />
-      <Post />
+      {posts?.map((post) => (
+        <Post key={post._id} post={post} />
+      ))}
     </div>
   );
 }

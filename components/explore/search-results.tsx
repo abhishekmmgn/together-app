@@ -15,12 +15,15 @@ export default function SearchResults(props: { query: string }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("Runs")
+      console.log("Runs");
       try {
-        const res = await fetch(`/api/search-results?query=${props.query}`);
-        const json = await res.json();
-        setPersonResults(json.data.users);
-        setPostsResults(json.data.posts);
+        const res = await fetch(`/api/search-results?query=${props.query}`, {
+          cache: "no-cache",
+        });
+        const data = await res.json();
+        console.log(data);
+        setPersonResults(data.data.users);
+        setPostsResults(data.data.posts);
       } catch (error) {
         console.log(error);
       } finally {
@@ -72,8 +75,8 @@ export default function SearchResults(props: { query: string }) {
               </>
             ) : (
               <>
-                {postsResults.map((index) => (
-                  <Post key={index} />
+                {postsResults.map((post) => (
+                  <Post key={post._id} post={post} paddingX={true} />
                 ))}
               </>
             )}

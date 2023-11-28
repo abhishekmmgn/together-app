@@ -1,6 +1,5 @@
 import {
   IoHomeOutline,
-  IoAdd,
   IoNotificationsOutline,
   IoSearchOutline,
   IoPersonOutline,
@@ -12,11 +11,6 @@ export const tabs = [
     link: "/",
     name: "Home",
     icon: <IoHomeOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
-  },
-  {
-    link: "/new",
-    name: "New Post",
-    icon: <IoAdd className="w-6 h-6 sm:w-5 sm:h-5" />,
   },
   {
     link: "/explore",
