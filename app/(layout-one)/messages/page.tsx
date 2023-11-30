@@ -3,38 +3,59 @@
 import { useState } from "react";
 import Conversation from "@/components/messages/conversation";
 import SearchBar from "@/components/searchbar";
+import MessageRoom from "@/components/messages/message-room";
+import NewMessage from "@/components/messages/new-message";
 
 export default function ConversationsPage() {
-  const [isActive, setActive] = useState(false);
+  const [searchActive, setSearchActive] = useState(false);
+  const [conversationActive, setconversationActive] = useState<string>("");
 
-  function handleSearchBarToggle() {
-    setActive(!isActive);
-  }
-  function toggleSearchBarOn() {
-    setActive(true);
-  }
-  function toggleSearchBarOff() {
-    setActive(false);
-  }
-  return (
-    <>
-      <SearchBar
-        active={isActive}
-        placeholder="Search for friends, family and more"
-        toggleSearchBarOn={toggleSearchBarOn}
-        toggleSearchBarOff={toggleSearchBarOff}
+  // message room layout
+  if (!searchActive && conversationActive.length > 0) {
+    return (
+      <MessageRoom
+        conversationId={conversationActive}
+        setconversationActive={setconversationActive}
       />
-      {isActive ? (
+    );
+  }
+
+  // searching
+  if (searchActive && conversationActive.length === 0) {
+    return (
+      <>
+        <SearchBar
+          searchActive={searchActive}
+          setSearchActive={setSearchActive}
+          placeholder="Search for friends, family and more"
+        />
         <div className="w-full h-full py-2 transition-all ease-in-out duration-300">
-          <Conversation />
-          <Conversation />
+          <Conversation
+            conversationId="1"
+            setconversationActive={setconversationActive}
+          />
         </div>
-      ) : (
+      </>
+    );
+  }
+
+  // default layout
+  if (!searchActive && conversationActive.length === 0) {
+    return (
+      <>
+        <SearchBar
+          searchActive={searchActive}
+          setSearchActive={setSearchActive}
+          placeholder="Search for friends, family and more"
+        />
         <>
-          <Conversation />
-          <Conversation />
+          <NewMessage />
+          <Conversation
+            conversationId="1"
+            setconversationActive={setconversationActive}
+          />
         </>
-      )}
-    </>
-  );
+      </>
+    );
+  }
 }

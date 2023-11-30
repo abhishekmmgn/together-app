@@ -13,7 +13,7 @@ export type PostType = {
   likes: string[];
   comments: string[];
   tags: string[];
-  createdAt: string;
+  createdAt: Date;
 };
 
 export type CommentsType = {
@@ -23,3 +23,9 @@ export type CommentsType = {
   postId: string;
 };
 
+export type NotificationType = {
+  _id: string;
+  message: string;
+  read: boolean;
+  time: Date;
+};

@@ -7,6 +7,8 @@ import Post from "@/components/post/post";
 import { useEffect, useState } from "react";
 import copyLink from "@/helpers/copyLink";
 import { PostType } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
+import PostSkeleton from "@/components/post/post-skeleton";
 
 type Params = {
   params: { id: string };
@@ -22,8 +24,11 @@ export default function ExternalProfile({ params }: Params) {
     profilePhoto: "",
     bio: "",
   });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFriend, setIsFriend] = useState<boolean>(false);
   const [posts, setPosts] = useState<PostType[]>([]);
+  const [notFound, setNotFound] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
 
   async function getData() {
     try {
@@ -40,9 +45,15 @@ export default function ExternalProfile({ params }: Params) {
         });
         setIsFriend(data.data[2].isFriend);
         setPosts(data.data[1]);
+      } else if (res.status === 400) {
+        setNotFound(true);
+      } else if (res.status === 500) {
+        setError(true);
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -69,9 +80,49 @@ export default function ExternalProfile({ params }: Params) {
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
+      setError(err.message);
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="p-5">
+        <div className="grid gap-4 pb-4">
+          <Skeleton className="w-28 lg:w-32 aspect-square rounded-md" />
+          <div>
+            <Skeleton className="mb-1 h-5 w-24" />
+            <Skeleton className="mb-1 h-4 w-48" />
+          </div>
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-10 w-full max-w-md mx-auto" />
+            <Skeleton className="h-10 w-full max-w-md mx-auto" />
+          </div>
+        </div>
+        <div className="py-6 space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-32" />
+            <PostSkeleton />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (notFound) {
+    return (
+      <div className="w-full h-[90%] flex flex-col justify-center items-center">
+        <h1 className="text-2xl font-medium text-center">User not found.</h1>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="w-full h-[90%] flex flex-col justify-center items-center">
+        <h1 className="text-2xl font-medium text-center">
+          Something went wrong. Please try refreshing the page.
+        </h1>
+      </div>
+    );
+  }
   return (
     <div className="p-5">
       <div className="grid gap-4 pb-4">
@@ -83,27 +134,28 @@ export default function ExternalProfile({ params }: Params) {
           className="w-28 lg:w-32 aspect-square bg-secondary shadow-sm rounded-md"
         />
         <div>
-          <h1 className="-mt-1 font-medium text-2xl md:text-3xl">
+          <h1 className="-mt-1 capitalize font-medium text-2xl md:text-3xl">
             {userData?.name}
           </h1>
-          <p className="-mt-1 mb-1 text-tertiary-foreground line-clamp-2">
-            {userData?.bio}
-          </p>
+          <p className="-mt-1 mb-1 text-tertiary-foreground">{userData?.bio}</p>
         </div>
         <div className="flex flex-col gap-3">
           {isFriend && (
-            <Button variant="outline" className="mx-auto">
+            <Button variant="outline" className="max-w-md mx-auto">
               Message
             </Button>
           )}
           {!isFriend && (
-            <Button className="mx-auto" onClick={() => changeFriendList("add")}>
+            <Button
+              className="max-w-md mx-auto"
+              onClick={() => changeFriendList("add")}
+            >
               Add as Friend
             </Button>
           )}
           <Button
             variant="secondary"
-            className="mx-auto"
+            className="max-w-md mx-auto"
             onClick={() => copyLink(window.location.pathname)}
           >
             Share Profile
@@ -111,7 +163,7 @@ export default function ExternalProfile({ params }: Params) {
           {isFriend && (
             <Button
               variant="secondary"
-              className="mx-auto"
+              className="max-w-md mx-auto text-destructive"
               onClick={() => changeFriendList("remove")}
             >
               Remove as friend

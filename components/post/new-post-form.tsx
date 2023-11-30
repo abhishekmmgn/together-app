@@ -109,7 +109,7 @@ export default function NewPostForm() {
                 onUploadError={(error: Error) => {
                   toast.error(`ERROR! ${error.message}`);
                 }}
-                className="absolute z-10 inset-0 bg-black bg-opacity-60"
+                className="absolute z-10 inset-0 bg-black bg-opacity-60 border-border rounded-md -mt-[2px] text-primary"
               />
             </div>
             <FormField

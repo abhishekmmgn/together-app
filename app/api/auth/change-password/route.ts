@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import User from "@/models/user";
+import User from "@/models/users";
 import bcrypt from "bcryptjs";
 
 export async function PUT(request: NextRequest) {

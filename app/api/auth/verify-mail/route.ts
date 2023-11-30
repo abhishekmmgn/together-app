@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import User from "@/models/user";
+import User from "@/models/users";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 

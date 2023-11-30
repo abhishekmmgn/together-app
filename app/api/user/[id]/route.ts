@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import User from "@/models/user";
-import Post from "@/models/post";
+import Users from "@/models/users";
+import Posts from "@/models/posts";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 
 type Params = {
@@ -12,25 +12,34 @@ export async function GET(request: NextRequest, { params }: Params) {
   try {
     await connectDB();
 
-    const user = await User.findOne({ _id: params.id }).select(
+    const user = await Users.findOne({ _id: params.id }).select(
       "name profilePhoto bio friends posts"
     );
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 400 });
+    }
 
     const curUserId = await getDataFromToken(request);
     const isFriend = user.friends.includes(curUserId);
 
-    const postsList = await Post.find({
+    const postsList = await Posts.find({
       _id: { $in: user.posts },
     });
 
     const data = [user, postsList, { isFriend }];
 
-    return NextResponse.json({
-      message: "User found",
-      data: data,
-    });
+    return NextResponse.json(
+      {
+        message: "User found",
+        data: data,
+      },
+      {
+        status: 200,
+      }
+    );
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
@@ -40,14 +49,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
     const { _id, action } = await request.json();
 
-    const user = await User.findOne({ _id }).select("friends");
+    const user = await Users.findOne({ _id }).select("friends");
 
     console.log(user);
 
     const curUserId = await getDataFromToken(request);
 
     if (action === "remove") {
-      const result = await User.updateOne(
+      const result = await Users.updateOne(
         { _id },
         { $pull: { friends: curUserId } }
       );
@@ -56,7 +65,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         console.log("Document updated successfully.");
 
         // Update current user's friends list
-        await User.updateOne(
+        await Users.updateOne(
           { _id: curUserId },
           { $pull: { friends: params.id } }
         );
@@ -73,7 +82,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         });
       }
     } else if (action === "add") {
-      const result = await User.updateOne(
+      const result = await Users.updateOne(
         { _id },
         { $push: { friends: curUserId } }
       );
@@ -82,7 +91,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         console.log("Document updated successfully.");
 
         // Update current user's friends list
-        await User.updateOne(
+        await Users.updateOne(
           { _id: curUserId },
           { $push: { friends: params.id } }
         );

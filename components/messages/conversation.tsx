@@ -1,6 +1,5 @@
 "use client ";
 
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -13,51 +12,57 @@ import {
 } from "@/components/ui/menubar";
 
 type propsType = {
-  read?: boolean;
+  conversationId: string;
+  setconversationActive: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export default function Conversation(props: propsType) {
-  const read = true;
+  const unread = 2;
+  const date = "Yesterday";
+  const message = "Hey, how can I help you today?";
+  const user = {
+    _id: "1",
+    name: "John Doe",
+    profilePhoto: "/images/profile-photos/profile-1.jpg",
+  };
+  // fetch conversation and from there only I'll get the user profile
   return (
-    <div className="relative  dark: group">
-      <Link href={`/messages/1`}>
-        <div
-          className={`w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted/50 lg:px-0 ${
-            !read && "bg-muted"
-          }`}
-        >
-          <Avatar className="w-14 h-14">
-            <AvatarImage src="https://www.unsplash.com/random" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-          <div className="w-full flex flex-col justify-center items-center">
-            <div className="w-full flex items-center justify-between gap-5">
-              <h1 className="w-[70%] overflow-x-hidden line-clamp-1 text-lg font-medium">
-                DKMS UK
-              </h1>
-              <p className="w-[30%] overflow-x-hidden text-right text-sm line-clamp-1 text-muted-foreground">
-                12/8/2023
-              </p>
-            </div>
-            <div className="w-full flex items-center justify-between gap-5">
-              <p
-                className={`${
-                  !read ? "w-[80%] sm:w-[85%]" : "w-[90%] sm:w-[95%]"
-                } overflow-x-hidden line-clamp-1 text-tertiary-foreground`}
-              >
-                Hello, we are looking to see that the new update is working.
-                Hello, we are looking to see that the new update is working.
-              </p>
-              {!read && (
-                <div className="mr-6 w-[22px] h-[22px] rounded-full line-clamp-1 text-sm bg-[#007aff] dark:bg-[#007aff] text-white flex items-center justify-center">
-                  1
-                </div>
-              )}
-            </div>
+    <div
+      className="relative cursor-pointer"
+      onClick={() => props.setconversationActive(props.conversationId)}
+    >
+      <div className="w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted/50 lg:px-0">
+        <Avatar className="w-14 h-14">
+          <AvatarImage src={user?.profilePhoto} alt={user?.name} />
+          <AvatarFallback>
+            {user.name
+              ?.split(" ")
+              .map((word) => word[0])
+              .join("")}
+          </AvatarFallback>
+        </Avatar>
+        <div className="w-full flex flex-col justify-center items-start">
+          <div className="w-full flex items-center justify-between gap-5">
+            <h1 className="w-[70%] line-clamp-1 lg:text-base+ font-medium">
+              {user?.name}
+            </h1>
+            <p className="w-[30%] text-right text-sm line-clamp-1 text-muted-foreground">
+              {date}
+            </p>
+          </div>
+          <div className="w-[calc(100%-32px)] flex items-center justify-between gap-5">
+            <p className="w-full line-clamp-1 text-tertiary-foreground">
+              {message}
+            </p>
+            {unread > 0 && (
+              <div className="w-5 h-5 rounded-full line-clamp-1 text-sm bg-primary text-primary-foreground flex items-center justify-center">
+                {unread}
+              </div>
+            )}
           </div>
         </div>
-      </Link>
-      <Menubar className="absolute right-0 top-7 group-hover:block border-0 bg-transparent">
+      </div>
+      <Menubar className="absolute right-0 top-7 bg-transparent">
         <MenubarMenu>
           <MenubarTrigger>
             <svg
@@ -78,7 +83,7 @@ export default function Conversation(props: propsType) {
           <MenubarContent>
             <MenubarItem>Mark as Read</MenubarItem>
             <MenubarSeparator />
-            <MenubarItem className="text-destructive hover:text-destructive">Delete</MenubarItem>
+            <MenubarItem className="text-destructive">Delete</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
       </Menubar>

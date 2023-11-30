@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
-import User from "@/models/user";
+import User from "@/models/users";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { cookies } from "next/headers";
-import Post from "@/models/post";
+import Post from "@/models/posts";
 
 export async function GET(request: NextRequest) {
   try {

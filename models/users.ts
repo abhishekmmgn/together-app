@@ -37,7 +37,13 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
     notifications: {
-      type: Array,
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "notifications",
+      default: [],
+    },
+    conversations: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "messageRooms",
       default: [],
     },
     forgotPasswordToken: String,
@@ -48,6 +54,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.models.users || mongoose.model("users", userSchema);
+const Users = mongoose.models.users || mongoose.model("users", userSchema);
 
-export default User;
+export default Users;

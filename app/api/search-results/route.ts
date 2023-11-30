@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import User from "@/models/user";
-import Post from "@/models/post";
+import Users from "@/models/users";
+import Posts from "@/models/posts";
 
 type Props = {
   params: { id: string };
@@ -15,14 +15,14 @@ export async function GET(request: NextRequest, { params }: Props) {
 
     console.log(query);
 
-    const userResults = await User.find({
+    const userResults = await Users.find({
       $or: [
         { name: { $regex: query, $options: "i" } },
         { email: { $regex: query, $options: "i" } },
       ],
     }).select("_id name bio profilePhoto");
 
-    const postResults = await Post.find({
+    const postResults = await Posts.find({
       tags: { $in: [query] }, // Search posts by tags
     });
 

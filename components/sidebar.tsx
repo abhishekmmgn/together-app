@@ -9,7 +9,7 @@ export function Sidebar() {
   const segment = `/${routeSegment || ""}`;
 
   return (
-    <div className="hidden fixed left-0 top-0 mt-14 pb-12 border-r border-border h-[calc(100vh-56px)] sm:w-[210px] md:w-[232px] xl:w-[248px] sm:block">
+    <div className="hidden fixed left-0 top-0 mt-14 pb-12 bg-secondary/30 border-r border-border h-[calc(100vh-56px)] sm:w-[210px] md:w-[232px] xl:w-[248px] sm:block">
       <div className="px-3 py-4 space-y-1">
         {tabs.map((tab, index) => (
           <Link

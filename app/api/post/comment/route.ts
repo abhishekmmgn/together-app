@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import Post from "@/models/post";
-import User from "@/models/user";
+import Post from "@/models/posts";
+import User from "@/models/users";
 import Comment from "@/models/comment";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 

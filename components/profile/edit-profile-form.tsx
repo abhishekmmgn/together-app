@@ -20,7 +20,7 @@ import { toast } from "react-hot-toast";
 import { UploadButton } from "@/helpers/uploadthing";
 
 const formSchema = z.object({
-  bio: z.string().max(96, "Name must be less than 96 characters").optional(),
+  bio: z.string().max(128, "Name must be less than 128 characters").optional(),
 });
 
 type formSchemaType = z.infer<typeof formSchema>;
@@ -113,7 +113,7 @@ export default function EditProfileForm(props: PropsType) {
                 <FormItem>
                   <FormLabel>Bio</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="..." {...field} />
+                    <Textarea placeholder="..." {...field} className="resize-none" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

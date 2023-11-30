@@ -1,0 +1,8 @@
+MONGODB_URI = mongodb+srv://[username]:[password]@[cluster]/[app]
+TOKEN_SECRET = super_secret
+DOMAIN = http://localhost:3000
+MAIL_TRAP_USER=mailtrap_username
+MAIL_TRAP_PASSWORD=mailtrap_password
+SENDER_EMAIL=mailtrap_sender_email
+UPLOADTHING_SECRET=upload_thing_secret
+UPLOADTHING_APP_ID=upload_thing_app_id

@@ -8,13 +8,7 @@ export default function ProfileCard(props: PersonProfileType) {
     <Link href={`/profile/${props._id}`}>
       <div className="w-full h-16 flex items-center gap-3 hover:bg-muted/50">
         <Avatar className="h-12 w-12 aspect-square">
-          <AvatarImage
-            src={props.profilePhoto}
-            alt={props.name
-              ?.split(" ")
-              .map((word) => word[0])
-              .join("")}
-          />
+          <AvatarImage src={props.profilePhoto} alt={props.name} />
           <AvatarFallback>
             {props.name
               ?.split(" ")

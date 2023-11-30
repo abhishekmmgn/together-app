@@ -4,9 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FaRegComment } from "react-icons/fa";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { AiOutlineLike, AiFillLike } from "react-icons/ai";
-import { FaRegComment } from "react-icons/fa";
 import { GoShare } from "react-icons/go";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/menubar";
 import { PostType } from "@/types";
 import copyLink from "@/helpers/copyLink";
+import formatPostDate from "@/helpers/formatPostDate";
 
 type PropsType = {
   paddingX?: boolean;
@@ -28,19 +29,7 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
   const [liked, setLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
 
-  const postDate = new Date(props.post?.createdAt);
-  const currentDate = new Date();
-
-  let formattedDate = "";
-  if (postDate.toDateString() === currentDate.toDateString()) {
-    formattedDate = postDate.toLocaleTimeString([], {
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  } else {
-    formattedDate = postDate.toLocaleDateString();
-  }
-
+  const formattedDate = formatPostDate(new Date(props.post?.createdAt));
   async function changeLike() {
     const res = await fetch("/api/post/like", {
       method: "PUT",
@@ -74,7 +63,7 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
             </Link>
             <div className="w-full flex flex-col gap-[2px]">
               <h1 className="line-clamp-1 font-medium">
-                <Link href="/organization/1">DKMS UK</Link>
+                <Link href="/profile/1">DKMS UK</Link>
               </h1>
               <p className="text-sm line-clamp-1 text-muted-foreground">
                 {formattedDate}
@@ -134,8 +123,13 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
               onClick={() => changeLike()}
             />
           )}
-          <FaRegComment className="text-xl text-muted-foreground cursor-pointer" />
-          <GoShare className="text-xl text-muted-foreground cursor-pointer" />
+          <Link href={`/posts/${props.post?._id}`}>
+            <FaRegComment className="text-xl text-muted-foreground cursor-pointer" />
+          </Link>
+          <GoShare
+            className="text-xl text-muted-foreground cursor-pointer"
+            onClick={() => copyLink(`/posts/${props.post?._id}`)}
+          />
         </div>
         <div
           className={`${

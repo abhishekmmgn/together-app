@@ -4,6 +4,7 @@ import {
   IoSearchOutline,
   IoPersonOutline,
   IoSettingsOutline,
+  IoChatbubbleOutline
 } from "react-icons/io5";
 
 export const tabs = [
@@ -17,11 +18,11 @@ export const tabs = [
     name: "Explore",
     icon: <IoSearchOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
   },
-  // {
-  //   link: "/messages",
-  //   name: "Messages",
-  //   icon: <IoChatbubbleOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
-  // },
+  {
+    link: "/messages",
+    name: "Messages",
+    icon: <IoChatbubbleOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
+  },
   {
     link: "/notifications",
     name: "Notifications",

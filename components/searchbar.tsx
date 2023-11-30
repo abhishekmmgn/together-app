@@ -5,9 +5,8 @@ import { IoSearchOutline } from "react-icons/io5";
 import { useState } from "react";
 
 type PropsType = {
-  active: boolean;
-  toggleSearchBarOff: () => void;
-  toggleSearchBarOn: () => void;
+  searchActive: boolean;
+  setSearchActive: React.Dispatch<React.SetStateAction<boolean>>;
   placeholder: string;
 };
 
@@ -17,7 +16,7 @@ export default function SearchBar(props: PropsType) {
 
   function handleKeydown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && searchValue) {
-      props.toggleSearchBarOff();
+      props.setSearchActive(false);
       router.push(`/explore?query=${searchValue}`);
     }
   }
@@ -27,19 +26,19 @@ export default function SearchBar(props: PropsType) {
         <Input
           type="search"
           placeholder={props.placeholder}
-          onFocus={props.toggleSearchBarOn}
+          onFocus={() => props.setSearchActive(true)}
           onChange={(e) => setSearchValue(e.target.value)}
           onKeyDown={handleKeydown}
           className="bg-secondary pl-8"
         />
         <IoSearchOutline className="text-muted-foreground absolute left-2 top-3 w-4 h-4" />
       </div>
-      {props.active && (
+      {props.searchActive && (
         <Button
           variant="secondary"
-          size={"sm"}
+          size="sm"
           className="transform px-0 text-primary bg-background hover:bg-background"
-          onClick={props.toggleSearchBarOff}
+          onClick={() => props.setSearchActive(false)}
         >
           Cancel
         </Button>
