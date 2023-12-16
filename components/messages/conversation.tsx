@@ -10,6 +10,7 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import formatAvatarName from "@/helpers/formatAvatarName";
 
 type propsType = {
   conversationId: string;
@@ -34,12 +35,7 @@ export default function Conversation(props: propsType) {
       <div className="w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted/50 lg:px-0">
         <Avatar className="w-14 h-14">
           <AvatarImage src={user?.profilePhoto} alt={user?.name} />
-          <AvatarFallback>
-            {user.name
-              ?.split(" ")
-              .map((word) => word[0])
-              .join("")}
-          </AvatarFallback>
+          <AvatarFallback>{formatAvatarName(user?.name)}</AvatarFallback>
         </Avatar>
         <div className="w-full flex flex-col justify-center items-start">
           <div className="w-full flex items-center justify-between gap-5">

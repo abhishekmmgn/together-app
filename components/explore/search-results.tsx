@@ -6,7 +6,7 @@ import ProfileCardSkeleton from "./profile-card-skeleton";
 import PostSkeleton from "../post/post-skeleton";
 import { PersonProfileType, PostType } from "@/types";
 
-const loadingArray = [1, 2, 3, 4, 5, 6, 7, 8];
+const loadingArray = [1, 2, 3, 4, 5, 6, 7];
 
 export default function SearchResults(props: { query: string }) {
   const [personResults, setPersonResults] = useState<PersonProfileType[]>([]);
@@ -15,13 +15,11 @@ export default function SearchResults(props: { query: string }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("Runs");
       try {
         const res = await fetch(`/api/search-results?query=${props.query}`, {
           cache: "no-cache",
         });
         const data = await res.json();
-        console.log(data);
         setPersonResults(data.data.users);
         setPostsResults(data.data.posts);
       } catch (error) {
@@ -32,8 +30,6 @@ export default function SearchResults(props: { query: string }) {
     };
     fetchData();
   }, [props.query]);
-
-  console.log(postsResults);
 
   return (
     <div className="pt-1 px-5 lg:px-0">
@@ -52,15 +48,23 @@ export default function SearchResults(props: { query: string }) {
               </>
             ) : (
               <>
-                {personResults.map((person, index) => (
-                  <ProfileCard
-                    key={person._id}
-                    _id={person._id}
-                    name={person.name}
-                    bio={person.bio}
-                    profilePhoto={person.profilePhoto}
-                  />
-                ))}
+                {personResults.length === 0 ? (
+                  <div className="text-tertiary-foreground">
+                    No results found.
+                  </div>
+                ) : (
+                  <>
+                    {personResults.map((person, index) => (
+                      <ProfileCard
+                        key={person._id}
+                        _id={person._id}
+                        name={person.name}
+                        bio={person.bio}
+                        profilePhoto={person.profilePhoto}
+                      />
+                    ))}
+                  </>
+                )}
               </>
             )}
           </div>
@@ -75,9 +79,17 @@ export default function SearchResults(props: { query: string }) {
               </>
             ) : (
               <>
-                {postsResults.map((post) => (
-                  <Post key={post._id} post={post} paddingX={true} />
-                ))}
+                {postsResults.length === 0 ? (
+                  <div className="text-tertiary-foreground">
+                    No results found.
+                  </div>
+                ) : (
+                  <>
+                    {postsResults.map((post) => (
+                      <Post key={post._id} post={post} paddingX={true} />
+                    ))}
+                  </>
+                )}
               </>
             )}
           </div>

@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { PersonProfileType } from "@/types";
+import formatAvatarName from "@/helpers/formatAvatarName";
 
 export default function ProfileCard(props: PersonProfileType) {
   return (
@@ -10,10 +11,7 @@ export default function ProfileCard(props: PersonProfileType) {
         <Avatar className="h-12 w-12 aspect-square">
           <AvatarImage src={props.profilePhoto} alt={props.name} />
           <AvatarFallback>
-            {props.name
-              ?.split(" ")
-              .map((word) => word[0])
-              .join("")}
+            {formatAvatarName(props.name)}
           </AvatarFallback>
         </Avatar>
         <div className="w-full">

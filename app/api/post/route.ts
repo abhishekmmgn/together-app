@@ -15,9 +15,18 @@ export async function GET(request: NextRequest, params: { id: string }) {
       return NextResponse.json({ error: "Post not found." }, { status: 400 });
     }
 
+    // check if post has been liked by current user
+    const curUserId = await getDataFromToken(request);
+    const isLiked = post.likes.includes(curUserId);
+
+    const updatedPost = {
+      ...post.toJSON(),
+      liked: isLiked,
+    };
+
     return NextResponse.json({
       message: "Post found",
-      data: post,
+      data: updatedPost,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
@@ -59,10 +68,18 @@ export async function POST(request: NextRequest) {
     if (!savedUser || !savedPost) {
       return NextResponse.json({ error: "Error saving post" }, { status: 500 });
     }
+    const data = {
+      postId: savedPost._id,
+      userId: _id,
+    };
 
     return NextResponse.json(
-      { error: "Post created successfully." },
-      { status: 200 }
+      {
+        message: "Post created successfully.",
+      },
+      {
+        status: 200,
+      }
     );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -102,7 +119,7 @@ export async function DELETE(request: NextRequest) {
     const savedUser = await user.save();
 
     return NextResponse.json(
-      { error: "Post deleted successfully." },
+      { message: "Post deleted successfully." },
       { status: 200 }
     );
   } catch (error: any) {

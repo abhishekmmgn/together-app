@@ -3,34 +3,47 @@ import { connectDB } from "@/lib/mongodb";
 import Users from "@/models/users";
 import Posts from "@/models/posts";
 
-type Props = {
-  params: { id: string };
-};
-
-export async function GET(request: NextRequest, { params }: Props) {
+export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
-    const query = params.id;
-
-    console.log(query);
+    const url = new URL(request.url);
+    const searchQuery = url.searchParams.get("query");
 
     const userResults = await Users.find({
       $or: [
-        { name: { $regex: query, $options: "i" } },
-        { email: { $regex: query, $options: "i" } },
+        { name: { $regex: searchQuery, $options: "i" } },
+        { email: { $regex: searchQuery, $options: "i" } },
       ],
-    }).select("_id name bio profilePhoto");
+    })
+      .select("_id name bio profilePhoto")
+      .limit(10);
 
     const postResults = await Posts.find({
-      tags: { $in: [query] }, // Search posts by tags
-    });
+      // search query in tags regardless of case.
+      tags: { $regex: searchQuery, $options: "i" },
+    }).limit(4);
+
+    const updatedPost = await Promise.all(
+      postResults.map(async (post) => {
+        // find the creator details of each post and update the posts
+        const creator = await Users.findOne({ _id: post.creator });
+        return {
+          ...post.toJSON(),
+          creator: {
+            _id: creator?._id,
+            name: creator?.name,
+            profilePhoto: creator?.profilePhoto,
+          },
+        };
+      })
+    );
 
     return NextResponse.json({
       message: "Search results",
       data: {
         users: userResults,
-        posts: postResults,
+        posts: updatedPost,
       },
     });
   } catch (error: any) {

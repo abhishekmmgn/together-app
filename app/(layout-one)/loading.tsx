@@ -1,9 +1,12 @@
 import PostSkeleton from "@/components/post/post-skeleton";
+import { Separator } from "@/components/ui/separator";
 
 export default function Loading() {
   return (
-    <div className="p-5">
+    <main className="p-5 space-y-2">
       <PostSkeleton />
-    </div>
+      <Separator />
+      <PostSkeleton />
+    </main>
   );
 }

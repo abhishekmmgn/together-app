@@ -19,6 +19,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { UploadDropzone } from "@/helpers/uploadthing";
+import sendNotification from "@/helpers/sendNotification";
 
 const formSchema = z.object({
   thread: z
@@ -66,6 +67,7 @@ export default function NewPostForm() {
         console.log(res.status);
         toast.success("Post created successfully");
         form.reset();
+        sendNotification("There are new posts.", "/")
       } else if (res.status === 400) {
         console.log(res.status);
         toast.error(res.statusText);
@@ -96,8 +98,8 @@ export default function NewPostForm() {
                 src={image}
                 alt="Profile Photo"
                 fill
-                sizes="400px"
-                className="object-cover bg-secondary rounded-md border mx-auto"
+                sizes="(max-width: 768px) 400px, 600px"
+                className="object-cover bg-secondary rounded-[var(--radius)] border mx-auto"
               />
               <UploadDropzone
                 endpoint="imageUploader"
@@ -109,7 +111,7 @@ export default function NewPostForm() {
                 onUploadError={(error: Error) => {
                   toast.error(`ERROR! ${error.message}`);
                 }}
-                className="absolute z-10 inset-0 bg-black bg-opacity-60 border-border rounded-md -mt-[2px] text-primary"
+                className="absolute z-10 inset-0 bg-black bg-opacity-60 border-border rounded-[var(--radius)] -mt-[2px] text-primary"
               />
             </div>
             <FormField

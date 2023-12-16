@@ -5,7 +5,7 @@ export default function LoadingDynamicProfile() {
   return (
     <div className="p-5">
       <div className="grid gap-4 pb-4">
-        <Skeleton className="w-28 lg:w-32 aspect-square rounded-md" />
+        <Skeleton className="w-28 lg:w-32 aspect-square rounded-[var(--radius)]" />
         <div>
           <Skeleton className="mt-1 h-5 w-24" />
           <Skeleton className="mb-1 h-4 w-48" />

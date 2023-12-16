@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Users from "@/models/users";
 
@@ -6,13 +6,14 @@ type Params = {
   params: { id: string };
 };
 
-export async function GET({ params }: Params) {
+export async function GET(request: NextRequest, { params }: Params) {
   try {
     await connectDB();
 
-    console.log(params.id);
+    const id = params.id;
+    console.log(id);
 
-    const user = await Users.findOne({ _id: params.id }).select(
+    const user = await Users.findOne({ _id: id }).select(
       "name profilePhoto"
     );
     console.log(user);

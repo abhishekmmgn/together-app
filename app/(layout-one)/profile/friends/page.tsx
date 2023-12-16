@@ -6,20 +6,23 @@ import { PersonProfileType } from "@/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import ProfileCardSkeleton from "@/components/explore/profile-card-skeleton";
 
 export default function FriendsPage() {
   const [friends, setFriends] = useState<PersonProfileType[]>([]);
+  const [loading, setLoading] = useState(true);
 
   async function getData() {
     try {
       const res = await fetch("/api/user/friends/", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        console.log(data);
         setFriends(data.data);
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -27,6 +30,17 @@ export default function FriendsPage() {
     getData();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="p-5 w-full h-full flex flex-col justify-start">
+        {Array(10)
+          .fill(0)
+          .map((_, index) => (
+            <ProfileCardSkeleton key={index} />
+          ))}
+      </div>
+    );
+  }
   return (
     <div className="w-full h-full px-5 lg:px-0">
       <Back />

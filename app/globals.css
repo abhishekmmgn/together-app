@@ -56,4 +56,9 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+
+  ::selection {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
 }

@@ -37,8 +37,7 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
     notifications: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "notifications",
+      type: Array,
       default: [],
     },
     conversations: {

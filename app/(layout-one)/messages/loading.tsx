@@ -3,14 +3,11 @@ import ConversationSkeleton from "@/components/messages/conversation-skeleton";
 export default function Loading() {
   return (
     <div className="p-5 space-y-4 ">
-      <ConversationSkeleton />
-      <ConversationSkeleton />
-      <ConversationSkeleton />
-      <ConversationSkeleton />
-      <ConversationSkeleton />
-      <ConversationSkeleton />
-      <ConversationSkeleton />
-      <ConversationSkeleton />
+      {Array(8)
+        .fill(null)
+        .map((_, i) => (
+          <ConversationSkeleton key={i} />
+        ))}
     </div>
   );
 }

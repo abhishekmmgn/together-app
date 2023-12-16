@@ -9,6 +9,9 @@ import copyLink from "@/helpers/copyLink";
 import { PostType } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import PostSkeleton from "@/components/post/post-skeleton";
+import { notFound } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import formatAvatarName from "@/helpers/formatAvatarName";
 
 type Params = {
   params: { id: string };
@@ -27,7 +30,7 @@ export default function ExternalProfile({ params }: Params) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFriend, setIsFriend] = useState<boolean>(false);
   const [posts, setPosts] = useState<PostType[]>([]);
-  const [notFound, setNotFound] = useState<boolean>(false);
+  const [profileNotFound, setProfileNotFound] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
 
   async function getData() {
@@ -37,7 +40,6 @@ export default function ExternalProfile({ params }: Params) {
       });
       if (res.ok) {
         const data = await res.json();
-        console.log(data);
         setUserData({
           name: data.data[0].name,
           profilePhoto: data.data[0].profilePhoto,
@@ -46,7 +48,7 @@ export default function ExternalProfile({ params }: Params) {
         setIsFriend(data.data[2].isFriend);
         setPosts(data.data[1]);
       } else if (res.status === 400) {
-        setNotFound(true);
+        setProfileNotFound(true);
       } else if (res.status === 500) {
         setError(true);
       }
@@ -56,10 +58,6 @@ export default function ExternalProfile({ params }: Params) {
       setIsLoading(false);
     }
   }
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   async function changeFriendList(action: "add" | "remove") {
     try {
@@ -84,11 +82,15 @@ export default function ExternalProfile({ params }: Params) {
     }
   }
 
+  useEffect(() => {
+    getData();
+  }, []);
+
   if (isLoading) {
     return (
       <div className="p-5">
         <div className="grid gap-4 pb-4">
-          <Skeleton className="w-28 lg:w-32 aspect-square rounded-md" />
+          <Skeleton className="w-28 lg:w-32 aspect-square rounded-[var(--radius)]" />
           <div>
             <Skeleton className="mb-1 h-5 w-24" />
             <Skeleton className="mb-1 h-4 w-48" />
@@ -107,32 +109,33 @@ export default function ExternalProfile({ params }: Params) {
       </div>
     );
   }
-  if (notFound) {
-    return (
-      <div className="w-full h-[90%] flex flex-col justify-center items-center">
-        <h1 className="text-2xl font-medium text-center">User not found.</h1>
-      </div>
-    );
+
+  if (profileNotFound) {
+    notFound();
   }
+
   if (error) {
     return (
-      <div className="w-full h-[90%] flex flex-col justify-center items-center">
-        <h1 className="text-2xl font-medium text-center">
-          Something went wrong. Please try refreshing the page.
-        </h1>
-      </div>
+      <main className="grid place-items-center px-6 py-24 sm:py-32 lg:px-8">
+        <div className="text-center space-y-4">
+          <p className="text-base font-semibold text-destructive">Error</p>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-5xl">
+            Something went wrong.
+          </h1>
+          <p className="text-base leading-7">Please try refreshing the page.</p>
+        </div>
+      </main>
     );
   }
   return (
     <div className="p-5">
       <div className="grid gap-4 pb-4">
-        <Image
-          src={userData?.profilePhoto}
-          alt={`Profile photo of ${userData?.name}`}
-          width={200}
-          height={200}
-          className="w-28 lg:w-32 aspect-square bg-secondary shadow-sm rounded-md"
-        />
+        <Avatar className="w-28 h-28 lg:h-32 lg:w-32 aspect-square bg-secondary shadow-sm rounded-[var(--radius)]">
+          <AvatarImage src={userData?.profilePhoto} alt="Your Profile photo" />
+          <AvatarFallback className="text-primary text-4xl lg:text-5xl">
+            {formatAvatarName(userData?.name)}
+          </AvatarFallback>
+        </Avatar>
         <div>
           <h1 className="-mt-1 capitalize font-medium text-2xl md:text-3xl">
             {userData?.name}

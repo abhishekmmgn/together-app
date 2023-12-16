@@ -21,13 +21,28 @@ export async function GET(request: NextRequest, { params }: Params) {
     }
 
     const curUserId = await getDataFromToken(request);
-    const isFriend = user.friends.includes(curUserId);
 
+    const isFriend = user.friends.includes(curUserId);
     const postsList = await Posts.find({
       _id: { $in: user.posts },
     });
 
-    const data = [user, postsList, { isFriend }];
+    // find the creator details of each post and update the posts
+    const postsWithCreator = await Promise.all(
+      postsList.map(async (post) => {
+        const creator = await Users.findOne({ _id: post.creator });
+        return {
+          ...post.toJSON(),
+          creator: {
+            _id: creator?._id,
+            name: creator?.name,
+            profilePhoto: creator?.profilePhoto,
+          },
+        };
+      })
+    );
+
+    const data = [user, postsWithCreator, { isFriend }];
 
     return NextResponse.json(
       {

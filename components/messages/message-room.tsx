@@ -1,7 +1,7 @@
 import MessageHeading from "@/components/messages/message-heading";
 import { MessageRecieved, MessageSent } from "@/components/messages/message";
 import SendMessage from "@/components/messages/send-message";
-import io from 'Socket.IO-client'
+// import io from 'Socket.IO-client'
 let socket
 import { useEffect } from "react";
 
@@ -11,18 +11,18 @@ type propsType = {
 };
 
 export default function MessageRoom(props: propsType) {
-  useEffect(() => socketInitializer(), [])
-  const socketInitializer = async () => {
-    await fetch('/api/socket')
-    socket = io()
+  // useEffect(() => socketInitializer(), [])
+//   const socketInitializer = async () => {
+//     await fetch('/api/socket')
+//     socket = io()
 
-    socket.on('connect', () => {
-      console.log('connected')
-    })
-  }
+//     socket.on('connect', () => {
+//       console.log('connected')
+//     })
+//   }
 
-  return null
-}
+//   return null
+// }
   const messages = [
     { message: "Hello world!", createdAt: Date.now(), createdBy: "curUser" },
     {

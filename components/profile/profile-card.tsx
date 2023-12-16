@@ -9,6 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import EditProfileForm from "@/components/profile/edit-profile-form";
+import formatAvatarName from "@/helpers/formatAvatarName";
 
 type propsType = {
   last?: boolean;
@@ -25,10 +26,7 @@ export default function ProfileCard(props: propsType) {
           <Avatar className="w-14 h-14 lg:w-[60px] lg:h-[60px]">
             <AvatarImage src={props.photo} alt="Your Profile photo" />
             <AvatarFallback className="text-primary lg:text-xl">
-              {props.name
-                ?.split(" ")
-                .map((word) => word[0])
-                .join("")}
+              {formatAvatarName(props.name)}
             </AvatarFallback>
           </Avatar>
           <div className="w-full flex flex-col justify-center items-center">
@@ -50,10 +48,7 @@ export default function ProfileCard(props: propsType) {
                 <DialogTitle>Edit Profile</DialogTitle>
               </DialogHeader>
               <div>
-                <EditProfileForm
-                  photo={props.photo}
-                  bio={props.bio}
-                />
+                <EditProfileForm photo={props.photo} bio={props.bio} />
               </div>
             </DialogContent>
           </Dialog>

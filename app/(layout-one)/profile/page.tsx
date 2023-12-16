@@ -9,6 +9,7 @@ import Post from "@/components/post/post";
 import TableRow from "@/components/table-row";
 import { useEffect, useState } from "react";
 import { PostType } from "@/types";
+import LoadingSkeleton from "@/components/loading-skeleton";
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<{
@@ -21,13 +22,13 @@ export default function ProfilePage() {
     bio: "",
   });
   const [postsData, setPostsData] = useState<PostType[]>([]);
+  const [loading, setLoading] = useState(true);
 
   async function getData() {
     try {
       const res = await fetch("/api/user/", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        console.log(data);
         setUserData({
           name: data.data[0].name,
           profilePhoto: data.data[0].profilePhoto,
@@ -37,6 +38,8 @@ export default function ProfilePage() {
       }
     } catch (err: any) {
       console.log("Error: ", err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -44,6 +47,17 @@ export default function ProfilePage() {
     getData();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="p-5 space-y-4 ">
+        {Array(8)
+          .fill(null)
+          .map((_, i) => (
+            <LoadingSkeleton key={i} />
+          ))}
+      </div>
+    );
+  }
   return (
     <div className="py-4 lg:pb-8 lg:px-5">
       <ProfileCard

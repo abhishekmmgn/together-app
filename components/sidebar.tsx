@@ -2,7 +2,7 @@
 
 import { useSelectedLayoutSegment } from "next/navigation";
 import Link from "next/link";
-import { tabs } from '@/components/tabs';
+import { tabs } from "@/components/tabs";
 
 export function Sidebar() {
   const routeSegment = useSelectedLayoutSegment();
@@ -14,7 +14,7 @@ export function Sidebar() {
         {tabs.map((tab, index) => (
           <Link
             href={tab.link}
-            className={`h-10 flex justify-start items-center gap-3 px-3 py-1 rounded-lg ${
+            className={`h-10 flex justify-start items-center gap-3 px-3 py-1 rounded-[var(--radius)] ${
               segment === tab.link || segment.startsWith(`${tab.link}/`)
                 ? "bg-tertiary text-primary"
                 : "text-tertiary-foreground hover:bg-secondary"

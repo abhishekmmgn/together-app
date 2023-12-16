@@ -9,17 +9,11 @@ export default function Loading() {
           <Skeleton className="h-10 w-full" />
         </div>
       </div>
-      <ExploreSkeleton />
-      <ExploreSkeleton />
-      <ExploreSkeleton />
-      <ExploreSkeleton />
-      <ExploreSkeleton />
-      <ExploreSkeleton />
-      <ExploreSkeleton />
-      <ExploreSkeleton />
-      <ExploreSkeleton />
-      <ExploreSkeleton />
-      <ExploreSkeleton />
+      {Array(8)
+        .fill(null)
+        .map((_, i) => (
+          <ExploreSkeleton key={i} />
+        ))}
     </div>
   );
 }

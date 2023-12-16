@@ -19,8 +19,7 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
     comments: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "comments",
+      type: Array,
       default: [],
     },
     tags: {

@@ -8,24 +8,33 @@ export type PersonProfileType = {
 export type PostType = {
   _id: string;
   thread: string;
-  creator: string;
+  creator: {
+    _id: string;
+    name: string;
+    profilePhoto: string;
+  };
   image: string;
   likes: string[];
+  liked: boolean;
   comments: string[];
   tags: string[];
   createdAt: Date;
 };
 
 export type CommentsType = {
-  _id: string;
-  text: string;
-  user: string;
-  postId: string;
+  createdBy: {
+    _id: string;
+    name: string;
+    profilePhoto: string;
+  };
+  message: string;
+  createdAt: Date;
 };
 
 export type NotificationType = {
   _id: string;
   message: string;
   read: boolean;
-  time: Date;
+  createdAt: Date;
+  destination: string;
 };

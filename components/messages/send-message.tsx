@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { IoSendSharp } from "react-icons/io5";
+import { IoArrowUpCircle } from "react-icons/io5";
 import { useState } from "react";
 
 export default function SendMessage() {
@@ -8,7 +8,7 @@ export default function SendMessage() {
 
   function sendMessage(e) {
     e.prevent.default();
-    socket.emit('input-change', e.target.value)
+    // socket.emit('input-change', e.target.value)
 
     // add message to chatroom's message
   }
@@ -26,9 +26,9 @@ export default function SendMessage() {
           variant="ghost"
           type="submit"
           disabled={message.length === 0}
-          className="w-12 hover:bg-tertiary"
+          className="w-12 hover:bg-transparent"
         >
-          <IoSendSharp className="w-5 h-5 text-primary" />
+          <IoArrowUpCircle className="w-7 h-7 text-primary" />
         </Button>
       </form>
     </div>

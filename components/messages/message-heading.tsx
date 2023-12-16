@@ -1,6 +1,7 @@
 import { IoChevronBack } from "react-icons/io5";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect } from "react";
+import formatAvatarName from "@/helpers/formatAvatarName";
 
 type propsType = {
   userId: string;
@@ -33,7 +34,7 @@ export default function MessageHeading(props: propsType) {
 
   useEffect(() => {
     getData();
-  }, []);
+  });
 
   return (
     <>
@@ -46,10 +47,7 @@ export default function MessageHeading(props: propsType) {
           <Avatar className="w-11 h-11">
             <AvatarImage src={userData.profilePhoto} alt={userData.name} />
             <AvatarFallback>
-              {userData.name
-                ?.split(" ")
-                .map((word) => word[0])
-                .join("")}
+              {formatAvatarName(userData.name)}
             </AvatarFallback>
           </Avatar>
           <h1 className="line-clamp-1 text-sm font-medium">{userData.name}</h1>

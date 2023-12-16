@@ -19,7 +19,21 @@ export async function GET(request: NextRequest) {
       _id: { $in: user.posts },
     });
 
-    const data = [user, postsList];
+    // find the creator details of each post and update the posts
+    const postsWithCreator = await Promise.all(
+      postsList.map(async (post) => {
+        return {
+          ...post.toJSON(),
+          creator: {
+            _id: user._id,
+            name: user.name,
+            profilePhoto: user.profilePhoto,
+          },
+        };
+      })
+    );
+
+    const data = [user, postsWithCreator];
     return NextResponse.json({
       message: "User found",
       data,

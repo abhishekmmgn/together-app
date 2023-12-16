@@ -40,7 +40,7 @@ export default function NotificationsPrefrences() {
               control={form.control}
               name="all_notifications"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-[var(--radius)] border border-border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">
                       Turn off Notifications
@@ -62,7 +62,7 @@ export default function NotificationsPrefrences() {
               control={form.control}
               name="security_alerts"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-[var(--radius)] border border-border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Security alerts</FormLabel>
                     <FormDescription>

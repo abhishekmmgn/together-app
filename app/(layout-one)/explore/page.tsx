@@ -18,10 +18,12 @@ export default function SearchPage() {
       <SearchBar
         searchActive={isActive}
         setSearchActive={setIsActive}
-        placeholder="Search for friends, family and more"
+        placeholder="Search for people, posts and more."
       />
 
-      {searchQuery && !isActive && <SearchResults query={searchQuery} />}
+      {searchQuery && !isActive && (
+        <SearchResults query={searchQuery} />
+      )}
       {!searchQuery && !isActive && <SearchDefault />}
       {isActive && <SearchSuggestions />}
     </>

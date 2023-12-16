@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FaRegComment } from "react-icons/fa";
-import { FiMoreHorizontal } from "react-icons/fi";
-import { AiOutlineLike, AiFillLike } from "react-icons/ai";
-import { GoShare } from "react-icons/go";
+import {
+  IoHeart,
+  IoHeartOutline,
+  IoEllipsisHorizontal,
+  IoArrowRedoOutline,
+} from "react-icons/io5";
 import { Separator } from "@/components/ui/separator";
 import {
   Menubar,
@@ -19,30 +21,32 @@ import {
 } from "@/components/ui/menubar";
 import { PostType } from "@/types";
 import copyLink from "@/helpers/copyLink";
-import formatPostDate from "@/helpers/formatPostDate";
-
-type PropsType = {
-  paddingX?: boolean;
-};
+import formatPostDate from "@/helpers/formatDate";
+import formatAvatarName from "@/helpers/formatAvatarName";
+import { FaRegComments } from "react-icons/fa";
 
 export default function Post(props: { post: PostType; paddingX?: boolean }) {
-  const [liked, setLiked] = useState(false);
-  const [showComments, setShowComments] = useState(false);
-
+  const [liked, setLiked] = useState(false || props.post.liked);
+  const [numberofLikes, setNumberofLikes] = useState(props.post?.likes.length);
   const formattedDate = formatPostDate(new Date(props.post?.createdAt));
+
   async function changeLike() {
-    const res = await fetch("/api/post/like", {
+    const res = await fetch(`/api/post/${props.post._id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ postId: props.post?._id }),
+      body: JSON.stringify({ like: true }),
     });
     if (res.ok) {
       setLiked(!liked);
+      if (liked) {
+        setNumberofLikes(numberofLikes - 1);
+      } else {
+        setNumberofLikes(numberofLikes + 1);
+      }
     }
   }
-
   return (
     <>
       <div className="pt-1 pb-3">
@@ -52,18 +56,20 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
           } py-2 flex items-center justify-between lg:px-0`}
         >
           <div className="w-full flex items-center gap-3">
-            <Link href={`/profile/${props.post?.creator}`}>
+            <Link href={`/profile/${props.post.creator._id}`}>
               <Avatar className="h-11 w-11">
                 <AvatarImage
-                  src="https://www.unsplash.com/random"
-                  alt="@shadcn"
+                  src={props.post.creator.profilePhoto}
+                  alt={props.post.creator.name}
                 />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback>
+                  {formatAvatarName(props.post.creator.name)}
+                </AvatarFallback>
               </Avatar>
             </Link>
             <div className="w-full flex flex-col gap-[2px]">
               <h1 className="line-clamp-1 font-medium">
-                <Link href="/profile/1">DKMS UK</Link>
+                {props.post?.creator.name}
               </h1>
               <p className="text-sm line-clamp-1 text-muted-foreground">
                 {formattedDate}
@@ -72,7 +78,7 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
             <Menubar className="border-0 bg-transparent">
               <MenubarMenu>
                 <MenubarTrigger className="hover:text-cursor">
-                  <FiMoreHorizontal className="text-2xl" />
+                  <IoEllipsisHorizontal className="text-2xl" />
                 </MenubarTrigger>
                 <MenubarContent className="border-border">
                   <MenubarItem
@@ -98,13 +104,13 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
         >
           {props.post?.thread}
         </p>
-        {props.post?.image && (
+        {props.post?.image[0].length > 0 && (
           <Image
-            src=""
+            src={props.post?.image[0]}
             alt="Post Photo"
             width={480}
             height={360}
-            className="w-full aspect-[3/2] bg-secondary shadow-sm"
+            className="object-cover w-full aspect-[3/2] bg-secondary shadow-sm"
           />
         )}
         <div
@@ -113,21 +119,21 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
           } h-11 w-full flex gap-4 items-center`}
         >
           {liked ? (
-            <AiFillLike
-              className="text-2xl text-[#007aff] cursor-pointer"
+            <IoHeart
+              className="text-2xl text-primary cursor-pointer"
               onClick={() => changeLike()}
             />
           ) : (
-            <AiOutlineLike
+            <IoHeartOutline
               className="text-2xl text-muted-foreground cursor-pointer"
               onClick={() => changeLike()}
             />
           )}
           <Link href={`/posts/${props.post?._id}`}>
-            <FaRegComment className="text-xl text-muted-foreground cursor-pointer" />
+            <FaRegComments className="text-xl text-muted-foreground cursor-pointer" />
           </Link>
-          <GoShare
-            className="text-xl text-muted-foreground cursor-pointer"
+          <IoArrowRedoOutline
+            className="text-2xl text-muted-foreground cursor-pointer"
             onClick={() => copyLink(`/posts/${props.post?._id}`)}
           />
         </div>
@@ -137,13 +143,10 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
           } h-8 w-full flex gap-4 items-start`}
         >
           <p className="text-sm text-muted-foreground">
-            {props.post?.likes.length} Likes
+            {numberofLikes} Likes
           </p>
-          <p
-            className="text-sm text-muted-foreground"
-            onClick={() => setShowComments(true)}
-          >
-            {props.post?.comments.length} Comments
+          <p className="text-sm text-muted-foreground">
+            {props.post.comments.length} Comments
           </p>
         </div>
       </div>
