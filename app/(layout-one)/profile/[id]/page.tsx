@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Post from "@/components/post/post";
@@ -143,11 +142,6 @@ export default function ExternalProfile({ params }: Params) {
           <p className="-mt-1 mb-1 text-tertiary-foreground">{userData?.bio}</p>
         </div>
         <div className="flex flex-col gap-3">
-          {isFriend && (
-            <Button variant="outline" className="max-w-md mx-auto">
-              Message
-            </Button>
-          )}
           {!isFriend && (
             <Button
               className="max-w-md mx-auto"

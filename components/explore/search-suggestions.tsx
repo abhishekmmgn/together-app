@@ -7,7 +7,7 @@ export default function SearchSuggestions() {
         .fill(1)
         .map((index) => (
           <ProfileCardSkeleton key={index} />
-        ))}{" "}
+        ))}
     </div>
   );
 }

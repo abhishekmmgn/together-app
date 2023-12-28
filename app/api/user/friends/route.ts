@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const _id = await getDataFromToken(request);
-
     const user = await User.findOne({ _id }).select("friends");
 
     const friendsList = await User.find({

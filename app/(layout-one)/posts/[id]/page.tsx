@@ -1,18 +1,18 @@
 "use client";
 
 import Post from "@/components/post/post";
-import { PostType } from "@/types";
 import Comments from "@/components/post/comments";
 import { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import PostSkeleton from "@/components/post/post-skeleton";
+import { PostType } from "@/types";
 
 type Props = {
   params: { id: string };
 };
 
 export default function Home({ params }: Props) {
-  const [post, setPost] = useState();
+  const [post, setPost] = useState<PostType>();
   const [postNotFound, setPostNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -52,13 +52,14 @@ export default function Home({ params }: Props) {
   if (postNotFound) {
     notFound();
   }
-
-  return (
-    <>
-      <Post post={post} />
-      <div className="p-5 lg:px-0">
-        <Comments postId={params.id} comments={post.comments} />
-      </div>
-    </>
-  );
+  if (post) {
+    return (
+      <>
+        <Post post={post} />
+        <div className="p-5 lg:px-0">
+          <Comments postId={params.id} comments={post.comments} />
+        </div>
+      </>
+    );
+  }
 }

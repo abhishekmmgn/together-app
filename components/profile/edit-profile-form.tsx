@@ -18,8 +18,10 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { UploadButton } from "@/helpers/uploadthing";
+import userIcon from "../../public/user.png";
 
 const formSchema = z.object({
+  photo: z.string().optional(),
   bio: z.string().max(128, "Name must be less than 128 characters").optional(),
 });
 
@@ -28,15 +30,17 @@ type formSchemaType = z.infer<typeof formSchema>;
 type PropsType = {
   photo: string;
   bio: string;
+  setPhoto: React.Dispatch<React.SetStateAction<string>>;
+  setBio: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export default function EditProfileForm(props: PropsType) {
-  const [image, setImage] = useState<string>(props.photo || "");
   const [disabled, setDisabled] = useState<boolean>(false);
 
   const form = useForm<formSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      photo: props.photo || "",
       bio: props.bio,
     },
   });
@@ -56,12 +60,13 @@ export default function EditProfileForm(props: PropsType) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          profilePhoto: image,
+          profilePhoto: data.photo,
           bio: data.bio,
         }),
       });
       if (res.ok) {
-        console.log("Profile updated successfully");
+        props.setPhoto(data?.photo || props.photo);
+        props.setBio(data?.bio || props.bio);
         toast.success("Profile updated successfully");
         form.reset();
       } else if (res.status === 400) {
@@ -88,16 +93,16 @@ export default function EditProfileForm(props: PropsType) {
           <div className="space-y-2">
             <div className="flex flex-col items-center gap-2">
               <Image
-                src={image}
+                src={form.getValues().photo || userIcon}
                 alt="Profile Photo"
                 width={148}
                 height={148}
-                className="w-24 lg:w-28 aspect-square bg-secondary rounded-full border mx-auto"
+                className="w-24 lg:w-28 object-cover aspect-square bg-secondary rounded-md border border-border mx-auto"
               />
               <UploadButton
                 endpoint="imageUploader"
                 onClientUploadComplete={(res) => {
-                  setImage(res[0].url);
+                  form.setValue("photo", res[0].url);
                   toast.success("Upload Completed");
                 }}
                 onUploadError={(error: Error) => {
@@ -113,7 +118,11 @@ export default function EditProfileForm(props: PropsType) {
                 <FormItem>
                   <FormLabel>Bio</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="..." {...field} className="resize-none" />
+                    <Textarea
+                      placeholder="..."
+                      {...field}
+                      className="resize-none"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

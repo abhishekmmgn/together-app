@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
     //check if user already exists
     const user = await User.findOne({ email });
 
-    if (user) {
+    // check if user is verified
+    if (user && user.isVerified) {
       return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
@@ -22,6 +23,22 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // user exists, change the password and send email
+    if (user) {
+      user.password = hashedPassword;
+      await user.save();
+      
+      // send verification email
+      await sendEmail({ email, emailType: "VERIFY", userId: user._id });
+
+      return NextResponse.json({
+        message: "User updated successfully",
+        success: true,
+        savedUser: user,
+      });
+    }
+
+    // otherwise create new user
     const newUser = new User({
       name,
       email,
@@ -29,7 +46,6 @@ export async function POST(request: NextRequest) {
     });
 
     const savedUser = await newUser.save();
-    console.log("Saved User: ", savedUser);
     
     // send verification email
     await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id });

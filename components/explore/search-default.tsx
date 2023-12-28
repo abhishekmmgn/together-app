@@ -14,7 +14,6 @@ export default function SearchDefault() {
           cache: "no-cache",
         });
         const data = await res.json();
-        console.log(data);
         setSuggestions(data.data);
       } catch (error) {
         console.log(error);

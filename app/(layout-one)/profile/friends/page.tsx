@@ -16,8 +16,8 @@ export default function FriendsPage() {
     try {
       const res = await fetch("/api/user/friends/", { cache: "no-store" });
       if (res.ok) {
-        const data = await res.json();
-        setFriends(data.data);
+        const { data } = await res.json();
+        setFriends(data);
       }
     } catch (err: any) {
       console.log("Error: ", err.message);

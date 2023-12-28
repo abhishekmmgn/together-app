@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
       return NextResponse.json({ error: "User not found." }, { status: 400 });
     }
 
-    console.log("Running...")
+    console.log("Running...");
     const postId = params.id;
     const post = await Post.findOne({ _id: postId });
     if (!post) {
@@ -93,16 +93,15 @@ export async function PUT(request: NextRequest, { params }: Props) {
         post.likes.push(curUserId);
       }
     }
-    
+
     // update comments
     if (message) {
       const comment = { createdBy: curUserId, message, createdAt: new Date() };
+
       post.comments.push(comment);
     }
-    
-    const savedPost = await post.save();
-    
-    console.log("Completed.")
+
+    await post.save();
 
     return NextResponse.json(
       {
@@ -112,5 +111,39 @@ export async function PUT(request: NextRequest, { params }: Props) {
     );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 501 });
+  }
+}
+
+export async function DELETE(request: NextRequest, params: { id: string }) {
+  try {
+    await connectDB();
+
+    const { postId } = await request.json();
+    const userId = await getDataFromToken(request);
+
+    const user = await Users.findOne({ _id: userId });
+    const post = await Post.findOne({ _id: postId });
+
+    if (!user || !post) {
+      return NextResponse.json(
+        { error: "User or post does not exists" },
+        { status: 400 }
+      );
+    }
+
+    await Post.deleteOne({ _id: postId });
+
+    // remove post id from user's posts array
+    const index = user.posts.indexOf(postId);
+    user.posts.splice(index, 1);
+
+    await user.save();
+
+    return NextResponse.json(
+      { message: "Post deleted successfully." },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

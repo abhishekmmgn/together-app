@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import ResetPasswordForm from "@/app/(layout-two)/auth/reset-password/reset-password-form";
+import ResetPasswordForm from "@/app/auth/reset-password/reset-password-form";
 
 export default function ChangePassword() {
   return (

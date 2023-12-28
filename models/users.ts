@@ -41,8 +41,7 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
     conversations: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "messageRooms",
+      type: Array,
       default: [],
     },
     forgotPasswordToken: String,

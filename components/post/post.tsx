@@ -25,10 +25,16 @@ import formatPostDate from "@/helpers/formatDate";
 import formatAvatarName from "@/helpers/formatAvatarName";
 import { FaRegComments } from "react-icons/fa";
 
-export default function Post(props: { post: PostType; paddingX?: boolean }) {
+export default function Post(props: {
+  post: PostType;
+  paddingX?: boolean;
+  canDelete?: boolean;
+}) {
   const [liked, setLiked] = useState(false || props.post.liked);
+  const [isDeleted, setIsDeleted] = useState(false);
   const [numberofLikes, setNumberofLikes] = useState(props.post?.likes.length);
-  const formattedDate = formatPostDate(new Date(props.post?.createdAt));
+  
+  const formattedDate = formatPostDate(props.post?.createdAt);
 
   async function changeLike() {
     const res = await fetch(`/api/post/${props.post._id}`, {
@@ -47,6 +53,24 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
       }
     }
   }
+
+  async function deletePost() {
+    const res = await fetch(`/api/post/${props.post._id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ postId: props.post._id }),
+    });
+    if (res.ok) {
+      setIsDeleted(true);
+    }
+  }
+
+  if (isDeleted) {
+    return <></>;
+  }
+
   return (
     <>
       <div className="pt-1 pb-3">
@@ -82,6 +106,7 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
                 </MenubarTrigger>
                 <MenubarContent className="border-border">
                   <MenubarItem
+                    className="text-primary"
                     onClick={() => copyLink(`/posts/${props.post?._id}`)}
                   >
                     Share
@@ -92,6 +117,19 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
                   </Link>
                   <MenubarSeparator />
                   <MenubarItem>Not Intrested</MenubarItem>
+                  {props.canDelete && (
+                    <>
+                      <MenubarSeparator />
+                      <MenubarItem
+                        className="text-destructive"
+                        onClick={() => {
+                          deletePost();
+                        }}
+                      >
+                        Delete post
+                      </MenubarItem>
+                    </>
+                  )}
                 </MenubarContent>
               </MenubarMenu>
             </Menubar>
@@ -142,9 +180,7 @@ export default function Post(props: { post: PostType; paddingX?: boolean }) {
             !props.paddingX && "px-4 lg:px-0"
           } h-8 w-full flex gap-4 items-start`}
         >
-          <p className="text-sm text-muted-foreground">
-            {numberofLikes} Likes
-          </p>
+          <p className="text-sm text-muted-foreground">{numberofLikes} Likes</p>
           <p className="text-sm text-muted-foreground">
             {props.post.comments.length} Comments
           </p>

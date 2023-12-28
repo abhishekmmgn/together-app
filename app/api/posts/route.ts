@@ -10,14 +10,17 @@ export async function GET(request: NextRequest) {
 
     const curUserId = await getDataFromToken(request);
 
-    // return 5 posts from posts collection for infinite scroll
-    const posts = await Post.find().limit(5);
+    // Get the page number from the query parameters
+    const page = Number(request.nextUrl.searchParams.get("page")) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    // Return a specific page of posts from the posts collection for infinite scroll
+    const posts = await Post.find().skip(skip).limit(limit);
 
     const updatedPost = await Promise.all(
       posts.map(async (post) => {
-        // find the creator details of each post and update the posts
         const creator = await Users.findOne({ _id: post.creator });
-        // check if post has been liked by current user
         const isLiked = post.likes.includes(curUserId);
         return {
           ...post.toJSON(),
@@ -36,6 +39,6 @@ export async function GET(request: NextRequest) {
       data: updatedPost,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
+const conversationSchema = new mongoose.Schema(
   {
     members: {
       type: [mongoose.Schema.Types.ObjectId],
@@ -15,10 +15,10 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const MessageRooms =
-  mongoose.models.messageRooms || mongoose.model("messageRooms", userSchema);
+const Conversations =
+  mongoose.models.conversations || mongoose.model("conversations", conversationSchema);
 
-export default MessageRooms;
+export default Conversations;
 
 /*
 

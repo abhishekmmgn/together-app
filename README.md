@@ -22,8 +22,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Now, change the 
-
 ### Tech used
 
 - [NEXT.JS](https://nextjs.org/)
@@ -37,9 +35,10 @@ Now, change the
 ### Features
 
 - Feeds
-  - Make a post
-  - See other's posts
-  - Interact with the posts with likes and comments and by sharing them
+  - Create posts
+  - Delete your post
+  - See other's posts (infinite scroll)
+  - Interact with the posts by liking and doing comment and sharing
 
 - Profile
   - Add friends
@@ -48,10 +47,11 @@ Now, change the
 
 - Messages
   - Message your friends
+  - Search conversation
 
 - Notifications
   - Get notifications for app events
-  - Search conversation
 
 - Explore
   - Find people or posts
+  - Friends recommendations

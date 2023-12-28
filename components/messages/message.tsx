@@ -1,19 +1,22 @@
 type propsType = {
   message: string;
+  type: "sent" | "received";
 };
 
-export function MessageRecieved(props: propsType) {
+export function Message(props: propsType) {
   return (
-    <div className="w-fit max-w-[75%] py-[6px] px-[12px] rounded-[var(--radius)] bg-tertiary text-secondary-foreground">
-      {props.message}
-    </div>
-  );
-}
-
-export function MessageSent(props: propsType) {
-  return (
-    <div className="w-full flex items-center justify-end">
-      <div className="w-fit max-w-[75%] py-[6px] px-[12px] rounded-[var(--radius)] bg-primary text-primary-foreground">
+    <div
+      className={`w-full flex items-center  ${
+        props.type === "sent" ? "justify-end" : "justify-start"
+      }`}
+    >
+      <div
+        className={`w-fit max-w-[75%] py-[6px] px-[12px] rounded-[var(--radius)] ${
+          props.type === "sent"
+            ? "bg-primary text-primary-foreground"
+            : "bg-secondary text-secondary-foreground"
+        }`}
+      >
         {props.message}
       </div>
     </div>

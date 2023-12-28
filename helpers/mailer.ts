@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 import User from "@/models/users";
 import bcryptjs from "bcryptjs";
-import { string } from "zod";
 
 type propsType = {
   email: string;
@@ -40,7 +39,7 @@ export const sendEmail = async (props: propsType) => {
         props.emailType === "VERIFY"
           ? "Verify your email to join Together app"
           : "Reset your password",
-      html: `<p>Click <a href="${process.env.DOMAIN}/auth/${
+      html: `<p>Click <a href="${process.env.NEXT_PUBLIC_DOMAIN}/auth/${
         props.emailType === "VERIFY" ? "verify-mail" : "reset-password"
       }?token=${hashedToken}">here</a> to ${
         props.emailType === "VERIFY"

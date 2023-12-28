@@ -6,8 +6,6 @@ import ProfileCardSkeleton from "./profile-card-skeleton";
 import PostSkeleton from "../post/post-skeleton";
 import { PersonProfileType, PostType } from "@/types";
 
-const loadingArray = [1, 2, 3, 4, 5, 6, 7];
-
 export default function SearchResults(props: { query: string }) {
   const [personResults, setPersonResults] = useState<PersonProfileType[]>([]);
   const [postsResults, setPostsResults] = useState<PostType[]>([]);
@@ -42,9 +40,11 @@ export default function SearchResults(props: { query: string }) {
           <div className="py-4">
             {loading ? (
               <>
-                {loadingArray.map((index) => (
-                  <ProfileCardSkeleton key={index} />
-                ))}
+                {Array(10)
+                  .fill(null)
+                  .map((_, i) => (
+                    <ProfileCardSkeleton key={i} />
+                  ))}
               </>
             ) : (
               <>
@@ -73,9 +73,11 @@ export default function SearchResults(props: { query: string }) {
           <div className="py-4">
             {loading ? (
               <>
-                {loadingArray.map((index) => (
-                  <PostSkeleton key={index} />
-                ))}
+                {Array(10)
+                  .fill(null)
+                  .map((_, i) => (
+                    <PostSkeleton key={i} />
+                  ))}
               </>
             ) : (
               <>

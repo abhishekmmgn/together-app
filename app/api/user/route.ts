@@ -4,45 +4,45 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/users";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { cookies } from "next/headers";
-import Post from "@/models/posts";
+import Posts from "@/models/posts";
 
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
-
-    const userId = await getDataFromToken(request);
-    const user = await User.findOne({ _id: userId }).select(
+    
+    const curUserId = await getDataFromToken(request);
+    const user = await User.findOne({ _id: curUserId }).select(
       "name profilePhoto bio posts"
     );
 
-    const postsList = await Post.find({
+    const postsList = await Posts.find({
       _id: { $in: user.posts },
     });
 
-    // find the creator details of each post and update the posts
-    const postsWithCreator = await Promise.all(
-      postsList.map(async (post) => {
-        return {
-          ...post.toJSON(),
-          creator: {
-            _id: user._id,
-            name: user.name,
-            profilePhoto: user.profilePhoto,
-          },
-        };
-      })
-    );
+        // find the creator details of each post and update the posts
+        const posts = await Promise.all(
+          postsList.map(async (post) => {
+            return {
+              ...post.toJSON(),
+              creator: {
+                _id: user._id,
+                name: user.name,
+                profilePhoto: user.profilePhoto,
+              },
+            };
+          })
+        );
 
-    const data = [user, postsWithCreator];
+    const data = [user, posts];
+
     return NextResponse.json({
-      message: "User found",
+      message: "Posts found",
       data,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
-
 export async function PUT(request: NextRequest) {
   try {
     await connectDB();
@@ -93,6 +93,9 @@ export async function DELETE(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Invalid id" }, { status: 400 });
     }
+
+    // delete all posts by the user
+    await Posts.deleteMany({ _id: { $in: user.posts } });
 
     // delete user
     await User.deleteOne({ _id });

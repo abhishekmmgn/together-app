@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import EditProfileForm from "@/components/profile/edit-profile-form";
 import formatAvatarName from "@/helpers/formatAvatarName";
+import { useState } from "react";
 
 type propsType = {
   last?: boolean;
@@ -19,12 +20,14 @@ type propsType = {
 };
 
 export default function ProfileCard(props: propsType) {
+  const [photo, setPhoto] = useState(props.photo);
+  const [bio, setBio] = useState(props.bio);
   return (
     <>
       <div className="w-full h-[72px] px-5 flex items-center justify-between lg:px-0 md:h-[76px]">
         <div className="w-full flex gap-3">
           <Avatar className="w-14 h-14 lg:w-[60px] lg:h-[60px]">
-            <AvatarImage src={props.photo} alt="Your Profile photo" />
+            <AvatarImage src={photo} alt="Your Profile photo" />
             <AvatarFallback className="text-primary lg:text-xl">
               {formatAvatarName(props.name)}
             </AvatarFallback>
@@ -34,7 +37,7 @@ export default function ProfileCard(props: propsType) {
               {props.name}
             </h1>
             <p className="w-full overflow-x-hidden text-sm line-clamp-1 text-tertiary-foreground">
-              {props.bio}
+              {bio}
             </p>
           </div>
         </div>
@@ -48,7 +51,12 @@ export default function ProfileCard(props: propsType) {
                 <DialogTitle>Edit Profile</DialogTitle>
               </DialogHeader>
               <div>
-                <EditProfileForm photo={props.photo} bio={props.bio} />
+                <EditProfileForm
+                  photo={photo}
+                  bio={bio}
+                  setPhoto={setPhoto}
+                  setBio={setBio}
+                />
               </div>
             </DialogContent>
           </Dialog>

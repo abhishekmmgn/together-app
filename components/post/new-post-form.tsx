@@ -64,10 +64,9 @@ export default function NewPostForm() {
         }),
       });
       if (res.ok) {
-        console.log(res.status);
         toast.success("Post created successfully");
         form.reset();
-        sendNotification("There are new posts.", "/")
+        sendNotification("There are new posts.", "/");
       } else if (res.status === 400) {
         console.log(res.status);
         toast.error(res.statusText);
@@ -82,6 +81,7 @@ export default function NewPostForm() {
       console.log("Error: ", err.message);
       toast.error(err.message);
     } finally {
+      setImage("");
       setDisabled(false);
     }
   }
@@ -96,7 +96,7 @@ export default function NewPostForm() {
             <div className="relative flex flex-col items-center gap-2 w-full aspect-[4/3]">
               <Image
                 src={image}
-                alt="Profile Photo"
+                alt="New Post"
                 fill
                 sizes="(max-width: 768px) 400px, 600px"
                 className="object-cover bg-secondary rounded-[var(--radius)] border mx-auto"

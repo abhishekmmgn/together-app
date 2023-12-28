@@ -62,3 +62,11 @@ body {
     color: hsl(var(--primary-foreground));
   }
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

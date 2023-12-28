@@ -6,20 +6,15 @@ import { IoMailOutline } from "react-icons/io5";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { useUserStore } from "@/store";
+import { useSearchParams } from "next/navigation";
 
 export default function EmailVerificationPage() {
-  const [token, setToken] = useState("");
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState(false);
+
   const router = useRouter();
-
-  const { setId } = useUserStore();
-
-  useEffect(() => {
-    const urlToken = window.location.search.split("=")[1];
-    setToken(urlToken || "");
-  }, []);
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
 
   useEffect(() => {
     async function verifyMail(token: string) {
@@ -35,7 +30,7 @@ export default function EmailVerificationPage() {
         });
         if (res.ok) {
           console.log("Email verification successful");
-          setVerified(true);;
+          setVerified(true);
           router.push("/");
         } else if (res.status === 400) {
           toast.error("Invalid token or token expired");
@@ -51,7 +46,6 @@ export default function EmailVerificationPage() {
       verifyMail(token);
     }
   }, [token]);
-  console.log("Running...");
   return (
     <>
       <div>

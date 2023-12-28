@@ -16,7 +16,7 @@ export default function ProfileCard(props: PersonProfileType) {
         </Avatar>
         <div className="w-full">
           <h1 className="w-full font-medium line-clamp-1">{props.name}</h1>
-          <p className="w-fit max-w-[50%] overflow-x-hidden line-clamp-1 text-muted-foreground">
+          <p className="w-fit overflow-x-hidden line-clamp-1 text-muted-foreground">
             {props.bio}
           </p>
         </div>

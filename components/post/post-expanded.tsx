@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { FaRegComments } from "react-icons/fa";
 import Post from "./post";
-import { CommentRecieved, CommentSent } from "./comment";
+import { Comment } from "./comment";
 import CreateComment from "./comments";
 import { PostType } from "@/types";
 import { useEffect, useState } from "react";
@@ -49,12 +49,19 @@ export default function PostExpanded(props: { postId: string }) {
               <div className="mt-3 space-y-3">
                 {true && (
                   <>
-                    <CommentRecieved comment="This is a comment." />
-                    <CommentRecieved comment="This is a comment." />
+                    <Comment
+                      createdBy={{
+                        name: "",
+                        _id: "",
+                        profilePhoto:
+                          "",
+                      }}
+                      type="sent"
+                      comment="This is a comment."
+                    />
                   </>
                 )}
               </div>
-              <CreateComment />
             </div>
           </>
         )}

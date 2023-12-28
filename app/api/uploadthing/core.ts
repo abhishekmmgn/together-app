@@ -5,7 +5,7 @@ const f = createUploadthing();
 const auth = (req: Request) => ({ id: "fakeId" }); // Fake auth function
 
 export const ourFileRouter = {
-  imageUploader: f({ image: { maxFileSize: "1MB" } })
+  imageUploader: f({ image: { maxFileSize: "2MB" } })
     // Set permissions and file types for this FileRoute
     .middleware(async ({ req }) => {
       // This code runs on your server before upload

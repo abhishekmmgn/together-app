@@ -13,12 +13,12 @@ export type PostType = {
     name: string;
     profilePhoto: string;
   };
-  image: string;
+  image: string[];
   likes: string[];
   liked: boolean;
-  comments: string[];
+  comments: [];
   tags: string[];
-  createdAt: Date;
+  createdAt: string;
 };
 
 export type CommentsType = {
@@ -38,3 +38,25 @@ export type NotificationType = {
   createdAt: Date;
   destination: string;
 };
+
+export type ActiveConversationType = {
+  conversationId: string;
+  otherUserId?: string;
+};
+
+export type ConversationType = {
+  conversationId: string;
+  lastMessage: {
+    time: string;
+    message: string;
+  };
+  user: {
+    _id: string;
+    name: string;
+    profilePhoto: string;
+  };
+};
+
+export interface MessageObject {
+  [key: string]: string;
+}

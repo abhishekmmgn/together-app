@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import ProfileCard from "@/components/profile/profile-card";
 import { Separator } from "@/components/ui/separator";
-import Post from "@/components/post/post";
 import TableRow from "@/components/table-row";
 import { useEffect, useState } from "react";
-import { PostType } from "@/types";
 import LoadingSkeleton from "@/components/loading-skeleton";
+import Post from "@/components/post/post";
+import { PostType } from "@/types";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<{
@@ -21,12 +21,12 @@ export default function ProfilePage() {
     profilePhoto: "",
     bio: "",
   });
-  const [postsData, setPostsData] = useState<PostType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [postsData, setPostsData] = useState<PostType[]>([]);
 
   async function getData() {
     try {
-      const res = await fetch("/api/user/", { cache: "no-store" });
+      const res = await fetch(`/api/user/`, { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setUserData({
@@ -58,6 +58,7 @@ export default function ProfilePage() {
       </div>
     );
   }
+
   return (
     <div className="py-4 lg:pb-8 lg:px-5">
       <ProfileCard
@@ -75,7 +76,12 @@ export default function ProfilePage() {
         {postsData?.length > 0 ? (
           <>
             {postsData.map((post) => (
-              <Post key={post._id} post={post} paddingX={true} />
+              <Post
+                key={post._id}
+                post={post}
+                paddingX={true}
+                canDelete={true}
+              />
             ))}
           </>
         ) : (

@@ -1,55 +1,100 @@
 import MessageHeading from "@/components/messages/message-heading";
-import { MessageRecieved, MessageSent } from "@/components/messages/message";
+import { Message } from "@/components/messages/message";
 import SendMessage from "@/components/messages/send-message";
-// import io from 'Socket.IO-client'
-let socket
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ActiveConversationType, MessageObject } from "@/types";
+import {
+  getConversation,
+  searchConversation,
+} from "@/helpers/conversation-helpers";
 
 type propsType = {
-  conversationId: string;
-  setconversationActive: React.Dispatch<React.SetStateAction<string>>;
+  activeConversation: ActiveConversationType;
+  setActiveConversation: React.Dispatch<
+    React.SetStateAction<ActiveConversationType>
+  >;
 };
 
 export default function MessageRoom(props: propsType) {
-  // useEffect(() => socketInitializer(), [])
-//   const socketInitializer = async () => {
-//     await fetch('/api/socket')
-//     socket = io()
+  const [userDetails, setUserDetails] = useState({
+    _id: "",
+    name: "",
+    profilePhoto: "",
+  });
+  const [messages, setMessages] = useState<MessageObject[]>([]);
+  const [newMessages, setNewMessages] = useState<MessageObject[]>([]);
 
-//     socket.on('connect', () => {
-//       console.log('connected')
-//     })
-//   }
+  useEffect(() => {
+    const getData = async () => {
+      let data;
+      if (props.activeConversation.conversationId.length > 1) {
+        data = await getConversation(props.activeConversation.conversationId);
+      } else if (props.activeConversation.otherUserId) {
+        data = await searchConversation(props.activeConversation.otherUserId);
+        props.setActiveConversation({
+          conversationId: data[2],
+          otherUserId: data[0]._id,
+        });
+      }
+      setUserDetails({
+        _id: data[0]._id,
+        name: data[0].name,
+        profilePhoto: data[0].profilePhoto,
+      });
+      setMessages(data[1]);
+    };
 
-//   return null
-// }
-  const messages = [
-    { message: "Hello world!", createdAt: Date.now(), createdBy: "curUser" },
-    {
-      message: "World says hello!",
-      createdAt: Date.now(),
-      createdBy: "otherUser",
-    },
-  ];
-  const userId = "6564395ac3f69cbaeddce588";
+    getData();
+  }, []);
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = await getConversation(
+        props.activeConversation.conversationId
+      );
+      props.setActiveConversation({
+        conversationId: data[2],
+        otherUserId: data[0]._id,
+      });
+    };
+    if (newMessages.length > 1 && messages.length == 0) {
+      getData();
+    }
+  });
   return (
-    <div className="absolute inset-0 z-[100] bg-background md:inset-auto md:static md:z-auto">
+    <div className="h-screen absolute inset-0 z-[100] bg-background sm:inset-auto sm:static sm:z-auto">
       <MessageHeading
-        userId={userId}
-        setconversationActive={props.setconversationActive}
+        name={userDetails?.name}
+        profilePhoto={userDetails.profilePhoto}
+        setActiveConversation={props.setActiveConversation}
       />
-      <div className="p-3 space-y-5 sm:mt-14">
+      <div className="p-3 space-y-5 mt-20">
         <>
-          {messages.map((message) => {
-            message.createdBy === "curUser" ? (
-              <MessageRecieved message="Hey, how can I help you today?" />
+          {messages.map((message, index) => {
+            const firstKey = Object.keys(message)[0];
+            const messageContent: string = message[firstKey];
+            return firstKey === userDetails._id ? (
+              <Message message={messageContent} type="received" key={index} />
             ) : (
-              <MessageSent message="Hey, I'm having trouble with my account." />
+              <Message message={messageContent} type="sent" key={index} />
+            );
+          })}
+          {newMessages.map((message, index) => {
+            const firstKey: string = Object.keys(message)[0];
+            const messageContent: string = message[firstKey];
+            return firstKey === userDetails._id ? (
+              <Message message={messageContent} type="received" key={index} />
+            ) : (
+              <Message message={messageContent} type="sent" key={index} />
             );
           })}
         </>
       </div>
-      <SendMessage />
+      <SendMessage
+        userId={userDetails._id}
+        conversationId={props.activeConversation.conversationId}
+        setNewMessages={setNewMessages}
+      />
     </div>
   );
 }
