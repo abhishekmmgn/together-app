@@ -4,7 +4,7 @@ Together App is a social app to connect with your family, friends and others. Yo
 
 ## Experience Here
 
-[togetherx.vercel.app](https://togetherx.vercel.app)
+[togetherx.vercel.app](https://together-x.netlify.app/)
 
 ## Getting Started
 
@@ -21,6 +21,8 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+Rename the env-guide.txt file to .env.local and add environment variables
 
 ### Tech used
 
