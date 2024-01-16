@@ -71,7 +71,7 @@ export default function MessageRoom(props: propsType) {
         messagesContainerRef.current.scrollTop ===
         messagesContainerRef.current.clientHeight;
 
-    if (!isAtBottom) {
+    if (isAtBottom) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, newMessages]);
