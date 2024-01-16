@@ -2,10 +2,6 @@
 
 Together App is a social app to connect with your family, friends and others. You can add friends to get updates on your feed or can message.
 
-## Experience Here
-
-[togetherx.vercel.app](https://together-x.netlify.app/)
-
 ## Getting Started
 
 First, install the packages:
