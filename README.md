@@ -19,6 +19,7 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 Rename the env-guide.txt file to .env.local and add environment variables
+Uncomment `{children}` in root level layout.tsx file and comment `<DbFull />` component
 
 ### Tech used
 
@@ -33,21 +34,25 @@ Rename the env-guide.txt file to .env.local and add environment variables
 ### Features
 
 - Feeds
+
   - Create posts
   - Delete your post
   - See other's posts (infinite scroll)
   - Interact with the posts by liking and doing comment and sharing
 
 - Profile
+
   - Add friends
   - Make your profile
   - See other's profile
 
 - Messages
+
   - Message your friends
   - Search conversation
 
 - Notifications
+
   - Get notifications for app events
 
 - Explore

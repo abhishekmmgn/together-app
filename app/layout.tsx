@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/settings/theme-provider";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import DbFull from "@/components/db-full";
 
 const roboto = Roboto({
   weight: ["100", "300", "400", "500", "700"],
@@ -35,7 +36,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <DbFull />
+          {/* {children} */}
           <SpeedInsights />
         </ThemeProvider>
       </body>
