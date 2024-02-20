@@ -6,6 +6,8 @@ import { IoArrowUpCircle } from "react-icons/io5";
 import { useState } from "react";
 import { Comment } from "./comment";
 import { CommentsType } from "@/types";
+import { checkLoggedIn } from "@/lib/checkLoggedIn";
+import { useRouter } from "next/navigation";
 
 export default function Comments({
   postId,
@@ -17,8 +19,15 @@ export default function Comments({
   const [message, setMessage] = useState<string>("");
   const [userComments, setUserComments] = useState<string[]>([]);
 
+  const { replace } = useRouter();
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    // check if logged in
+    if (!(await checkLoggedIn())) {
+      replace("/auth/login");
+    }
     try {
       const res = await fetch(`/api/post/${postId}`, {
         method: "PUT",

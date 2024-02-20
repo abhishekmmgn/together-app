@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/users";
 import bcrypt from "bcryptjs";
-import { sendEmail } from "@/helpers/mailer";
+import { sendEmail } from "@/lib/mailer";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,9 +27,9 @@ export async function POST(request: NextRequest) {
     if (user) {
       user.password = hashedPassword;
       await user.save();
-      
+
       // send verification email
-      await sendEmail({ email, emailType: "VERIFY", userId: user._id });
+      await sendEmail(email, "VERIFY", user._id);
 
       return NextResponse.json({
         message: "User updated successfully",
@@ -46,9 +46,9 @@ export async function POST(request: NextRequest) {
     });
 
     const savedUser = await newUser.save();
-    
+
     // send verification email
-    await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id });
+    await sendEmail(email, "VERIFY", savedUser._id);
 
     return NextResponse.json({
       message: "User created successfully",

@@ -1,6 +1,6 @@
 import { IoChevronBack } from "react-icons/io5";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import formatAvatarName from "@/helpers/formatAvatarName";
+import formatAvatarName from "@/lib/formatAvatarName";
 import { ActiveConversationType } from "@/types";
 
 type propsType = {

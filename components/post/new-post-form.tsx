@@ -18,8 +18,8 @@ import { Input } from "../ui/input";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { UploadDropzone } from "@/helpers/uploadthing";
-import sendNotification from "@/helpers/sendNotification";
+import { UploadDropzone } from "@/lib/uploadthing";
+import sendNotification from "@/lib/sendNotification";
 
 const formSchema = z.object({
   thread: z

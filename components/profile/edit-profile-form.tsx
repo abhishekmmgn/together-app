@@ -17,8 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { UploadButton } from "@/helpers/uploadthing";
-import userIcon from "../../../public/user.png";
+import { UploadButton } from "@/lib/uploadthing";
+import userIcon from "../../public/user.png";
 
 const formSchema = z.object({
   photo: z.string().optional(),

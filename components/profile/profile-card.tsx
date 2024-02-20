@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import EditProfileForm from "@/components/profile/edit-profile-form";
-import formatAvatarName from "@/helpers/formatAvatarName";
+import formatAvatarName from "@/lib/formatAvatarName";
 import { useState } from "react";
 
 type propsType = {

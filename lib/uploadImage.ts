@@ -11,7 +11,6 @@ export default async function uploadImage(
       const reader = new FileReader();
       reader.onload = (e) => {
         // setData((prev) => ({ ...prev, image: e.target?.result as string }))
-        // vercel blob
       };
       reader.readAsDataURL(file);
     }

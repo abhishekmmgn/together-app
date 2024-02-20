@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/users";
-import { getDataFromToken } from "@/helpers/getDataFromToken";
+import { getDataFromToken } from "@/lib/getDataFromToken";
 import { cookies } from "next/headers";
 import Posts from "@/models/posts";
 

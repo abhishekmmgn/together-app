@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { PersonProfileType } from "@/types";
-import formatAvatarName from "@/helpers/formatAvatarName";
+import formatAvatarName from "@/lib/formatAvatarName";
 
 export default function ProfileCard(props: PersonProfileType) {
   return (

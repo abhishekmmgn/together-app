@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/users";
 import bcrypt from "bcryptjs";
-import { sendEmail } from "@/helpers/mailer";
+import { sendEmail } from "@/lib/mailer";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const user = await User.findOne({ email });
 
     console.log(user);
-    
+
     if (!user) {
       return NextResponse.json(
         { error: "User doesn't exist." },
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // send verification email
-    await sendEmail({ email, emailType: "RESET", userId: user._id });
+    await sendEmail(email, "RESET", user._id);
 
     return NextResponse.json({
       message: "Email send successfully",

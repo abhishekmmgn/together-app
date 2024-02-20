@@ -20,10 +20,12 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { PostType } from "@/types";
-import copyLink from "@/helpers/copyLink";
-import formatPostDate from "@/helpers/formatDate";
-import formatAvatarName from "@/helpers/formatAvatarName";
+import copyLink from "@/lib/copyLink";
+import formatPostDate from "@/lib/formatDate";
+import formatAvatarName from "@/lib/formatAvatarName";
 import { FaRegComments } from "react-icons/fa";
+import { checkLoggedIn } from "@/lib/checkLoggedIn";
+import { useRouter } from "next/navigation";
 
 export default function Post(props: {
   post: PostType;
@@ -33,10 +35,16 @@ export default function Post(props: {
   const [liked, setLiked] = useState(false || props.post.liked);
   const [isDeleted, setIsDeleted] = useState(false);
   const [numberofLikes, setNumberofLikes] = useState(props.post?.likes.length);
+
+  const { replace } = useRouter();
   
   const formattedDate = formatPostDate(props.post?.createdAt);
 
   async function changeLike() {
+    // check if logged in
+    if (!(await checkLoggedIn())) {
+      replace("/auth/login");
+    }
     const res = await fetch(`/api/post/${props.post._id}`, {
       method: "PUT",
       headers: {

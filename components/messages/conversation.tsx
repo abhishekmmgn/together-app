@@ -6,11 +6,11 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import formatAvatarName from "@/helpers/formatAvatarName";
+import formatAvatarName from "@/lib/formatAvatarName";
 import { ActiveConversationType, ConversationType } from "@/types";
-import formatDate from "@/helpers/formatDate";
+import formatDate from "@/lib/formatDate";
 import { useState } from "react";
-import { deleteConversation } from "@/helpers/conversation-helpers";
+import { deleteConversation } from "@/lib/conversation-helpers";
 
 export default function Conversation({
   conversationId,

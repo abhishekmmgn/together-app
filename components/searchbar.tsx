@@ -1,3 +1,5 @@
+"use client";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -17,16 +19,13 @@ export default function SearchBar(props: PropsType) {
   const searchParams = useSearchParams();
 
   function handleKeydown(e: React.KeyboardEvent<HTMLInputElement>) {
-    // Check if the pressed key is "Enter"
     if (e.key === "Enter" && searchValue) {
-      // If Enter key is pressed and there is a search value, update the URL
       props.setSearchActive(false);
       router.push(`${pathname}?query=${searchValue}`);
     } else {
-      // Otherwise, update the search term
       const term = (e.target as HTMLInputElement).value.toLowerCase();
       setSearchValue(term);
-      const params = new URLSearchParams(searchParams);
+      const params = new URLSearchParams(searchParams!);
       if (term) {
         params.set("query", term);
       } else {
@@ -41,7 +40,7 @@ export default function SearchBar(props: PropsType) {
       <div className="relative w-full">
         <Input
           type="search"
-          defaultValue={searchParams.get("query")?.toString()}
+          defaultValue={searchParams?.get("query")?.toString()}
           placeholder={props.placeholder}
           onFocus={() => props.setSearchActive(true)}
           onKeyDown={handleKeydown}

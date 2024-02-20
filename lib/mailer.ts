@@ -2,23 +2,22 @@ import nodemailer from "nodemailer";
 import User from "@/models/users";
 import bcryptjs from "bcryptjs";
 
-type propsType = {
-  email: string;
-  emailType: string;
-  userId: any;
-};
-export const sendEmail = async (props: propsType) => {
+export const sendEmail = async (
+  email: string,
+  emailType: string,
+  userId: any
+) => {
   try {
     // create a hased token
-    const hashedToken = await bcryptjs.hash(props.userId.toString(), 10);
+    const hashedToken = await bcryptjs.hash(userId.toString(), 10);
 
-    if (props.emailType === "VERIFY") {
-      await User.findByIdAndUpdate(props.userId, {
+    if (emailType === "VERIFY") {
+      await User.findByIdAndUpdate(userId, {
         verifyToken: hashedToken,
         verifyTokenExpiry: Date.now() + 3600000,
       });
-    } else if (props.emailType === "RESET") {
-      await User.findByIdAndUpdate(props.userId, {
+    } else if (emailType === "RESET") {
+      await User.findByIdAndUpdate(userId, {
         forgotPasswordToken: hashedToken,
         forgotPasswordTokenExpiry: Date.now() + 3600000,
       });
@@ -34,15 +33,15 @@ export const sendEmail = async (props: propsType) => {
 
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
-      to: props.email,
+      to: email,
       subject:
-        props.emailType === "VERIFY"
+        emailType === "VERIFY"
           ? "Verify your email to join Together app"
           : "Reset your password",
-      html: `<p>Click <a href="${process.env.NEXT_PUBLIC_DOMAIN}/auth/${
-        props.emailType === "VERIFY" ? "verify-mail" : "reset-password"
-      }?token=${hashedToken}">here</a> to ${
-        props.emailType === "VERIFY"
+      html: `<p>Click <a href=${process.env.NEXT_PUBLIC_DOMAIN}/auth/${
+        emailType === "VERIFY" ? "verify-mail" : "reset-password"
+      }?token=${hashedToken}>here</a> to ${
+        emailType === "VERIFY"
           ? "Verify your email to join Together app"
           : "Reset your password"
       }

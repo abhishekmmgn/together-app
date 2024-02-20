@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import {
   createConversation,
   sendMessage,
-} from "@/helpers/conversation-helpers";
+} from "@/lib/conversation-helpers";
 import { MessageObject } from "@/types";
 import io from "socket.io-client";
 

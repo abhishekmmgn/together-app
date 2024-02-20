@@ -1,7 +1,7 @@
 export default async function sendNotification(
   message: string,
   destination: string
-) {
+): Promise<boolean | undefined> {
   try {
     const res = await fetch("/api/notifications", {
       method: "POST",

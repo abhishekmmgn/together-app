@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/users";
-import { getDataFromToken } from "@/helpers/getDataFromToken";
+import { getDataFromToken } from "@/lib/getDataFromToken";
 import { NotificationType } from "@/types";
 
 export async function GET(request: NextRequest) {

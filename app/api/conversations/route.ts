@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/users";
 import Conversations from "@/models/conversations";
-import { getDataFromToken } from "@/helpers/getDataFromToken";
+import { getDataFromToken } from "@/lib/getDataFromToken";
 
 export async function GET(request: NextRequest) {
   try {

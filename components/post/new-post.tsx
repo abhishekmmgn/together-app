@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import NewPostForm from "./new-post-form";
-import { checkLoggedIn } from "@/helpers/checkLoggedIn";
+import { checkLoggedIn } from "@/lib/checkLoggedIn";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 

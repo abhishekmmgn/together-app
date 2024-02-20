@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Post from "@/components/post/post";
 import { useEffect, useState } from "react";
-import copyLink from "@/helpers/copyLink";
+import copyLink from "@/lib/copyLink";
 import { PostType } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import PostSkeleton from "@/components/post/post-skeleton";
 import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import formatAvatarName from "@/helpers/formatAvatarName";
+import formatAvatarName from "@/lib/formatAvatarName";
 
 type Params = {
   params: { id: string };

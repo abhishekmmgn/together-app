@@ -6,7 +6,8 @@ import { ActiveConversationType, MessageObject } from "@/types";
 import {
   getConversation,
   searchConversation,
-} from "@/helpers/conversation-helpers";
+} from "@/lib/conversation-helpers";
+import { Socket, io } from "socket.io-client";
 
 type propsType = {
   activeConversation: ActiveConversationType;
@@ -77,13 +78,13 @@ export default function MessageRoom(props: propsType) {
   }, [messages, newMessages]);
 
   return (
-    <div className="h-screen absolute inset-0 z-[100] bg-background sm:inset-auto sm:static sm:z-auto">
+    <div className="h-screen absolute inset-0 z-50 bg-background sm:inset-auto sm:static sm:z-auto">
       <MessageHeading
         name={userDetails?.name}
         profilePhoto={userDetails.profilePhoto}
         setActiveConversation={props.setActiveConversation}
       />
-      <div className="p-3 space-y-3 mt-20 pb-16" ref={messagesContainerRef}>
+      <div className="mt-20 p-3 space-y-3" ref={messagesContainerRef}>
         <>
           {messages.map((message, index) => {
             const firstKey = Object.keys(message)[0];
@@ -103,9 +104,9 @@ export default function MessageRoom(props: propsType) {
               <Message message={messageContent} type="sent" key={index} />
             );
           })}
-          <div ref={messagesEndRef}></div>
         </>
       </div>
+      <div ref={messagesEndRef}></div>
       <SendMessage
         userId={userDetails._id}
         conversationId={props.activeConversation.conversationId}
