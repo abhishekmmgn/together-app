@@ -36,8 +36,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <DbFull />
-          {/* {children} */}
+          {/* <DbFull /> */}
+          {children}
           <SpeedInsights />
         </ThemeProvider>
       </body>
