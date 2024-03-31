@@ -24,8 +24,8 @@ interface NextApiResponseWithSocket extends NextApiResponse {
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
 
-export default function SocketHandler(
-  _req: NextApiRequest,
+export default async function SocketHandler(
+  req: NextApiRequest,
   res: NextApiResponseWithSocket
 ) {
   if (res.socket.server.io) {

@@ -1,13 +1,17 @@
-import MessageHeading from "@/components/messages/message-heading";
 import { Message } from "@/components/messages/message";
-import SendMessage from "@/components/messages/send-message";
 import { useEffect, useRef, useState } from "react";
 import { ActiveConversationType, MessageObject } from "@/types";
 import {
   getConversation,
   searchConversation,
 } from "@/lib/conversation-helpers";
-import { Socket, io } from "socket.io-client";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { IoArrowUpCircle } from "react-icons/io5";
+import { createConversation, sendMessage } from "@/lib/conversation-helpers";
+import { IoChevronBack } from "react-icons/io5";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import formatAvatarName from "@/lib/formatAvatarName";
 
 type propsType = {
   activeConversation: ActiveConversationType;
@@ -16,16 +20,40 @@ type propsType = {
   >;
 };
 
+let socket: WebSocket;
+
 export default function MessageRoom(props: propsType) {
   const [userDetails, setUserDetails] = useState({
     _id: "",
     name: "",
     profilePhoto: "",
   });
+  const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<MessageObject[]>([]);
   const [newMessages, setNewMessages] = useState<MessageObject[]>([]);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Set websocket connection
+  useEffect(() => {
+    socket = new WebSocket("ws://localhost:3001", ["json"]);
+    socket.addEventListener("open", (event) => {
+      console.log("🟢, WebSocket connection opened", event);
+    });
+    socket.addEventListener("close", (event) => {
+      console.log("🔴, WebSocket connection closed", event);
+    });
+    // listen for messages
+    socket.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
+      setMessages(data.msg);
+      console.log("Received message:", data);
+    });
+
+    return () => {
+      socket.close();
+      console.log("🔴, Closed");
+    };
+  });
 
   useEffect(() => {
     const getData = async () => {
@@ -60,58 +88,109 @@ export default function MessageRoom(props: propsType) {
         otherUserId: data[0]._id,
       });
     };
-    if (newMessages.length > 1 && messages.length == 0) {
+    if (newMessages.length === 1 && messages.length == 0) {
       getData();
     }
-  });
+  }, [newMessages]);
 
-  useEffect(() => {
-    const isAtBottom =
-      messagesContainerRef.current &&
-      messagesContainerRef.current.scrollHeight -
-        messagesContainerRef.current.scrollTop ===
-        messagesContainerRef.current.clientHeight;
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    socket.send(JSON.stringify({
+      user: userDetails._id,
+      text: message,
+      time: Date.now()
+    }));
 
-    if (isAtBottom) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (props.activeConversation.conversationId.length > 1) {
+      await sendMessage(message, props.activeConversation.conversationId);
+    } else {
+      await createConversation(message, userDetails._id);
     }
-  }, [messages, newMessages]);
+    setMessage("");
+  }
 
+  // Reverse scroll, adjust scroll position
+  useEffect(() => {
+    // alert("Fired")
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
+    }
+  }, [newMessages, messages]);
   return (
-    <div className="h-screen absolute inset-0 z-50 bg-background sm:inset-auto sm:static sm:z-auto">
-      <MessageHeading
-        name={userDetails?.name}
-        profilePhoto={userDetails.profilePhoto}
-        setActiveConversation={props.setActiveConversation}
-      />
-      <div className="mt-20 p-3 space-y-3" ref={messagesContainerRef}>
-        <>
-          {messages.map((message, index) => {
-            const firstKey = Object.keys(message)[0];
-            const messageContent: string = message[firstKey];
-            return firstKey === userDetails._id ? (
-              <Message message={messageContent} type="received" key={index} />
-            ) : (
-              <Message message={messageContent} type="sent" key={index} />
-            );
-          })}
-          {newMessages.map((message, index) => {
-            const firstKey: string = Object.keys(message)[0];
-            const messageContent: string = message[firstKey];
-            return firstKey === userDetails._id ? (
-              <Message message={messageContent} type="received" key={index} />
-            ) : (
-              <Message message={messageContent} type="sent" key={index} />
-            );
-          })}
-        </>
+    <div className="h-screen bg-background">
+      <div className="w-full fixed z-50 top-0 inset-x-0 bg-background pt-4 backdrop-filter backdrop-blur-xl bg-opacity-90 sm:top-14 sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl sm:inset-x-auto">
+        <div
+          onClick={() =>
+            props.setActiveConversation({
+              conversationId: "",
+              otherUserId: "",
+            })
+          }
+        >
+          <IoChevronBack className="w-6 h-6 text-tertiary-foreground absolute left-2 top-10 cursor-pointer sm:top-8" />
+        </div>
+
+        <div className="w-full flex flex-col gap-1 items-center justify-center">
+          <Avatar className="w-11 h-11">
+            <AvatarImage
+              src={userDetails.profilePhoto}
+              alt={userDetails.name}
+            />
+            <AvatarFallback>
+              {formatAvatarName(userDetails.name)}
+            </AvatarFallback>
+          </Avatar>
+          <h1 className="line-clamp-1 text-sm font-medium">
+            {userDetails.name}
+          </h1>
+        </div>
       </div>
-      <div ref={messagesEndRef}></div>
-      <SendMessage
-        userId={userDetails._id}
-        conversationId={props.activeConversation.conversationId}
-        setNewMessages={setNewMessages}
-      />
+      <div
+        className="fixed top-24 bottom-16 inset-x-0 px-3 py-2 space-y-3 overflow-x-scroll sm:inset-x-auto sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl sm:top-36 no-scrollbar"
+        ref={messagesContainerRef}
+      >
+        {/* <div className="space-y-3"> */}
+        {messages.map((message, index) => {
+          const firstKey = Object.keys(message)[0];
+          const messageContent: string = message[firstKey];
+          return firstKey === userDetails._id ? (
+            <Message message={messageContent} type="received" key={index} />
+          ) : (
+            <Message message={messageContent} type="sent" key={index} />
+          );
+        })}
+        {newMessages.map((message, index) => {
+          const firstKey: string = Object.keys(message)[0];
+          const messageContent: string = message[firstKey];
+          return firstKey === userDetails._id ? (
+            <Message message={messageContent} type="received" key={index} />
+          ) : (
+            <Message message={messageContent} type="sent" key={index} />
+          );
+        })}
+        {/* </div> */}
+      </div>
+      <div className="fixed bottom-0 inset-x-0 p-3 bg-background sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl sm:inset-x-auto sm:mx-auto lg:px-0">
+        <form className="pb-2 flex gap-3" onSubmit={handleSubmit}>
+          <Input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type a message"
+            className="bg-secondary"
+          />
+          <Button
+            size="icon"
+            variant="ghost"
+            type="submit"
+            disabled={message.length === 0}
+            className="w-12 hover:bg-transparent"
+          >
+            <IoArrowUpCircle className="w-7 h-7 text-primary" />
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

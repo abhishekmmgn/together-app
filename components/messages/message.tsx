@@ -13,7 +13,7 @@ export function Message(props: propsType) {
       <div
         className={`w-fit max-w-[75%] py-[6px] px-[12px] rounded-[var(--radius)] ${
           props.type === "sent"
-            ? "bg-primary text-primary-foreground"
+            ? "bg-primary text-white"
             : "bg-secondary text-secondary-foreground"
         }`}
       >

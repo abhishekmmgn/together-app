@@ -50,7 +50,7 @@ export default function SendMessage({
     setMessage("");
   }
   return (
-    <div className="fixed bottom-0 inset-x-0 p-3 bg-background  sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl sm:inset-x-auto sm:mx-auto lg:px-0">
+    <div className="fixed bottom-0 inset-x-0 p-3 bg-background sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl sm:inset-x-auto sm:mx-auto lg:px-0">
       <form className="pb-2 flex gap-3" onSubmit={handleSubmit}>
         <Input
           type="text"

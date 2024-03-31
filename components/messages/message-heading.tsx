@@ -13,7 +13,7 @@ type propsType = {
 export default function MessageHeading(props: propsType) {
   return (
     <>
-      <div className="w-full fixed z-40 top-0 inset-x-0 bg-background py-2 backdrop-filter backdrop-blur-xl bg-opacity-90 sm:top-14 sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl sm:inset-x-auto">
+      <div className="w-full fixed z-50 top-0 inset-x-0 bg-background pt-4 backdrop-filter backdrop-blur-xl bg-opacity-90 sm:top-14 sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl sm:inset-x-auto">
         <div
           onClick={() =>
             props.setActiveConversation({
@@ -22,7 +22,7 @@ export default function MessageHeading(props: propsType) {
             })
           }
         >
-          <IoChevronBack className="w-6 h-6 text-tertiary-foreground absolute left-2 top-5 cursor-pointer" />
+          <IoChevronBack className="w-6 h-6 text-tertiary-foreground absolute left-2 top-10 cursor-pointer sm:top-8" />
         </div>
 
         <div className="w-full flex flex-col gap-1 items-center justify-center">

@@ -1,8 +1,6 @@
 export async function getConversation(conversationId: string) {
   try {
-    const res = await fetch(`/api/conversation/${conversationId}`, {
-      cache: "no-cache",
-    });
+    const res = await fetch(`/api/conversation/${conversationId}`);
     const data = await res.json();
     if (res.ok) {
       return data.data;
@@ -14,9 +12,7 @@ export async function getConversation(conversationId: string) {
 
 export async function searchConversation(otherUserId: string) {
   try {
-    const res = await fetch(`/api/conversation-by-user/${otherUserId}`, {
-      cache: "no-cache",
-    });
+    const res = await fetch(`/api/conversation-by-user/${otherUserId}`);
     if (res.ok) {
       const data = await res.json();
       return data.data;

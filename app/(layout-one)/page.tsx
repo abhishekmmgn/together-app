@@ -14,23 +14,23 @@ const fetchPosts = async (page: number) => {
 export default function Home() {
   const { data, isLoading, loader } = useInfiniteScroll(fetchPosts);
 
-  if (isLoading) {
-    return (
-      <div className="p-5">
-        <PostSkeleton />
+  return (
+    <>
+      <NewPost />
+      <div>
+        {isLoading ? (
+          <div className="p-5">
+            <PostSkeleton />
+          </div>
+        ) : (
+          <>
+            {data?.map((post, index) => (
+              <Post key={post._id} post={post} />
+            ))}
+            <div ref={loader} />
+          </>
+        )}
       </div>
-    );
-  } else {
-    return (
-      <>
-        <NewPost />
-        <div>
-          {data?.map((post, index) => (
-            <Post key={post._id} post={post} />
-          ))}
-          <div ref={loader} />
-        </div>
-      </>
-    );
-  }
+    </>
+  );
 }

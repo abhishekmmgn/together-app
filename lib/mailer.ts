@@ -48,7 +48,7 @@ export const sendEmail = async (
             or copy and paste the link below in your browser.
             <br>
             <br>
-            Thanks,
+            Thanks,<br>
             Together app Team</p>`,
     };
 

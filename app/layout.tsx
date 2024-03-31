@@ -2,8 +2,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/settings/theme-provider";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import DbFull from "@/components/db-full";
 
 const roboto = Roboto({
   weight: ["100", "300", "400", "500", "700"],
@@ -16,6 +14,12 @@ export const metadata: Metadata = {
   title: {
     default: "Together App",
     template: "%s - Together App",
+  },
+  openGraph: {
+    title: "Together App",
+    description: "Together App",
+    url: "https://together-app.vercel.app/",
+    siteName: "Together App",
   },
   description: "A social app with privacy in mind.",
   manifest: "/manifest.json",
@@ -36,9 +40,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* <DbFull /> */}
           {children}
-          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>
