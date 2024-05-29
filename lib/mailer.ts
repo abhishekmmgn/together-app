@@ -42,8 +42,8 @@ export const sendEmail = async (
         emailType === "VERIFY" ? "verify-mail" : "reset-password"
       }?token=${hashedToken}>here</a> to ${
         emailType === "VERIFY"
-          ? "Verify your email to join Together app"
-          : "Reset your password"
+          ? "verify your email to join Together app"
+          : "reset your password"
       }
             or copy and paste the link below in your browser.
             <br>
