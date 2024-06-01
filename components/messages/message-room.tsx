@@ -20,8 +20,6 @@ type propsType = {
   >;
 };
 
-let socket: WebSocket;
-
 export default function MessageRoom(props: propsType) {
   const [userDetails, setUserDetails] = useState({
     _id: "",
@@ -29,34 +27,14 @@ export default function MessageRoom(props: propsType) {
     profilePhoto: "",
   });
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<MessageObject[]>([]);
   const [newMessages, setNewMessages] = useState<MessageObject[]>([]);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // Set websocket connection
-  useEffect(() => {
-    socket = new WebSocket("ws://localhost:3001", ["json"]);
-    socket.addEventListener("open", (event) => {
-      console.log("🟢, WebSocket connection opened", event);
-    });
-    socket.addEventListener("close", (event) => {
-      console.log("🔴, WebSocket connection closed", event);
-    });
-    // listen for messages
-    socket.addEventListener("message", (event) => {
-      const data = JSON.parse(event.data);
-      setMessages(data.msg);
-      console.log("Received message:", data);
-    });
-
-    return () => {
-      socket.close();
-      console.log("🔴, Closed");
-    };
-  });
-
   useEffect(() => {
     const getData = async () => {
+      console.log("Runs...");
       let data;
       if (props.activeConversation.conversationId.length > 1) {
         data = await getConversation(props.activeConversation.conversationId);
@@ -75,7 +53,11 @@ export default function MessageRoom(props: propsType) {
       setMessages(data[1]);
     };
 
-    getData();
+    const interval = setInterval(() => {
+      getData();
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -87,6 +69,7 @@ export default function MessageRoom(props: propsType) {
         conversationId: data[2],
         otherUserId: data[0]._id,
       });
+      setLoading(false);
     };
     if (newMessages.length === 1 && messages.length == 0) {
       getData();
@@ -95,12 +78,6 @@ export default function MessageRoom(props: propsType) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    socket.send(JSON.stringify({
-      user: userDetails._id,
-      text: message,
-      time: Date.now()
-    }));
-
     if (props.activeConversation.conversationId.length > 1) {
       await sendMessage(message, props.activeConversation.conversationId);
     } else {
@@ -111,12 +88,12 @@ export default function MessageRoom(props: propsType) {
 
   // Reverse scroll, adjust scroll position
   useEffect(() => {
-    // alert("Fired")
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop =
         messagesContainerRef.current.scrollHeight;
     }
   }, [newMessages, messages]);
+
   return (
     <div className="h-screen bg-background">
       <div className="w-full fixed z-50 top-0 inset-x-0 bg-background pt-4 backdrop-filter backdrop-blur-xl bg-opacity-90 sm:top-14 sm:w-[calc(100%-210px)] md:w-[calc(100%-232px)] md:max-w-2xl sm:inset-x-auto">

@@ -19,11 +19,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 400 });
     }
 
-    user.isVerfied = true;
-    user.verifyToken = undefined;
-    user.verifyTokenExpiry = undefined;
-
-    await user.save();
+    await user.save({
+      isVerfied: true,
+      verifyToken: undefined,
+      verifyTokenExpiry: undefined,
+    });
 
     //create token data
     const tokenData = {
