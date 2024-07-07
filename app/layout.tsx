@@ -2,6 +2,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/settings/theme-provider";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 
 const roboto = Roboto({
   weight: ["100", "300", "400", "500", "700"],
@@ -42,6 +43,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
