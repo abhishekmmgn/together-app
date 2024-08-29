@@ -7,7 +7,7 @@ import TableRow from "@/components/table-row";
 import { useEffect, useState } from "react";
 import LoadingSkeleton from "@/components/loading-skeleton";
 import Post from "@/components/post/post";
-import { PostType } from "@/types";
+import type { PostType } from "@/types";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -24,26 +24,25 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [postsData, setPostsData] = useState<PostType[]>([]);
 
-  async function getData() {
-    try {
-      const res = await fetch(`/api/user/`, { cache: "no-store" });
-      if (res.ok) {
-        const data = await res.json();
-        setUserData({
-          name: data.data[0].name,
-          profilePhoto: data.data[0].profilePhoto,
-          bio: data.data[0].bio,
-        });
-        setPostsData(data.data[1]);
-      }
-    } catch (err: any) {
-      console.log("Error: ", err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
+    async function getData() {
+      try {
+        const res = await fetch("/api/user/");
+        if (res.ok) {
+          const data = await res.json();
+          setUserData({
+            name: data.data[0].name,
+            profilePhoto: data.data[0].profilePhoto,
+            bio: data.data[0].bio,
+          });
+          setPostsData(data.data[1]);
+        }
+      } catch (err: any) {
+        console.log("Error: ", err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
     getData();
   }, []);
 

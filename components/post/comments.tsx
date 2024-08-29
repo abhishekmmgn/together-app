@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { IoArrowUpCircle } from "react-icons/io5";
 import { useState } from "react";
 import { Comment } from "./comment";
-import { CommentsType } from "@/types";
+import type { CommentsType } from "@/types";
 import { checkLoggedIn } from "@/lib/checkLoggedIn";
 import { useRouter } from "next/navigation";
 

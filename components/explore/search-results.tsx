@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Post from "../post/post";
 import ProfileCardSkeleton from "./profile-card-skeleton";
 import PostSkeleton from "../post/post-skeleton";
-import { PersonProfileType, PostType } from "@/types";
+import type { PersonProfileType, PostType } from "@/types";
 
 export default function SearchResults(props: { query: string }) {
   const [personResults, setPersonResults] = useState<PersonProfileType[]>([]);

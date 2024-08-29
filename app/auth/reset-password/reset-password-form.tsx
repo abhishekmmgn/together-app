@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import type * as z from "zod";
 import { useRouter } from "next/navigation";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { Button } from "@/components/ui/button";
@@ -15,25 +15,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast,  } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { useState } from "react";
+import { changePasswordFormSchema } from "@/lib/definitions";
 
-const formSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .max(48, "Password must be less than 48 characters"),
-    confirmPassword: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .max(48, "Password must be less than 48 characters"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords do not match",
-  });
-type formSchemaType = z.infer<typeof formSchema>;
+type formSchemaType = z.infer<typeof changePasswordFormSchema>;
 
 type propsType = {
   userId: string;
@@ -44,7 +30,7 @@ export default function ResetPasswordForm(props: propsType) {
   const [disabled, setDisabled] = useState<boolean>(false);
 
   const form = useForm<formSchemaType>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(changePasswordFormSchema),
     defaultValues: {
       password: "",
       confirmPassword: "",
@@ -87,7 +73,6 @@ export default function ResetPasswordForm(props: propsType) {
 
   return (
     <>
-
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

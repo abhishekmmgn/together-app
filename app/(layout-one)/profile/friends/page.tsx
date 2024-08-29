@@ -2,7 +2,7 @@
 
 import Back from "@/components/back";
 import ProfileCard from "@/components/explore/profile-card";
-import { PersonProfileType } from "@/types";
+import type { PersonProfileType } from "@/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";

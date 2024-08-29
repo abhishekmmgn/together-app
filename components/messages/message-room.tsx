@@ -1,6 +1,5 @@
-import { Message } from "@/components/messages/message";
 import { useEffect, useRef, useState } from "react";
-import { ActiveConversationType, MessageObject } from "@/types";
+import type { ActiveConversationType, MessageObject } from "@/types";
 import {
   getConversation,
   searchConversation,
@@ -13,14 +12,14 @@ import { IoChevronBack } from "react-icons/io5";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import formatAvatarName from "@/lib/formatAvatarName";
 
-type propsType = {
+type RoomPropsType = {
   activeConversation: ActiveConversationType;
   setActiveConversation: React.Dispatch<
     React.SetStateAction<ActiveConversationType>
   >;
 };
 
-export default function MessageRoom(props: propsType) {
+export default function MessageRoom(props: RoomPropsType) {
   const [userDetails, setUserDetails] = useState({
     _id: "",
     name: "",
@@ -167,6 +166,32 @@ export default function MessageRoom(props: propsType) {
             <IoArrowUpCircle className="w-7 h-7 text-primary" />
           </Button>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function Message({
+  message,
+  type,
+}: {
+  message: string;
+  type: "sent" | "received";
+}) {
+  return (
+    <div
+      className={`w-full flex items-center  ${
+        type === "sent" ? "justify-end" : "justify-start"
+      }`}
+    >
+      <div
+        className={`w-fit max-w-[75%] py-[6px] px-[12px] rounded-[var(--radius)] ${
+          type === "sent"
+            ? "bg-primary text-white"
+            : "bg-secondary text-secondary-foreground"
+        }`}
+      >
+        {message}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/users";
 import bcrypt from "bcryptjs";
@@ -35,9 +35,12 @@ export async function POST(request: NextRequest) {
     };
 
     //create token
-    const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
+    const tokenSecret = process.env.TOKEN_SECRET || "";
+    const token = jwt.sign(tokenData, tokenSecret, {
       expiresIn: "30d",
     });
+
+    console.log(token);
 
     cookies().set("token", token, {
       httpOnly: true,
@@ -47,11 +50,13 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24,
     });
 
+    console.log("Cookies after setting token:", cookies());
+
     return NextResponse.json({
       message: "Login successful",
       success: true,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error?.message }, { status: 500 });
   }
 }

@@ -1,31 +1,20 @@
-"use client";
-
-import { useState } from "react";
-import SearchBar from "@/components/searchbar";
-import { useSearchParams } from "next/navigation";
-import SearchSuggestions from "@/components/explore/search-suggestions";
 import SearchDefault from "@/components/explore/search-default";
-import SearchResults from "@/components/explore/search-results";
+import Search from "@/components/search";
+import type { Metadata } from "next";
 
-export default function SearchPage() {
-  const [isActive, setIsActive] = useState(false);
-  const searchParams = useSearchParams();
+export const metadata: Metadata = {
+  title: "Explore",
+};
 
-  const searchQuery = searchParams ? searchParams.get("query") : null;
+export const dynamic = "force-dynamic";
 
+export default async function SearchPage() {
+  const suggestions = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN}/api/explore/suggestions`
+  ).then((res) => res.json());
   return (
-    <>
-      <SearchBar
-        searchActive={isActive}
-        setSearchActive={setIsActive}
-        placeholder="Search for people, posts and more."
-      />
-
-      {searchQuery && !isActive && (
-        <SearchResults query={searchQuery} />
-      )}
-      {!searchQuery && !isActive && <SearchDefault />}
-      {isActive && <SearchSuggestions />}
-    </>
+    <Search>
+      <SearchDefault suggestions={suggestions.data} />
+    </Search>
   );
 }

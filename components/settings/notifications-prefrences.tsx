@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import type * as z from "zod";
 
 import {
   Form,
@@ -11,24 +11,19 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form"
-import { Switch } from "@/components/ui/switch"
-
-const FormSchema = z.object({
-  all_notifications: z.boolean().default(false).optional(),
-  security_alerts: z.boolean(),
-})
+} from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
+import { NotificationPreferencesFormSchema } from "@/lib/definitions";
 
 export default function NotificationsPrefrences() {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<z.infer<typeof NotificationPreferencesFormSchema>>({
+    resolver: zodResolver(NotificationPreferencesFormSchema),
     defaultValues: {
       security_alerts: true,
     },
-  })
+  });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-  }
+  function onSubmit(data: z.infer<typeof NotificationPreferencesFormSchema>) {}
 
   return (
     <Form {...form}>
@@ -46,7 +41,8 @@ export default function NotificationsPrefrences() {
                       Turn off Notifications
                     </FormLabel>
                     <FormDescription>
-                      Turn off notifications about new posts, features, and more.
+                      Turn off notifications about new posts, features, and
+                      more.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -84,5 +80,5 @@ export default function NotificationsPrefrences() {
         </div>
       </form>
     </Form>
-  )
+  );
 }

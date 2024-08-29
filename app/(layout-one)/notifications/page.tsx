@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Notification from "@/components/notifications/notification";
-import { NotificationType } from "@/types";
+import type { NotificationType } from "@/types";
 import NotificationSkeleton from "@/components/notifications/notification-skeleton";
 
 async function fetchNotifications() {

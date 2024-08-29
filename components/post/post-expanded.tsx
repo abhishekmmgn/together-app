@@ -10,7 +10,7 @@ import { FaRegComments } from "react-icons/fa";
 import Post from "./post";
 import { Comment } from "./comment";
 import CreateComment from "./comments";
-import { PostType } from "@/types";
+import type { PostType } from "@/types";
 import { useEffect, useState } from "react";
 
 async function getPost(postId: string) {
@@ -31,10 +31,6 @@ export default function PostExpanded(props: { postId: string }) {
 
     setLoading(false);
   }, [props.postId]);
-
-  {
-    /* add comment */
-  }
   return (
     <Dialog>
       <DialogTrigger>

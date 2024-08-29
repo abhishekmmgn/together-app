@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { PersonProfileType } from "@/types";
+import type { PersonProfileType } from "@/types";
 import formatAvatarName from "@/lib/formatAvatarName";
 
 export default function ProfileCard(props: PersonProfileType) {

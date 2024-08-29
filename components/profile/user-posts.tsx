@@ -1,7 +1,7 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Post from "@/components/post/post";
-import { PostType } from "@/types";
+import type { PostType } from "@/types";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

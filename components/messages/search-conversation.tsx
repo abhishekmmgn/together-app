@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useState, useEffect } from "react";
 import Conversation from "./conversation";
-import { ActiveConversationType, ConversationType } from "@/types";
+import type { ActiveConversationType, ConversationType } from "@/types";
 import { useSearchParams } from "next/navigation";
 
 type PropsType = {
@@ -17,19 +18,18 @@ export default function SearchConversation(props: PropsType) {
   const searchParams = useSearchParams();
   const searchQuery = searchParams ? searchParams.get("query") : "";
 
-  function getConversation() {
-    const filteredConversations = props.conversations.filter((conversation) =>
-      conversation.user.name.toLowerCase().includes(searchQuery!.toLowerCase())
-    );
-    setResults(filteredConversations);
-  }
-
   useEffect(() => {
-    if (searchQuery) {
-      getConversation();
-    } else {
-      setResults([]);
+    function getConversation() {
+      const filteredConversations = props.conversations.filter(
+        (conversation) =>
+          searchQuery &&
+          conversation.user.name
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase())
+      );
+      setResults(filteredConversations);
     }
+    searchQuery ? getConversation() : setResults([]);
   }, [searchQuery]);
   return (
     <div className="w-full h-full py-2 transition-all ease-in-out duration-300">

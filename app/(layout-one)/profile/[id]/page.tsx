@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import Post from "@/components/post/post";
 import { useEffect, useState } from "react";
 import copyLink from "@/lib/copyLink";
-import { PostType } from "@/types";
+import type { PostType } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import PostSkeleton from "@/components/post/post-skeleton";
 import { notFound } from "next/navigation";
@@ -32,32 +32,6 @@ export default function ExternalProfile({ params }: Params) {
   const [profileNotFound, setProfileNotFound] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
 
-  async function getData() {
-    try {
-      const res = await fetch(`/api/user/${params.id}`, {
-        cache: "no-cache",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUserData({
-          name: data.data[0].name,
-          profilePhoto: data.data[0].profilePhoto,
-          bio: data.data[0].bio,
-        });
-        setIsFriend(data.data[2].isFriend);
-        setPosts(data.data[1]);
-      } else if (res.status === 400) {
-        setProfileNotFound(true);
-      } else if (res.status === 500) {
-        setError(true);
-      }
-    } catch (err: any) {
-      console.log("Error: ", err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   async function changeFriendList(action: "add" | "remove") {
     try {
       const res = await fetch(`/api/user/${params.id}`, {
@@ -82,8 +56,33 @@ export default function ExternalProfile({ params }: Params) {
   }
 
   useEffect(() => {
+    async function getData() {
+      try {
+        const res = await fetch(`/api/user/${params.id}`, {
+          cache: "no-cache",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUserData({
+            name: data.data[0].name,
+            profilePhoto: data.data[0].profilePhoto,
+            bio: data.data[0].bio,
+          });
+          setIsFriend(data.data[2].isFriend);
+          setPosts(data.data[1]);
+        } else if (res.status === 400) {
+          setProfileNotFound(true);
+        } else if (res.status === 500) {
+          setError(true);
+        }
+      } catch (err: any) {
+        console.log("Error: ", err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
     getData();
-  }, []);
+  }, [params.id]);
 
   if (isLoading) {
     return (

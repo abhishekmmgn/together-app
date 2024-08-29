@@ -7,7 +7,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import formatAvatarName from "@/lib/formatAvatarName";
-import { ActiveConversationType, ConversationType } from "@/types";
+import type { ActiveConversationType, ConversationType } from "@/types";
 import formatDate from "@/lib/formatDate";
 import { useState } from "react";
 import { deleteConversation } from "@/lib/conversation-helpers";

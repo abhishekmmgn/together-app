@@ -14,10 +14,6 @@ export function middleware(request: NextRequest) {
 
   const token = request.cookies.get("token")?.value || "";
 
-  // const cookieStore = cookies()
-  // const token = cookieStore.get('token')
-  // console.log(token);
-
   if (isPublicPath && token) {
     return NextResponse.redirect(new URL("/", request.nextUrl));
   } else if (!isPublicPath && !token) {

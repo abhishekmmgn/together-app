@@ -19,7 +19,7 @@ import {
 import { useEffect, useState } from "react";
 import ProfileCardSkeleton from "../explore/profile-card-skeleton";
 import ProfileCard from "./profile-card";
-import { ActiveConversationType, PersonProfileType } from "@/types";
+import type { ActiveConversationType, PersonProfileType } from "@/types";
 
 const loadingArray = [1, 2, 3, 4, 5];
 

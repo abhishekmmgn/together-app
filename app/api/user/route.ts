@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/users";
@@ -9,7 +9,7 @@ import Posts from "@/models/posts";
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
-    
+
     const curUserId = await getDataFromToken(request);
     const user = await User.findOne({ _id: curUserId }).select(
       "name profilePhoto bio posts"
@@ -19,19 +19,19 @@ export async function GET(request: NextRequest) {
       _id: { $in: user.posts },
     });
 
-        // find the creator details of each post and update the posts
-        const posts = await Promise.all(
-          postsList.map(async (post) => {
-            return {
-              ...post.toJSON(),
-              creator: {
-                _id: user._id,
-                name: user.name,
-                profilePhoto: user.profilePhoto,
-              },
-            };
-          })
-        );
+    // find the creator details of each post and update the posts
+    const posts = await Promise.all(
+      postsList.map(async (post) => {
+        return {
+          ...post.toJSON(),
+          creator: {
+            _id: user._id,
+            name: user.name,
+            profilePhoto: user.profilePhoto,
+          },
+        };
+      })
+    );
 
     const data = [user, posts];
 

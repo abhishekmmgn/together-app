@@ -1,9 +1,6 @@
-"use client";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { IoSearchOutline } from "react-icons/io5";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 type PropsType = {
@@ -13,40 +10,34 @@ type PropsType = {
 };
 
 export default function SearchBar(props: PropsType) {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   function handleKeydown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" && searchValue) {
-      props.setSearchActive(false);
-      router.push(`${pathname}?query=${searchValue}`);
+    if (e.key === "Enter") {
+      if (searchTerm) {
+        props.setSearchActive(false);
+        router.push(`${pathname}?query=${searchTerm}`);
+      }
     } else {
       const term = (e.target as HTMLInputElement).value.toLowerCase();
-      setSearchValue(term);
-      const params = new URLSearchParams(searchParams!);
-      if (term) {
-        params.set("query", term);
-      } else {
-        params.delete("query");
-      }
-      router.replace(`${pathname}?${params.toString()}`);
+      setSearchTerm(term);
     }
   }
 
   return (
-    <div className="sticky inset-x-0 z-40 px-5 py-4 bg-background backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14 lg:px-0">
-      <div className="relative w-full">
+    <div className="sticky inset-x-0 z-40 px-5 py-4 bg-background backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14 lg:px-0 group">
+      <div className="relative w-full group">
         <Input
           type="search"
-          defaultValue={searchParams?.get("query")?.toString()}
+          defaultValue={searchTerm}
           placeholder={props.placeholder}
           onFocus={() => props.setSearchActive(true)}
           onKeyDown={handleKeydown}
-          className="bg-secondary pl-8"
+          className="bg-secondary"
         />
-        <IoSearchOutline className="text-muted-foreground absolute left-2 top-3 w-4 h-4" />
       </div>
       {props.searchActive && (
         <Button

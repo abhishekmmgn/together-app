@@ -5,7 +5,7 @@ import Comments from "@/components/post/comments";
 import { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import PostSkeleton from "@/components/post/post-skeleton";
-import { PostType } from "@/types";
+import type { PostType } from "@/types";
 
 type Props = {
   params: { id: string };

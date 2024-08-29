@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { IoArrowUpCircle } from "react-icons/io5";
 import { useState } from "react";
 import { createConversation, sendMessage } from "@/lib/conversation-helpers";
-import { MessageObject } from "@/types";
+import type { MessageObject } from "@/types";
 
 export default function SendMessage({
   setNewMessages,

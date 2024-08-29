@@ -19,7 +19,7 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { PostType } from "@/types";
+import type { PostType } from "@/types";
 import copyLink from "@/lib/copyLink";
 import formatPostDate from "@/lib/formatDate";
 import formatAvatarName from "@/lib/formatAvatarName";

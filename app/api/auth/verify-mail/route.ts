@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/users";
 import { cookies } from "next/headers";
@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
     };
 
     //create token
-    const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
+    const tokenSecret = process.env.TOKEN_SECRET || "";
+    const token = jwt.sign(tokenData, tokenSecret, {
       expiresIn: "30d",
     });
 

@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Post from "@/models/posts";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 import Users from "@/models/users";
-import { CommentsType } from "@/types";
+import type { CommentsType } from "@/types";
 
 type Props = {
   params: { id: string };
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, { params }: Props) {
 
     // find the creator details of each comments and update the post
 
-    let comments: Array<CommentsType> = [];
+    const comments: Array<CommentsType> = [];
 
     await Promise.all(
       post.comments.map(async (comment: CommentsType) => {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import LoginForm from "./login-form";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -31,7 +31,7 @@ export default function LoginPage() {
         className={cn(
           "mt-2",
           buttonVariants({
-            variant: "link",
+            variant: "ghost",
           })
         )}
       >
