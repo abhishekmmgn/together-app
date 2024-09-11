@@ -1,33 +1,33 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
-  {
-    thread: {
-      type: String,
-      required: true,
-    },
-    creator: {
-      type: String,
-      required: true,
-    },
-    image: {
-      type: Array,
-      default: "",
-    },
-    likes: {
-      type: Array,
-      default: [],
-    },
-    comments: {
-      type: Array,
-      default: [],
-    },
-    tags: {
-      type: Array,
-      default: [],
-    },
-  },
-  { timestamps: true }
+	{
+		thread: {
+			type: String,
+			required: true,
+		},
+		creator: {
+			type: String,
+			required: true,
+		},
+		image: {
+			type: Array,
+			default: "",
+		},
+		likes: {
+			type: Array,
+			default: [],
+		},
+		comments: {
+			type: Array,
+			default: [],
+		},
+		tags: {
+			type: Array,
+			default: [],
+		},
+	},
+	{ timestamps: true },
 );
 
 const Posts = mongoose.models.posts || mongoose.model("posts", userSchema);

@@ -5,51 +5,51 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
 export async function POST(request: NextRequest) {
-  try {
-    await connectDB();
-    const reqBody = await request.json();
-    const { verificationToken } = reqBody;
+	try {
+		await connectDB();
+		const reqBody = await request.json();
+		const { verificationToken } = reqBody;
 
-    const user = await User.findOne({
-      verifyToken: verificationToken,
-      verifyTokenExpiry: { $gt: Date.now() },
-    });
+		const user = await User.findOne({
+			verifyToken: verificationToken,
+			verifyTokenExpiry: { $gt: Date.now() },
+		});
 
-    if (!user) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 400 });
-    }
+		if (!user) {
+			return NextResponse.json({ error: "Invalid token" }, { status: 400 });
+		}
 
-    await user.save({
-      isVerfied: true,
-      verifyToken: undefined,
-      verifyTokenExpiry: undefined,
-    });
+		await user.save({
+			isVerfied: true,
+			verifyToken: undefined,
+			verifyTokenExpiry: undefined,
+		});
 
-    //create token data
-    const tokenData = {
-      id: user._id,
-      email: user.email,
-    };
+		//create token data
+		const tokenData = {
+			id: user._id,
+			email: user.email,
+		};
 
-    //create token
-    const tokenSecret = process.env.TOKEN_SECRET || "";
-    const token = jwt.sign(tokenData, tokenSecret, {
-      expiresIn: "30d",
-    });
+		//create token
+		const tokenSecret = process.env.TOKEN_SECRET || "";
+		const token = jwt.sign(tokenData, tokenSecret, {
+			expiresIn: "30d",
+		});
 
-    cookies().set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
+		cookies().set("token", token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "strict",
+			path: "/",
+			maxAge: 60 * 60 * 24,
+		});
 
-    return NextResponse.json({
-      message: "Email verification successful",
-      success: true,
-    });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+		return NextResponse.json({
+			message: "Email verification successful",
+			success: true,
+		});
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 500 });
+	}
 }

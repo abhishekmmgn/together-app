@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import Post from "@/models/posts";
 import Users from "@/models/users";
 import { getDataFromToken } from "@/lib/getDataFromToken";
+import type { PostType } from "@/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,33 +11,39 @@ export async function GET(request: NextRequest) {
 
     const curUserId = await getDataFromToken(request);
 
+    console.log(curUserId);
+
     // Get the page number from the query parameters
     const page = Number(request.nextUrl.searchParams.get("page")) || 1;
-    const limit = 5;
-    const skip = (page - 1) * limit;
+    const postsLimit = 3;
+    const skipPosts = (page - 1) * postsLimit;
 
-    // Return a specific page of posts from the posts collection for infinite scroll
-    const posts = await Post.find().skip(skip).limit(limit);
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .skip(skipPosts)
+      .limit(postsLimit);
 
-    const updatedPost = await Promise.all(
+    const postsData: PostType[] = await Promise.all(
       posts.map(async (post) => {
-        const creator = await Users.findOne({ _id: post.creator });
-        const isLiked = post.likes.includes(curUserId);
+        const creator = await Users.findOne({ _id: post.creator }).select(
+          "name profilePhoto"
+        );
         return {
-          ...post.toJSON(),
-          liked: isLiked,
-          creator: {
-            _id: creator?._id,
-            name: creator?.name,
-            profilePhoto: creator?.profilePhoto,
-          },
+          _id: post._id,
+          thread: post.thread,
+          image: post.image[0],
+          likes: post.likes.length,
+          commentsLength: post.comments.length,
+          createdAt: post.createdAt,
+          liked: post.likes.includes(curUserId),
+          creator,
         };
       })
     );
 
     return NextResponse.json({
       message: "Posts found",
-      data: updatedPost,
+      data: postsData,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

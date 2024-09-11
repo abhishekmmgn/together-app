@@ -11,20 +11,14 @@ export async function GET(request: NextRequest) {
     const curUserId = await getDataFromToken(request);
     const user = await User.findOne({ _id: curUserId });
     if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 400 });
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
     const notifications = user.notifications;
-    if (!notifications) {
-      return NextResponse.json(
-        { error: "Notifications not found." },
-        { status: 200 }
-      );
-    }
 
     return NextResponse.json({
       message: "Notifications found",
-      data: notifications,
+      data: notifications || [],
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 501 });
@@ -40,7 +34,7 @@ export async function POST(request: NextRequest) {
     const curUserId = await getDataFromToken(request);
     const user = await User.findOne({ _id: curUserId });
     if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 400 });
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
     const notification = {
@@ -80,16 +74,18 @@ export async function PUT(request: NextRequest) {
     const user = await User.findOne({ _id: curUserId });
 
     if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 400 });
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
     // update notifications
     if (allRead) {
       // Set all notifications to read
-      const updatedNotifications = user.notifications.map((notification: NotificationType) => {
-        notification.read = true;
-        return notification;
-      });
+      const updatedNotifications = user.notifications.map(
+        (notification: NotificationType) => {
+          notification.read = true;
+          return notification;
+        }
+      );
 
       // Update the user's notifications in the database
       await User.findOneAndUpdate(

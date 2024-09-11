@@ -5,6 +5,7 @@ import User from "@/models/users";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 import { cookies } from "next/headers";
 import Posts from "@/models/posts";
+import type { BasicPostInterface } from "@/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,25 +16,31 @@ export async function GET(request: NextRequest) {
       "name profilePhoto bio posts"
     );
 
-    const postsList = await Posts.find({
+    const posts = await Posts.find({
       _id: { $in: user.posts },
     });
 
-    // find the creator details of each post and update the posts
-    const posts = await Promise.all(
-      postsList.map(async (post) => {
-        return {
-          ...post.toJSON(),
-          creator: {
-            _id: user._id,
-            name: user.name,
-            profilePhoto: user.profilePhoto,
-          },
-        };
-      })
-    );
+    // format posts
+    const formattedPosts: BasicPostInterface[] = [];
+    posts.map((post) => {
+      formattedPosts.push({
+        _id: post._id,
+        thread: post.thread,
+        image: post.image[0],
+        liked: post.likes.includes(user._id),
+        likes: post.likes.length,
+        commentsLength: post.comments.length,
+        createdAt: post.createdAt,
+      });
+    });
 
-    const data = [user, posts];
+    const data = {
+      _id: user._id,
+      name: user.name,
+      profilePhoto: user.profilePhoto,
+      bio: user.bio,
+      posts: formattedPosts,
+    };
 
     return NextResponse.json({
       message: "Posts found",

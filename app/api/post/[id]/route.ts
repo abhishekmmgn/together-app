@@ -16,24 +16,21 @@ export async function GET(request: NextRequest, { params }: Props) {
     const id = params.id;
     const post = await Post.findOne({ _id: id });
     if (!post) {
-      return NextResponse.json({ error: "Post not found." }, { status: 400 });
+      return NextResponse.json({ error: "Post not found." }, { status: 404 });
     }
 
-    // check if post has been liked by current user
     const curUserId = await getDataFromToken(request);
-    const isLiked = post.likes.includes(curUserId);
 
     // find the creator details
-    const creator = await Users.findOne({ _id: post.creator });
-
-    // find the creator details of each comments and update the post
+    const creator = await Users.findOne({ _id: post.creator }).select(
+      "name profilePhoto"
+    );
 
     const comments: Array<CommentsType> = [];
 
     await Promise.all(
       post.comments.map(async (comment: CommentsType) => {
         const creator = await Users.findOne({ _id: comment.createdBy });
-        // now push comment to comments array
         comments.push({
           ...comment,
           createdBy: {
@@ -45,20 +42,21 @@ export async function GET(request: NextRequest, { params }: Props) {
       })
     );
 
-    const updatedPost = {
-      ...post.toJSON(),
-      liked: isLiked,
+    const postData = {
+      _id: post._id,
+      thread: post.thread,
+      image: post.image[0],
+      likes: post.likes.length,
+      commentsLength: post.comments.length,
+      createdAt: post.createdAt,
+      liked: post.likes.includes(curUserId),
+      creator,
       comments,
-      creator: {
-        _id: creator?._id,
-        name: creator?.name,
-        profilePhoto: creator?.profilePhoto,
-      },
     };
 
     return NextResponse.json({
       message: "Post found",
-      data: updatedPost,
+      data: postData,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 501 });
@@ -74,14 +72,13 @@ export async function PUT(request: NextRequest, { params }: Props) {
     const curUserId = await getDataFromToken(request);
     const user = await Users.findOne({ _id: curUserId });
     if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 400 });
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
-    console.log("Running...");
     const postId = params.id;
     const post = await Post.findOne({ _id: postId });
     if (!post) {
-      return NextResponse.json({ error: "Post not found." }, { status: 400 });
+      return NextResponse.json({ error: "Post not found." }, { status: 404 });
     }
 
     // update likes

@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import Users from "@/models/users";
 import Posts from "@/models/posts";
 import { getDataFromToken } from "@/lib/getDataFromToken";
+import type { BasicPostInterface } from "@/types";
 
 type Params = {
   params: { id: string };
@@ -17,32 +18,38 @@ export async function GET(request: NextRequest, { params }: Params) {
     );
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 400 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const curUserId = await getDataFromToken(request);
-
     const isFriend = user.friends.includes(curUserId);
-    const postsList = await Posts.find({
+
+    const posts = await Posts.find({
       _id: { $in: user.posts },
     });
 
-    // find the creator details of each post and update the posts
-    const postsWithCreator = await Promise.all(
-      postsList.map(async (post) => {
-        const creator = await Users.findOne({ _id: post.creator });
-        return {
-          ...post.toJSON(),
-          creator: {
-            _id: creator?._id,
-            name: creator?.name,
-            profilePhoto: creator?.profilePhoto,
-          },
-        };
-      })
-    );
+    // format posts
+    const formattedPosts: BasicPostInterface[] = [];
+    posts.map((post) => {
+      formattedPosts.push({
+        _id: post._id,
+        thread: post.thread,
+        image: post.image[0],
+        liked: post.likes.includes(user._id),
+        likes: post.likes.length,
+        commentsLength: post.comments.length,
+        createdAt: post.createdAt,
+      });
+    });
 
-    const data = [user, postsWithCreator, { isFriend }];
+    const data = {
+      _id: user._id,
+      name: user.name,
+      profilePhoto: user.profilePhoto,
+      bio: user.bio,
+      isFriend,
+      posts: formattedPosts,
+    };
 
     return NextResponse.json(
       {
@@ -89,14 +96,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
           message: "Friend removed successfully.",
           success: true,
         });
-      } else {
-        console.log("No document was updated.");
-        return NextResponse.json({
-          message: "Something went wrong.",
-          success: false,
-        });
       }
-    } else if (action === "add") {
+      console.log("No document was updated.");
+      return NextResponse.json({
+        message: "Something went wrong.",
+        success: false,
+      });
+    }
+    if (action === "add") {
       const result = await Users.updateOne(
         { _id },
         { $push: { friends: curUserId } }
@@ -115,13 +122,13 @@ export async function PUT(request: NextRequest, { params }: Params) {
           message: "Friend added successfully.",
           success: true,
         });
-      } else {
-        console.log("No document was updated.");
-        return NextResponse.json({
-          message: "Something went wrong.",
-          success: false,
-        });
       }
+
+      console.log("No document was updated.");
+      return NextResponse.json({
+        message: "Something went wrong.",
+        success: false,
+      });
     }
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });

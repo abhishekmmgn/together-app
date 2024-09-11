@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, params: { id: string }) {
     const post = await Post.findOne({ _id });
 
     if (!post) {
-      return NextResponse.json({ error: "Post not found." }, { status: 400 });
+      return NextResponse.json({ error: "Post not found." }, { status: 404 });
     }
 
     // check if post has been liked by current user

@@ -2,10 +2,13 @@ import { type NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Users from "@/models/users";
 import Posts from "@/models/posts";
+import { getDataFromToken } from "@/lib/getDataFromToken";
 
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
+
+    const curUserId = await getDataFromToken(request);
 
     const url = new URL(request.url);
     const searchQuery = url.searchParams.get("query");
@@ -29,7 +32,13 @@ export async function GET(request: NextRequest) {
         // find the creator details of each post and update the posts
         const creator = await Users.findOne({ _id: post.creator });
         return {
-          ...post.toJSON(),
+          _id: post._id,
+          thread: post.thread,
+          image: post.image[0],
+          likes: post.likes.length,
+          commentsLength: post.comments.length,
+          createdAt: post.createdAt,
+          liked: post.likes.includes(curUserId),
           creator: {
             _id: creator?._id,
             name: creator?.name,

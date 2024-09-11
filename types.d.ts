@@ -5,23 +5,26 @@ export type PersonProfileType = {
   profilePhoto: string;
 };
 
-export type PostType = {
+export interface BasicPostInterface {
   _id: string;
   thread: string;
+  image: string;
+  likes: number;
+  liked: boolean;
+  commentsLength: number;
+  comments?: [];
+  createdAt: string;
+}
+export interface PostType extends BasicPostInterface {
   creator: {
     _id: string;
     name: string;
     profilePhoto: string;
   };
-  image: string[];
-  likes: string[];
-  liked: boolean;
-  comments: [];
-  tags: string[];
-  createdAt: string;
-};
+}
 
 export type CommentsType = {
+  _id: string;
   createdBy: {
     _id: string;
     name: string;

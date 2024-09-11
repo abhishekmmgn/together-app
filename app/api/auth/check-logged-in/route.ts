@@ -9,11 +9,11 @@ export async function GET(request: NextRequest) {
 
     const _id = await getDataFromToken(request);
     const user = await User.findOne({ _id });
-    
+
     if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 400 });
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
-    
+
     return NextResponse.json({
       message: "User found",
       data: user,
