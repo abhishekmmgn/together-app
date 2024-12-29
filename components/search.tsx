@@ -3,7 +3,6 @@
 import { useState } from "react";
 import SearchBar from "@/components/searchbar";
 import { useSearchParams } from "next/navigation";
-import SearchSuggestions from "@/components/explore/search-suggestions";
 import SearchResults from "@/components/explore/search-results";
 
 export default function Search({ children }: { children: React.ReactNode }) {
@@ -21,7 +20,6 @@ export default function Search({ children }: { children: React.ReactNode }) {
 
 			{searchQuery && !isActive && <SearchResults query={searchQuery} />}
 			{!searchQuery && !isActive && children}
-			{isActive && <SearchSuggestions />}
 		</>
 	);
 }

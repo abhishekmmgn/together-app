@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { UploadButton } from "@/lib/uploadthing";
 import userIcon from "../../public/user.png";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
 	photo: z.string().optional(),
@@ -31,8 +31,6 @@ type PropsType = {
 };
 
 export default function EditProfileForm(props: PropsType) {
-	const [disabled, setDisabled] = useState(false);
-
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -47,9 +45,10 @@ export default function EditProfileForm(props: PropsType) {
 		JSON.stringify(watchAllFields) !==
 		JSON.stringify(form.formState.defaultValues);
 
-	async function onSubmit(data: formSchemaType) {
-		setDisabled(true);
-		try {
+	const queryClient = useQueryClient();
+
+	const { mutate, isPending } = useMutation({
+		mutationFn: async (data: formSchemaType) => {
 			const res = await fetch("/api/user", {
 				method: "PUT",
 				headers: {
@@ -60,20 +59,28 @@ export default function EditProfileForm(props: PropsType) {
 					bio: data.bio,
 				}),
 			});
-			if (res.ok) {
-				toast.success("Profile updated successfully");
-				form.reset();
-			} else if (res.status === 400 || res.status === 500) {
-				console.log(res.statusText);
-				toast.error(res.statusText);
+
+			if (!res.ok) {
+				throw new Error(res.statusText);
 			}
-		} catch (err: any) {
-			console.log("Error: ", err.message);
-			toast.error(err.message);
-		} finally {
-			setDisabled(false);
-		}
+
+			return res.json();
+		},
+		onSuccess: () => {
+			toast.success("Profile updated successfully");
+			form.reset();
+			queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+		},
+		onError: (error: Error) => {
+			console.log("Error: ", error.message);
+			toast.error(error.message);
+		},
+	});
+
+	async function onSubmit(data: formSchemaType) {
+		mutate(data);
 	}
+
 	return (
 		<>
 			<Form {...form}>
@@ -93,11 +100,16 @@ export default function EditProfileForm(props: PropsType) {
 							<UploadButton
 								endpoint="imageUploader"
 								onClientUploadComplete={(res) => {
+									console.log(res);
 									form.setValue("photo", res[0].url);
-									toast.success("Upload Completed");
 								}}
 								onUploadError={(error: Error) => {
-									toast.error(`ERROR! ${error.message}`);
+									console.error(error);
+									if (error.message === "Invalid config: FileSizeMismatch") {
+										toast.error("File size should be less than 1 MB");
+									} else {
+										toast.error("Error in uploading file");
+									}
 								}}
 								className="text-sm"
 							/>
@@ -120,8 +132,8 @@ export default function EditProfileForm(props: PropsType) {
 							)}
 						/>
 					</div>
-					<Button type="submit" disabled={!hasDataChanged || disabled}>
-						{disabled && (
+					<Button type="submit" disabled={!hasDataChanged || isPending}>
+						{isPending && (
 							<AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
 						)}
 						Done

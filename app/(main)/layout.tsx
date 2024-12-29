@@ -1,6 +1,9 @@
 import { Sidebar } from "@/components/sidebar";
 import Navbar from "@/components/navbar";
 import { Toaster } from "react-hot-toast";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { ourFileRouter } from "@/app/api/uploadthing/core";
+import { extractRouterConfig } from "uploadthing/server";
 
 export default function LayoutOne({ children }: { children: React.ReactNode }) {
 	return (
@@ -13,6 +16,7 @@ export default function LayoutOne({ children }: { children: React.ReactNode }) {
 					{children}
 				</div>
 			</div>
+			<NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
 		</section>
 	);
 }

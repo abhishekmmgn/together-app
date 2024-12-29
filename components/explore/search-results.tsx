@@ -18,9 +18,6 @@ export default function SearchResults(props: { query: string }) {
 		},
 		enabled: !!props.query,
 	});
-
-	console.log(data, "Component render...");
-
 	return (
 		<div className="pt-1 px-5 lg:px-0">
 			<Tabs defaultValue="posts">

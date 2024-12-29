@@ -69,7 +69,7 @@ export default function ProfileCard() {
 				</div>
 				<div className="size-8 hover:bg-primary/20 grid place-items-center rounded-full">
 					<Dialog>
-						<DialogTrigger className="w-full" asChild>
+						<DialogTrigger className="w-full">
 							<IoPencil className="size-5 hover:text-primary cursor-pointer" />
 						</DialogTrigger>
 						<DialogContent>

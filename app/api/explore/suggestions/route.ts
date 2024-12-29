@@ -11,7 +11,8 @@ export async function GET(request: NextRequest) {
 
 		const users = await Users.find()
 			.select("name profilePhoto _id, bio")
-			.limit(4);
+			.sort({ createdAt: -1 })
+			.limit(10);
 
 		// remove current user from suggestions
 		const updatedUsers = users.filter((user) => user._id != curUserId);

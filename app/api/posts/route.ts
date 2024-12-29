@@ -18,18 +18,10 @@ export async function GET(request: NextRequest) {
 		const postsLimit = 3;
 		const skipPosts = (page - 1) * postsLimit;
 
-		let posts;
-		if (curUserId) {
-			posts = await Post.find({ creator: { $ne: curUserId } })
-				.sort({ createdAt: -1 })
-				.skip(skipPosts)
-				.limit(postsLimit);
-		} else {
-			posts = await Post.find()
-				.sort({ createdAt: -1 })
-				.skip(skipPosts)
-				.limit(postsLimit);
-		}
+		const posts = await Post.find()
+			.sort({ createdAt: -1 })
+			.skip(skipPosts)
+			.limit(postsLimit);
 
 		const postsData: PostType[] = await Promise.all(
 			posts.map(async (post) => {
