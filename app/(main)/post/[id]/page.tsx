@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default function Home({ params }: Props) {
-	const { isLoading, error, data, isError } = useQuery({
+	const { isPending, error, data, isError } = useQuery({
 		queryKey: ["post", params.id],
 		queryFn: async () => {
 			const res = await fetch(`/api/post/${params.id}`);
@@ -24,16 +24,10 @@ export default function Home({ params }: Props) {
 				return data.data;
 			}
 		},
-		retry: (failureCount, error) => {
-			// Disable retry if error is a 404
-			if (error.message === "Not found") {
-				return false;
-			}
-			return failureCount < 3;
-		},
+		staleTime: 1000 * 60,
 	});
 
-	if (isLoading) {
+	if (isPending) {
 		return (
 			<main className="p-5">
 				<PostSkeleton />

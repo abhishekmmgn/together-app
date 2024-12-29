@@ -50,9 +50,9 @@ export default function Conversation({
 						</Avatar>
 						<div className="w-full flex flex-col justify-center items-start">
 							<div className="w-full flex items-center justify-between gap-5">
-								<h1 className="w-[70%] line-clamp-1 lg:text-base+ font-medium">
+								<p className="w-[70%] line-clamp-1 text-lg font-medium">
 									{user.name}
-								</h1>
+								</p>
 								<p className="w-[30%] text-right text-sm line-clamp-1 text-muted-foreground">
 									{formattedTime}
 								</p>

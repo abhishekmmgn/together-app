@@ -37,9 +37,7 @@ export default function NotificationsPrefrences() {
 							render={({ field }) => (
 								<FormItem className="flex flex-row items-center justify-between rounded-[var(--radius)] border border-border p-4">
 									<div className="space-y-0.5">
-										<FormLabel className="text-base">
-											Turn off Notifications
-										</FormLabel>
+										<FormLabel className="">Turn off Notifications</FormLabel>
 										<FormDescription>
 											Turn off notifications about new posts, features, and
 											more.
@@ -60,7 +58,7 @@ export default function NotificationsPrefrences() {
 							render={({ field }) => (
 								<FormItem className="flex flex-row items-center justify-between rounded-[var(--radius)] border border-border p-4">
 									<div className="space-y-0.5">
-										<FormLabel className="text-base">Security alerts</FormLabel>
+										<FormLabel className="">Security alerts</FormLabel>
 										<FormDescription>
 											Receive alerts about your account security.
 										</FormDescription>

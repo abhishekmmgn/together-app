@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 
 const useInfiniteScroll = (fetchData: (page: number) => Promise<any[]>) => {
 	const [data, setData] = useState<PostType[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
+	const [isPending, setisPending] = useState(false);
 	const [page, setPage] = useState(2);
 	const [hasMore, setHasMore] = useState(true);
 	const loader = useRef(null);
@@ -26,10 +26,10 @@ const useInfiniteScroll = (fetchData: (page: number) => Promise<any[]>) => {
 
 	useEffect(() => {
 		if (hasMore) {
-			setIsLoading(true);
+			setisPending(true);
 			fetchData(page).then((newData) => {
 				setData((prevData) => [...prevData, ...newData]);
-				setIsLoading(false);
+				setisPending(false);
 				if (newData.length === 0) {
 					setHasMore(false);
 				}
@@ -37,7 +37,7 @@ const useInfiniteScroll = (fetchData: (page: number) => Promise<any[]>) => {
 		}
 	}, [page]);
 
-	return { data, isLoading, loader };
+	return { data, isPending, loader };
 };
 
 export default useInfiniteScroll;

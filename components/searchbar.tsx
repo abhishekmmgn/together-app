@@ -2,6 +2,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+	IoSearch,
+	IoSearchCircle,
+	IoSearchCircleOutline,
+} from "react-icons/io5";
 
 type PropsType = {
 	searchActive: boolean;
@@ -30,13 +35,14 @@ export default function SearchBar(props: PropsType) {
 	return (
 		<div className="sticky inset-x-0 z-40 px-5 py-4 bg-background backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14 lg:px-0 group">
 			<div className="relative w-full group">
+				<IoSearch className="text-muted-foreground size-4 absolute top-[14px] left-[14px]" />
 				<Input
 					type="search"
 					defaultValue={searchTerm}
 					placeholder={props.placeholder}
 					onFocus={() => props.setSearchActive(true)}
 					onKeyDown={handleKeydown}
-					className="bg-secondary"
+					className="bg-secondary pl-8"
 				/>
 			</div>
 			{props.searchActive && (

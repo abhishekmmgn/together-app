@@ -24,7 +24,7 @@ export default function ExternalProfile({ params }: Params) {
 	const [isFriend, setIsFriend] = useState(false);
 	const [isDisabled, setIsDisabled] = useState(false);
 
-	const { isLoading, error, data, isError } = useQuery({
+	const { isPending, error, data, isError } = useQuery({
 		queryKey: ["profile", params.id],
 		queryFn: async () => {
 			const res = await fetch(`/api/user/${params.id}`);
@@ -76,7 +76,7 @@ export default function ExternalProfile({ params }: Params) {
 		}
 	}
 
-	if (isLoading) {
+	if (isPending) {
 		return (
 			<div className="p-5">
 				<div className="grid gap-4 pb-4">

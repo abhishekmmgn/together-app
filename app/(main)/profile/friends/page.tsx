@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import ProfileCardSkeleton from "@/components/explore/profile-card-skeleton";
 
 export default function FriendsPage() {
-	const { isLoading, error, data, isError } = useQuery({
+	const { isPending, error, data, isError } = useQuery({
 		queryKey: ["friends"],
 		queryFn: async () => {
 			const res = await fetch("/api/user/friends/");
@@ -20,7 +20,7 @@ export default function FriendsPage() {
 		},
 	});
 
-	if (isLoading) {
+	if (isPending) {
 		return (
 			<div className="p-5 w-full h-full flex flex-col justify-start">
 				{Array(10)
@@ -51,13 +51,15 @@ export default function FriendsPage() {
 					))}
 				</>
 			) : (
-				<div className="w-full h-full flex flex-col justify-center items-center gap-3">
-					<h1 className="text-2xl font-medium text-clip">
+				<div className="mt-10 w-full grid place-items-center md:mt-40">
+					<h1 className="text-3xl font-medium text-clip">
 						You don&apos;t have any friends yet.
 					</h1>
-					<Link href="/explore" className="w-full flex justify-center">
-						<Button className="max-w-md">Search new friends</Button>
-					</Link>
+					<Button variant="link" className="w-fit max-w-fit" asChild>
+						<Link href="/explore" className="w-full flex justify-center">
+							Search new friends
+						</Link>
+					</Button>
 				</div>
 			)}
 		</div>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -144,6 +145,7 @@ export default function NewPostForm() {
 											{...field}
 										/>
 									</FormControl>
+									<FormDescription>Separate tags by comma</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}

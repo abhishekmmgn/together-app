@@ -74,7 +74,7 @@ export default function Comments({
 					/>
 				))}
 			</div>
-			<p className="mb-3 mt-5 text-sm+ md:text-base text-muted-foreground">
+			<p className="mb-3 mt-5 text-sm+ md: text-muted-foreground">
 				Add a comment
 			</p>
 			<form className="flex gap-3" onSubmit={handleSubmit}>

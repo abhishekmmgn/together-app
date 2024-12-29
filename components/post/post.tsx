@@ -118,7 +118,6 @@ export default function Post(props: {
 								</MenubarTrigger>
 								<MenubarContent className="border-border">
 									<MenubarItem
-										className="text-primary"
 										onClick={() => copyLink(`/post/${props.post?._id}`)}
 									>
 										Share

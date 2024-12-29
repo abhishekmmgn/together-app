@@ -1,38 +1,61 @@
+"use client";
+
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Post from "@/components/post/post";
-import type { PostType } from "@/types";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { ShortErrorInfo } from "../error-info";
+import { useQuery } from "@tanstack/react-query";
+import PostSkeleton from "../post/post-skeleton";
+import { PostType } from "@/types";
 
-export default function UserPosts({ userId }: { userId: string }) {
-	const [postsData, setPostsData] = useState<PostType[]>([]);
-
-	async function getData() {
-		try {
-			const res = await fetch(`/api/user-posts/${userId}`, {
-				cache: "no-store",
-			});
+export default function UserPosts() {
+	const { isPending, error, data, isError } = useQuery<{
+		_id: string;
+		name: string;
+		profilePhoto: string;
+		posts: PostType[];
+	}>({
+		queryKey: ["user-posts"],
+		queryFn: async () => {
+			const res = await fetch(`/api/user/posts`);
 			if (res.ok) {
 				const data = await res.json();
-				setPostsData(data.posts);
+				return data.data;
 			}
-		} catch (err: any) {
-			console.log("Error: ", err.message);
-		}
+		},
+		staleTime: 1000 * 60 * 5,
+	});
+	if (isPending) {
+		return (
+			<div className="py-5">
+				<PostSkeleton />
+			</div>
+		);
 	}
 
-	useEffect(() => {
-		getData();
-	}, []);
-
+	if (isError) {
+		console.log(error);
+		return <ShortErrorInfo />;
+	}
 	return (
-		<div className="pt-6 px-5 lg:px-0 space-y-2">
-			<h2 className="font-medium text-2xl">Activity</h2>
-			{postsData?.length > 0 ? (
+		<>
+			{data.posts.length ? (
 				<>
-					{postsData.map((post) => (
-						<Post key={post._id} post={post} paddingX={true} canDelete={true} />
+					{data.posts.map((post) => (
+						<Post
+							key={post._id}
+							post={{
+								...post,
+								creator: {
+									_id: data._id,
+									name: data.name,
+									profilePhoto: data.profilePhoto,
+								},
+							}}
+							paddingX={true}
+							canDelete={true}
+						/>
 					))}
 				</>
 			) : (
@@ -52,6 +75,6 @@ export default function UserPosts({ userId }: { userId: string }) {
 					</Link>
 				</div>
 			)}
-		</div>
+		</>
 	);
 }

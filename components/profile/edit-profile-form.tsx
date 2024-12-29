@@ -28,12 +28,10 @@ type formSchemaType = z.infer<typeof formSchema>;
 type PropsType = {
 	photo: string;
 	bio: string;
-	setPhoto: React.Dispatch<React.SetStateAction<string>>;
-	setBio: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export default function EditProfileForm(props: PropsType) {
-	const [disabled, setDisabled] = useState<boolean>(false);
+	const [disabled, setDisabled] = useState(false);
 
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(formSchema),
@@ -63,14 +61,9 @@ export default function EditProfileForm(props: PropsType) {
 				}),
 			});
 			if (res.ok) {
-				props.setPhoto(data?.photo || props.photo);
-				props.setBio(data?.bio || props.bio);
 				toast.success("Profile updated successfully");
 				form.reset();
-			} else if (res.status === 400) {
-				console.log(res.statusText);
-				toast.error(res.statusText);
-			} else if (res.status === 500) {
+			} else if (res.status === 400 || res.status === 500) {
 				console.log(res.statusText);
 				toast.error(res.statusText);
 			}

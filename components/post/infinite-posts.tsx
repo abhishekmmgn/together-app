@@ -5,24 +5,23 @@ import type { PostType } from "@/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useRef } from "react";
 import PostSkeleton from "./post-skeleton";
-import { Separator } from "../ui/separator";
 
-async function fetchPosts({
-	pageParam,
-}: { pageParam: number }): Promise<PostType[]> {
+async function fetchPosts(pageParam: number): Promise<PostType[]> {
 	const response = await fetch(`/api/posts?page=${pageParam}`);
 	const { data } = await response.json();
 	return data;
 }
 
-export default function InfinitePosts() {
-	const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
+export default function InfinitePosts({
+	prerenderedPosts,
+}: { prerenderedPosts: PostType[] }) {
+	const { data, error, fetchNextPage, hasNextPage, isFetching, isPending } =
 		useInfiniteQuery({
 			queryKey: ["infinite-posts"],
-			queryFn: ({ pageParam }) => fetchPosts({ pageParam }),
-			initialPageParam: 1,
+			queryFn: ({ pageParam }) => fetchPosts(pageParam),
+			initialPageParam: 2,
 			getNextPageParam: (lastPage, allPages) => {
-				return lastPage.length ? allPages.length + 1 : undefined;
+				return lastPage.length ? allPages.length + 2 : undefined;
 			},
 		});
 
@@ -30,7 +29,7 @@ export default function InfinitePosts() {
 
 	const lastElementRef = useCallback(
 		(node: HTMLDivElement) => {
-			if (isLoading) return;
+			if (isPending) return;
 
 			if (observer.current) observer.current.disconnect();
 
@@ -42,7 +41,7 @@ export default function InfinitePosts() {
 
 			if (node) observer.current.observe(node);
 		},
-		[fetchNextPage, hasNextPage, isFetching, isLoading],
+		[fetchNextPage, hasNextPage, isFetching, isPending],
 	);
 
 	const posts = useMemo(() => {
@@ -52,25 +51,24 @@ export default function InfinitePosts() {
 		}, []);
 	}, [data]);
 
-	if (isLoading) {
-		return (
-			<div className="space-y-4 p-5">
-				<PostSkeleton />
-				<Separator />
-				<PostSkeleton />
-			</div>
-		);
-	}
 	if (error) return <p className="text-destructive">Error on fetch data...</p>;
-
 	return (
 		<>
+			{prerenderedPosts.map((post: PostType) => (
+				<div key={post._id}>
+					<Post post={post} />
+				</div>
+			))}
 			{posts?.map((post: PostType) => (
 				<div ref={lastElementRef} key={post._id}>
 					<Post post={post} />
 				</div>
 			))}
-			{isFetching && <PostSkeleton />}
+			{isFetching && (
+				<div className="space-y-4 p-5 lg:px-0">
+					<PostSkeleton />
+				</div>
+			)}
 		</>
 	);
 }

@@ -2,7 +2,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/settings/theme-provider";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
 import TanstackProvider from "@/lib/tanstack-provider";
 
 const roboto = Roboto({
@@ -44,7 +43,6 @@ export default function RootLayout({
 				>
 					<TanstackProvider>{children}</TanstackProvider>
 				</ThemeProvider>
-				{/* <Analytics /> */}
 			</body>
 		</html>
 	);

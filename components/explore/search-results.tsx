@@ -7,7 +7,7 @@ import type { PersonProfileType, PostType } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
 export default function SearchResults(props: { query: string }) {
-	const { isLoading, error, data, isError } = useQuery({
+	const { isPending, error, data, isError } = useQuery({
 		queryKey: ["userProfile", props.query],
 		queryFn: async () => {
 			const res = await fetch(`/api/search-results?query=${props.query}`);
@@ -23,14 +23,41 @@ export default function SearchResults(props: { query: string }) {
 
 	return (
 		<div className="pt-1 px-5 lg:px-0">
-			<Tabs defaultValue="person">
+			<Tabs defaultValue="posts">
 				<TabsList>
-					<TabsTrigger value="person">Person</TabsTrigger>
 					<TabsTrigger value="posts">Posts</TabsTrigger>
+					<TabsTrigger value="person">Person</TabsTrigger>
 				</TabsList>
+				<TabsContent value="posts">
+					<div className="py-4">
+						{isPending ? (
+							<>
+								{Array(10)
+									.fill(null)
+									.map((_, i) => (
+										<PostSkeleton key={i} />
+									))}
+							</>
+						) : (
+							<>
+								{data.posts.length ? (
+									<>
+										{data.posts.map((post: PostType) => (
+											<Post key={post._id} post={post} paddingX={true} />
+										))}
+									</>
+								) : (
+									<div className="text-tertiary-foreground">
+										No results found.
+									</div>
+								)}
+							</>
+						)}
+					</div>
+				</TabsContent>
 				<TabsContent value="person">
 					<div className="py-4">
-						{isLoading ? (
+						{isPending ? (
 							<>
 								{Array(10)
 									.fill(null)
@@ -50,33 +77,6 @@ export default function SearchResults(props: { query: string }) {
 												bio={person.bio}
 												profilePhoto={person.profilePhoto}
 											/>
-										))}
-									</>
-								) : (
-									<div className="text-tertiary-foreground">
-										No results found.
-									</div>
-								)}
-							</>
-						)}
-					</div>
-				</TabsContent>
-				<TabsContent value="posts">
-					<div className="py-4">
-						{isLoading ? (
-							<>
-								{Array(10)
-									.fill(null)
-									.map((_, i) => (
-										<PostSkeleton key={i} />
-									))}
-							</>
-						) : (
-							<>
-								{data.posts.length ? (
-									<>
-										{data.posts.map((post: PostType) => (
-											<Post key={post._id} post={post} paddingX={true} />
 										))}
 									</>
 								) : (

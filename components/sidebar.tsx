@@ -16,8 +16,8 @@ export function Sidebar() {
 						href={tab.link}
 						className={`h-10 flex justify-start items-center gap-3 px-3 py-1 rounded-[var(--radius)] ${
 							segment === tab.link || segment.startsWith(`${tab.link}/`)
-								? "bg-tertiary text-primary"
-								: "text-tertiary-foreground hover:bg-secondary"
+								? "bg-primary"
+								: "text-tertiary-foreground hover:bg-secondary hover:text-secondary-foreground"
 						}`}
 						key={tab.link}
 					>

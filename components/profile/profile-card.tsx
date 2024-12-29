@@ -1,7 +1,6 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { IoPencil } from "react-icons/io5";
 import {
 	Dialog,
@@ -12,59 +11,78 @@ import {
 } from "@/components/ui/dialog";
 import EditProfileForm from "@/components/profile/edit-profile-form";
 import formatAvatarName from "@/lib/formatAvatarName";
-import { useState } from "react";
+import LoadingSkeleton from "@/components/loading-skeleton";
+import { useQuery } from "@tanstack/react-query";
+import { ShortErrorInfo } from "@/components/error-info";
 
-type propsType = {
-	last?: boolean;
-	photo: string;
-	name: string;
-	bio: string;
-};
+export default function ProfileCard() {
+	const { isPending, error, data, isError } = useQuery<{
+		_id: string;
+		name: string;
+		profilePhoto: string;
+		bio: string;
+	}>({
+		queryKey: ["user-profile"],
+		queryFn: async () => {
+			const res = await fetch("/api/user");
+			if (res.ok) {
+				const data = await res.json();
+				return data.data;
+			}
+		},
+		staleTime: 1000 * 60 * 5,
+	});
+	console.log(data);
+	if (isPending) {
+		return (
+			<div className="p-5 lg:px-0">
+				<LoadingSkeleton />
+			</div>
+		);
+	}
 
-export default function ProfileCard(props: propsType) {
-	const [photo, setPhoto] = useState(props.photo);
-	const [bio, setBio] = useState(props.bio);
+	if (isError) {
+		console.log(error);
+		return <ShortErrorInfo />;
+	}
 	return (
 		<>
 			<div className="w-full h-[72px] px-5 flex items-center justify-between lg:px-0 md:h-[76px]">
 				<div className="w-full flex gap-3">
 					<Avatar className="w-14 h-14 lg:w-[60px] lg:h-[60px]">
-						<AvatarImage src={photo} alt="Your Profile photo" />
+						<AvatarImage
+							src={data.profilePhoto}
+							alt="Your Profile profilePhoto"
+						/>
 						<AvatarFallback className="text-primary lg:text-xl">
-							{formatAvatarName(props.name)}
+							{formatAvatarName(data.name)}
 						</AvatarFallback>
 					</Avatar>
 					<div className="w-full flex flex-col justify-center items-center">
 						<h1 className="w-full overflow-x-hidden line-clamp-1 text-lg font-medium">
-							{props.name}
+							{data.name}
 						</h1>
 						<p className="w-full overflow-x-hidden text-sm line-clamp-1 text-tertiary-foreground">
-							{bio}
+							{data.bio}
 						</p>
 					</div>
 				</div>
-				<div className="h-8 w-8 hover:bg-primary/20 flex items-center justify-center rounded-full">
+				<div className="size-8 hover:bg-primary/20 grid place-items-center rounded-full">
 					<Dialog>
 						<DialogTrigger className="w-full" asChild>
-							<IoPencil className="w-5 h-5 text-primary cursor-pointer" />
+							<IoPencil className="size-5 hover:text-primary cursor-pointer" />
 						</DialogTrigger>
 						<DialogContent>
 							<DialogHeader>
 								<DialogTitle>Edit Profile</DialogTitle>
 							</DialogHeader>
 							<div>
-								<EditProfileForm
-									photo={photo}
-									bio={bio}
-									setPhoto={setPhoto}
-									setBio={setBio}
-								/>
+								<EditProfileForm photo={data.profilePhoto} bio={data.bio} />
 							</div>
 						</DialogContent>
 					</Dialog>
 				</div>
 			</div>
-			{!props.last && <Separator />}
 		</>
 	);
 }

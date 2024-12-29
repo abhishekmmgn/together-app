@@ -9,7 +9,7 @@ export default function TableRow(props: PropsType) {
 	return (
 		<>
 			<div
-				className={`px-5 w-full h-11 flex items-center justify-between hover:bg-muted lg:px-0 ${
+				className={`px-5 w-full h-11 flex items-center justify-between lg:px-0 ${
 					!props.textColor && "text-primary"
 				}`}
 			>

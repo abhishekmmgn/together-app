@@ -4,22 +4,25 @@ Together App is a social app to connect with your family, friends and others. Yo
 
 ## Getting Started
 
-First, install the packages:
+First, install Bun:
+
+`npm install -g bun`
+
+Then, install the packages:
 
 ```bash
-npm install
+bun install
 ```
 
 Then, run the development server:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 Rename the env-guide.txt file to .env.local and add environment variables
-Uncomment `{children}` in root level layout.tsx file and comment `<DbFull />` component
 
 ### Tech used
 
@@ -33,7 +36,7 @@ Uncomment `{children}` in root level layout.tsx file and comment `<DbFull />` co
 
 ### Features
 
-- Feeds
+- Feed
 
   - Create posts
   - Delete your post
