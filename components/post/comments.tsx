@@ -3,50 +3,33 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { IoArrowUpCircle } from "react-icons/io5";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Comment } from "./comment";
 import type { CommentsType } from "@/types";
 import { checkLoggedIn } from "@/lib/checkLoggedIn";
 import { useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Label } from "../ui/label";
 
 export default function Comments({
 	postId,
 	comments,
+	currentUserId,
 }: {
 	postId: string;
 	comments?: CommentsType[];
+	currentUserId?: string;
 }) {
 	const [message, setMessage] = useState<string>("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { replace } = useRouter();
-	const queryClient = useQueryClient();
-
-	const { data: userProfile } = useQuery<{
-		_id: string;
-		name: string;
-		username: string;
-		profilePhoto: string;
-		bio: string;
-	}>({
-		queryKey: ["user-profile"],
-		queryFn: async () => {
-			const res = await fetch("/api/user");
-			if (res.ok) {
-				const data = await res.json();
-				return data.data;
-			}
-			return null;
-		},
-		staleTime: 1000 * 60 * 5,
-	});
+	const router = useRouter();
+	const [isPending, startTransition] = useTransition();
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
 		if (!message.trim()) return;
 
-		// check if logged in
 		if (!(await checkLoggedIn())) {
 			replace("/auth/login");
 			return;
@@ -54,53 +37,24 @@ export default function Comments({
 
 		const commentText = message;
 		setMessage("");
-
-		// Create optimistic comment
-		const newComment: CommentsType = {
-			_id: Math.random().toString(),
-			createdBy: {
-				_id: userProfile?._id || "",
-				name: userProfile?.name || "You",
-				username: userProfile?.username || "",
-				profilePhoto: userProfile?.profilePhoto || "",
-			},
-			message: commentText,
-			createdAt: new Date(),
-		};
-
-		// Optimistically update the post query data
-		const previousPost = queryClient.getQueryData<any>(["post", postId]);
-		if (previousPost) {
-			queryClient.setQueryData(["post", postId], {
-				...previousPost,
-				comments: [...(previousPost.comments || []), newComment],
-			});
-		}
+		setIsSubmitting(true);
 
 		try {
 			const res = await fetch(`/api/post/${postId}`, {
 				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					message: commentText,
-				}),
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ message: commentText }),
 			});
-			if (!res.ok) {
-				throw new Error("Failed to post comment");
-			}
+			if (!res.ok) throw new Error("Failed to post comment");
+			startTransition(() => router.refresh());
 		} catch (err: any) {
 			console.log("Error: ", err.message);
-			// Rollback to previous state on failure
-			if (previousPost) {
-				queryClient.setQueryData(["post", postId], previousPost);
-			}
 		} finally {
-			// Revalidate from server
-			queryClient.invalidateQueries({ queryKey: ["post", postId] });
+			setIsSubmitting(false);
 		}
 	}
+
+	const disabled = isSubmitting || isPending;
 
 	return (
 		<div className="space-y-8">
@@ -112,11 +66,12 @@ export default function Comments({
 						value={message}
 						placeholder="Write a comment"
 						onChange={(e) => setMessage(e.target.value)}
+						disabled={disabled}
 					/>
 					<Button
 						size="icon"
 						variant="ghost"
-						disabled={message.length === 0}
+						disabled={message.length === 0 || disabled}
 						className="mt-1 hover:bg-transparent"
 					>
 						<IoArrowUpCircle className="size-7 text-primary" />
@@ -124,10 +79,10 @@ export default function Comments({
 				</div>
 			</form>
 			<div className="space-y-3">
-				{comments?.map((comment: CommentsType, index) => (
+				{comments?.map((comment: CommentsType, index: number) => (
 					<Comment
 						type={
-							comment.createdBy?._id === userProfile?._id ? "sent" : "recieved"
+							comment.createdBy?._id === currentUserId ? "sent" : "recieved"
 						}
 						comment={comment.message}
 						createdBy={comment.createdBy}

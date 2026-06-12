@@ -136,27 +136,27 @@
 
 @layer components {
   .heading-1 {
-    @apply text-4xl font-semibold leading-tight md:text-5xl lg:text-6xl;
+    @apply text-4xl font-semibold leading-tight tracking-normal md:text-5xl lg:text-6xl;
   }
 
   .heading-2 {
-    @apply text-3xl font-semibold leading-tight md:text-4xl;
+    @apply text-3xl font-semibold leading-tight tracking-normal md:text-4xl;
   }
 
   .heading-3 {
-    @apply text-2xl font-semibold leading-tight;
+    @apply text-2xl font-semibold tracking-normal leading-tight;
   }
 
   .heading-4 {
-    @apply text-xl font-medium leading-tight lg:text-2xl;
+    @apply text-xl font-medium tracking-normal leading-tight lg:text-2xl;
   }
 
   .heading-5 {
-    @apply text-lg font-medium leading-tight md:text-xl;
+    @apply text-lg font-medium tracking-normal leading-tight md:text-xl;
   }
 
   .heading-6 {
-    @apply font-medium leading-tight md:text-lg;
+    @apply font-medium tracking-normal leading-tight md:text-lg;
   }
 
   .horizontal-padding {

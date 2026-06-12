@@ -22,8 +22,8 @@ import {
 	DropzoneContent,
 } from "@/components/dropzone";
 import userIcon from "../../public/user.png";
-import { useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
 	name: z
@@ -82,15 +82,15 @@ export default function EditProfileForm(props: PropsType) {
 		}
 	}, [uploadProps.isSuccess, uploadProps.uploadedUrls, form]);
 
-	const queryClient = useQueryClient();
+	const router = useRouter();
+	const [isPending, setIsPending] = useState(false);
 
-	const { mutate, isPending } = useMutation({
-		mutationFn: async (data: formSchemaType) => {
+	async function onSubmit(data: formSchemaType) {
+		setIsPending(true);
+		try {
 			const res = await fetch("/api/user", {
 				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
+				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					name: data.name,
 					username: data.username,
@@ -98,27 +98,19 @@ export default function EditProfileForm(props: PropsType) {
 					bio: data.bio,
 				}),
 			});
-
 			if (!res.ok) {
-				throw new Error(res.statusText);
+				const json = await res.json().catch(() => ({}));
+				throw new Error(json.error || res.statusText);
 			}
-
-			return res.json();
-		},
-		onSuccess: () => {
 			toast.success("Profile updated successfully");
 			form.reset();
-			queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+			router.refresh();
 			closeDialog();
-		},
-		onError: (error: Error) => {
-			console.log("Error: ", error.message);
+		} catch (error: any) {
 			toast.error(error.message);
-		},
-	});
-
-	async function onSubmit(data: formSchemaType) {
-		mutate(data);
+		} finally {
+			setIsPending(false);
+		}
 	}
 
 	return (

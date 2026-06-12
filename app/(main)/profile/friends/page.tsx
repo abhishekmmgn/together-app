@@ -1,47 +1,56 @@
-"use client";
-
 import Back from "@/components/back";
 import ProfileCard from "@/components/explore/profile-card";
 import type { PersonProfileType } from "@/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import ProfileCardSkeleton from "@/components/explore/profile-card-skeleton";
+import { redirect } from "next/navigation";
+import { getUserIdFromCookies } from "@/lib/getDataFromToken";
+import { db } from "@/lib/db";
+import { users, friends } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
-export default function FriendsPage() {
-	const { isPending, error, data, isError } = useQuery({
-		queryKey: ["friends"],
-		queryFn: async () => {
-			const res = await fetch("/api/user/friends/");
-			if (res.ok) {
-				const data = await res.json();
-				return data.data;
-			}
-		},
-	});
+export default async function FriendsPage() {
+	const userId = await getUserIdFromCookies();
+	if (!userId) redirect("/auth/login");
 
-	if (isPending) {
-		return (
-			<div className="w-full h-full px-5 lg:px-0">
-				<Back />
-				{Array(10)
-					.fill(0)
-					.map((_, index) => (
-						<ProfileCardSkeleton key={index} />
-					))}
-			</div>
-		);
-	}
-	if (isError) {
-		console.log(error);
-		return <p className="text-destructive">Something went wrong</p>;
-	}
+	const friendships = await db
+		.select({ friendId: friends.friendId })
+		.from(friends)
+		.where(eq(friends.userId, userId));
+
+	const friendIds = friendships.map((f) => f.friendId);
+
+	const friendsData: PersonProfileType[] =
+		friendIds.length > 0
+			? await Promise.all(
+					friendIds.map(async (friendId) => {
+						const [friend] = await db
+							.select({
+								id: users.id,
+								name: users.name,
+								username: users.username,
+								bio: users.bio,
+								profilePhoto: users.profilePhoto,
+							})
+							.from(users)
+							.where(eq(users.id, friendId));
+						return {
+							_id: friend.id,
+							name: friend.name,
+							username: friend.username || "",
+							bio: friend.bio || "",
+							profilePhoto: friend.profilePhoto || "",
+						};
+					}),
+				)
+			: [];
+
 	return (
 		<div className="w-full h-full px-5 lg:px-0">
 			<Back />
-			{data.length ? (
+			{friendsData.length ? (
 				<>
-					{data.map((user: PersonProfileType) => (
+					{friendsData.map((user) => (
 						<ProfileCard
 							key={user._id}
 							_id={user._id}
