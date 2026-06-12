@@ -25,6 +25,7 @@ export default function Comments({
 	const { data: userProfile } = useQuery<{
 		_id: string;
 		name: string;
+		username: string;
 		profilePhoto: string;
 		bio: string;
 	}>({
