@@ -4,17 +4,17 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
+import { Form, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+	Field,
+	FieldGroup,
+	FieldLabel,
+	FieldError,
+} from "@/components/ui/field";
+import { AuthCard } from "@/components/auth-card";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -83,94 +83,115 @@ export default function RegisterForm() {
 	}
 
 	return (
-		<>
+		<AuthCard
+			title="Create an account"
+			description="Enter your details below to create your account"
+			footerText={
+				<>
+					Already have an account?{" "}
+					<Link
+						href="/auth/login"
+						className="underline underline-offset-4 hover:text-primary"
+					>
+						Sign In
+					</Link>
+				</>
+			}
+			showConsent
+		>
 			<Form {...form}>
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="w-full space-y-4"
-				>
-					<div className="space-y-2">
+				<form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+					<FieldGroup>
 						<FormField
 							control={form.control}
 							name="name"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Name</FormLabel>
-									<FormControl>
-										<Input
-											type="name"
-											autoComplete="name"
-											placeholder="John Doe"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
+							render={({ field, fieldState }) => (
+								<Field data-invalid={!!fieldState.error}>
+									<FieldLabel htmlFor="name">Name</FieldLabel>
+									<Input
+										id="name"
+										type="text"
+										autoComplete="name"
+										placeholder="John Doe"
+										disabled={disabled}
+										{...field}
+									/>
+									{fieldState.error && (
+										<FieldError>{fieldState.error.message}</FieldError>
+									)}
+								</Field>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="email"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email</FormLabel>
-									<FormControl>
-										<Input
-											type="email"
-											autoComplete="email"
-											placeholder="johndoe@email.com"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
+							render={({ field, fieldState }) => (
+								<Field data-invalid={!!fieldState.error}>
+									<FieldLabel htmlFor="email">Email</FieldLabel>
+									<Input
+										id="email"
+										type="email"
+										autoComplete="email"
+										placeholder="johndoe@email.com"
+										disabled={disabled}
+										{...field}
+									/>
+									{fieldState.error && (
+										<FieldError>{fieldState.error.message}</FieldError>
+									)}
+								</Field>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="password"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Password</FormLabel>
-									<FormControl>
-										<Input
-											type="password"
-											placeholder="********"
-											autoComplete="new-password"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
+							render={({ field, fieldState }) => (
+								<Field data-invalid={!!fieldState.error}>
+									<FieldLabel htmlFor="password">Password</FieldLabel>
+									<Input
+										id="password"
+										type="password"
+										placeholder="********"
+										autoComplete="new-password"
+										disabled={disabled}
+										{...field}
+									/>
+									{fieldState.error && (
+										<FieldError>{fieldState.error.message}</FieldError>
+									)}
+								</Field>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="confirmPassword"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Confirm Password</FormLabel>
-									<FormControl>
-										<Input
-											type="password"
-											autoComplete="new-password"
-											placeholder="********"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
+							render={({ field, fieldState }) => (
+								<Field data-invalid={!!fieldState.error}>
+									<FieldLabel htmlFor="confirmPassword">
+										Confirm Password
+									</FieldLabel>
+									<Input
+										id="confirmPassword"
+										type="password"
+										autoComplete="new-password"
+										placeholder="********"
+										disabled={disabled}
+										{...field}
+									/>
+									{fieldState.error && (
+										<FieldError>{fieldState.error.message}</FieldError>
+									)}
+								</Field>
 							)}
 						/>
-					</div>
-					<Button type="submit" disabled={disabled}>
-						{disabled && (
-							<AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-						)}
-						Create Account
-					</Button>
+						<Field>
+							<Button type="submit" loading={disabled} loadingText="Creating Account">
+								Create Account
+							</Button>
+						</Field>
+					</FieldGroup>
 				</form>
 			</Form>
-		</>
+		</AuthCard>
 	);
 }

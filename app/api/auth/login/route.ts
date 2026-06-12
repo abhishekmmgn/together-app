@@ -1,18 +1,17 @@
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export async function POST(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const { email, password } = await request.json();
 
-		//check if user exists
-		const user = await User.findOne({ email });
+		// check if user exists
+		const [user] = await db.select().from(users).where(eq(users.email, email));
 
 		if (!user) {
 			return NextResponse.json(
@@ -21,20 +20,19 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		//check if password is correct
+		// check if password is correct
 		const validPassword = await bcrypt.compare(password, user.password);
 		if (!validPassword) {
 			return NextResponse.json({ error: "Password is wrong" }, { status: 400 });
 		}
-		// console.log(user);
 
-		//create token data
+		// create token data
 		const tokenData = {
-			id: user._id,
+			id: user.id,
 			email: user.email,
 		};
 
-		//create token
+		// create token
 		const tokenSecret = process.env.TOKEN_SECRET || "";
 		const token = jwt.sign(tokenData, tokenSecret, {
 			expiresIn: "30d",
@@ -42,7 +40,7 @@ export async function POST(request: NextRequest) {
 
 		console.log(token);
 
-		cookies().set("token", token, {
+		(await cookies()).set("token", token, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
 			sameSite: "strict",
@@ -50,7 +48,7 @@ export async function POST(request: NextRequest) {
 			maxAge: 60 * 60 * 24,
 		});
 
-		console.log("Cookies after setting token:", cookies());
+		console.log("Cookies after setting token:", await cookies());
 
 		return NextResponse.json({
 			message: "Login successful",

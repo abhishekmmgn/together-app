@@ -55,10 +55,14 @@ export default function FriendsPage() {
 					<h1 className="text-3xl font-medium text-clip">
 						You don&apos;t have any friends yet.
 					</h1>
-					<Button variant="link" className="w-fit max-w-fit" asChild>
-						<Link href="/explore" className="w-full flex justify-center">
-							Search new friends
-						</Link>
+					<Button
+						variant="link"
+						className="w-fit max-w-fit"
+						render={
+							<Link href="/explore" className="w-full flex justify-center" />
+						}
+					>
+						Search new friends
 					</Button>
 				</div>
 			)}

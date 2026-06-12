@@ -1,16 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-	IoHeart,
-	IoHeartOutline,
-	IoEllipsisHorizontal,
-	IoArrowRedoOutline,
-} from "react-icons/io5";
-import { Separator } from "@/components/ui/separator";
 import {
 	Menubar,
 	MenubarContent,
@@ -19,11 +9,22 @@ import {
 	MenubarSeparator,
 	MenubarTrigger,
 } from "@/components/ui/menubar";
-import type { PostType } from "@/types";
+import { Separator } from "@/components/ui/separator";
 import copyLink from "@/lib/copyLink";
-import formatPostDate from "@/lib/formatDate";
 import formatAvatarName from "@/lib/formatAvatarName";
-import { FaRegComments } from "react-icons/fa";
+import formatPostDate from "@/lib/formatDate";
+import type { PostType } from "@/types";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useOptimistic, useState, useTransition } from "react";
+import {
+	IoArrowRedoOutline,
+	IoChatbubbleOutline,
+	IoEllipsisHorizontal,
+	IoHeart,
+	IoHeartOutline,
+} from "react-icons/io5";
+
 import { checkLoggedIn } from "@/lib/checkLoggedIn";
 import { useRouter } from "next/navigation";
 
@@ -32,38 +33,67 @@ export default function Post(props: {
 	paddingX?: boolean;
 	canDelete?: boolean;
 }) {
-	const [liked, setLiked] = useState(props.post.liked);
+	const [likesState, setLikesState] = useState({
+		liked: props.post.liked,
+		likes: props.post?.likes || 0,
+	});
 	const [isDeleted, setIsDeleted] = useState(false);
-	const [numberofLikes, setNumberofLikes] = useState(props.post?.likes);
+
+	const [isPending, startTransition] = useTransition();
+	const [optimisticLikes, setOptimisticLikes] = useOptimistic(
+		likesState,
+		(state, nextLiked: boolean) => ({
+			liked: nextLiked,
+			likes: state.likes + (nextLiked ? 1 : -1),
+		}),
+	);
+
+	useEffect(() => {
+		setLikesState({
+			liked: props.post.liked,
+			likes: props.post?.likes || 0,
+		});
+	}, [props.post.liked, props.post?.likes]);
 
 	const { replace } = useRouter();
 
 	const formattedDate = formatPostDate(props.post?.createdAt);
 
 	async function changeLike() {
-		// check if logged in
-		if (!(await checkLoggedIn())) {
-			replace("/auth/login");
-		}
-		const currentLiked = liked;
-		setLiked(!liked);
+		const nextLiked = !likesState.liked;
 
-		const res = await fetch(`/api/post/${props.post._id}`, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ like: true }),
-		});
-		if (res.ok) {
-			if (liked) {
-				setNumberofLikes(numberofLikes - 1);
-			} else {
-				setNumberofLikes(numberofLikes + 1);
+		startTransition(async () => {
+			setOptimisticLikes(nextLiked);
+
+			try {
+				const isLoggedIn = await checkLoggedIn();
+				if (!isLoggedIn) {
+					replace("/auth/login");
+					return;
+				}
+
+				const res = await fetch(`/api/post/${props.post._id}`, {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ like: true }),
+				});
+
+				if (res.ok) {
+					setLikesState({
+						liked: nextLiked,
+						likes: likesState.likes + (nextLiked ? 1 : -1),
+					});
+				} else {
+					if (res.status === 404 || res.status === 401) {
+						replace("/auth/login");
+					}
+				}
+			} catch (error) {
+				console.error("Error toggling like:", error);
 			}
-		} else {
-			setLiked(currentLiked);
-		}
+		});
 	}
 
 	async function deletePost() {
@@ -165,7 +195,7 @@ export default function Post(props: {
 						!props.paddingX && "px-4 lg:px-0"
 					} h-11 w-full flex gap-4 items-center`}
 				>
-					{liked ? (
+					{optimisticLikes.liked ? (
 						<IoHeart
 							className="text-2xl text-primary cursor-pointer"
 							onClick={() => changeLike()}
@@ -177,7 +207,7 @@ export default function Post(props: {
 						/>
 					)}
 					<Link href={`/post/${props.post?._id}`}>
-						<FaRegComments className="text-xl text-muted-foreground cursor-pointer" />
+						<IoChatbubbleOutline className="text-xl text-muted-foreground cursor-pointer" />
 					</Link>
 					<IoArrowRedoOutline
 						className="text-2xl text-muted-foreground cursor-pointer"
@@ -189,7 +219,9 @@ export default function Post(props: {
 						!props.paddingX && "px-4 lg:px-0"
 					} h-8 w-full flex gap-4 items-start`}
 				>
-					<p className="text-sm text-muted-foreground">{numberofLikes} Likes</p>
+					<p className="text-sm text-muted-foreground">
+						{optimisticLikes.likes} Likes
+					</p>
 					<p className="text-sm text-muted-foreground">
 						{props.post.commentsLength} Comments
 					</p>

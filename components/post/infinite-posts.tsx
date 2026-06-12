@@ -19,13 +19,17 @@ export default function InfinitePosts({
 		useInfiniteQuery({
 			queryKey: ["infinite-posts"],
 			queryFn: ({ pageParam }) => fetchPosts(pageParam),
-			initialPageParam: 2,
+			initialPageParam: 1,
 			getNextPageParam: (lastPage, allPages) => {
-				return lastPage.length ? allPages.length + 2 : undefined;
+				return lastPage?.length ? allPages.length + 1 : undefined;
+			},
+			initialData: {
+				pages: [prerenderedPosts],
+				pageParams: [1],
 			},
 		});
 
-	const observer = useRef<IntersectionObserver>();
+	const observer = useRef<IntersectionObserver | null>(null);
 
 	const lastElementRef = useCallback(
 		(node: HTMLDivElement) => {
@@ -45,22 +49,21 @@ export default function InfinitePosts({
 	);
 
 	const posts = useMemo(() => {
-		return data?.pages.reduce((acc, page) => {
-			acc.push(...page);
-			return acc;
-		}, []);
+		const all = data?.pages.flatMap((page) => page || []) || [];
+		const seen = new Set();
+		return all.filter((post) => {
+			if (!post || !post._id) return false;
+			if (seen.has(post._id)) return false;
+			seen.add(post._id);
+			return true;
+		});
 	}, [data]);
 
 	if (error) return <p className="text-destructive">Error on fetch data...</p>;
 	return (
 		<>
-			{prerenderedPosts.map((post: PostType) => (
-				<div key={post._id}>
-					<Post post={post} />
-				</div>
-			))}
-			{posts?.map((post: PostType) => (
-				<div ref={lastElementRef} key={post._id}>
+			{posts.map((post: PostType, index: number) => (
+				<div ref={index === posts.length - 1 ? lastElementRef : undefined} key={post._id}>
 					<Post post={post} />
 				</div>
 			))}

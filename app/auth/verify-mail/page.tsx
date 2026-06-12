@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { IoMailOutline } from "react-icons/io5";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { useSearchParams } from "next/navigation";
+import { AuthCard } from "@/components/auth-card";
 
 export default function EmailVerificationPage() {
 	const [verified, setVerified] = useState(false);
@@ -38,35 +38,66 @@ export default function EmailVerificationPage() {
 				}
 			} catch (error: any) {
 				setError(true);
-				console.log(error.reponse.data);
-				toast.error(error.response.data.message);
+				console.log(error);
+				toast.error("Something went wrong");
 			}
 		}
 		if (token.length > 0 && !verified) {
 			verifyMail(token);
 		}
-	}, [token]);
+	}, [token, verified, router]);
+
+	let title = "Verify email";
+	let description = "Please wait...";
+	let statusIcon = (
+		<IoMailOutline className="text-5xl text-primary animate-pulse" />
+	);
+
+	if (token.length === 0 && !verified && !error) {
+		title = "Verify email";
+		description = "A verification link has been sent to your email.";
+		statusIcon = (
+			<IoMailOutline className="text-5xl text-primary animate-bounce" />
+		);
+	} else if (token.length > 0 && verified && !error) {
+		title = "Email verified";
+		description = "Your email has been verified successfully.";
+		statusIcon = <IoMailOutline className="text-5xl text-emerald-500" />;
+	} else if (token.length > 0 && !verified && !error) {
+		title = "Verifying email...";
+		description = "Please wait while we verify your email address.";
+		statusIcon = (
+			<IoMailOutline className="text-5xl text-primary animate-spin" />
+		);
+	} else if (error) {
+		title = "Verification failed";
+		description = "The verification link is invalid or has expired.";
+		statusIcon = <IoMailOutline className="text-5xl text-destructive" />;
+	}
+
 	return (
-		<>
-			<div>
-				<IoMailOutline className="mx-auto text-5xl md:text-6xl mb-2" />
-				<h1 className="text-center text-3xl font-semibold md:text-4xl lg:text-5xl">
-					{token.length === 0 && !verified && !error && "Verify email"}
-					{token.length > 0 && verified && !error && "Email verified "}
-					{token.length > 0 && !verified && !error && "Verifying email..."}
-					{error && "Verification failed"}
-				</h1>
-				{token.length < 1 && (
-					<p className="text-center text-tertiary-foreground">
-						A mail has been sent to you with the verification link.
+		<AuthCard title={title} description={description}>
+			<div className="flex flex-col items-center justify-center gap-4 py-2">
+				{statusIcon}
+				{token.length === 0 && (
+					<p className="text-center text-sm text-muted-foreground leading-normal">
+						Please check your inbox (and spam folder) and click the link to
+						verify your account.
 					</p>
 				)}
+				{verified && (
+					<Link href="/" className="w-full mt-2">
+						<Button className="w-full">Continue</Button>
+					</Link>
+				)}
+				{error && (
+					<Link href="/auth/login" className="w-full mt-2">
+						<Button className="w-full" variant="outline">
+							Back to Sign In
+						</Button>
+					</Link>
+				)}
 			</div>
-			{verified && (
-				<Link href="/" className="mt-10 w-full">
-					<Button>Continue</Button>
-				</Link>
-			)}
-		</>
+		</AuthCard>
 	);
 }

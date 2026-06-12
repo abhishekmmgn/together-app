@@ -1,20 +1,22 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { sendEmail } from "@/lib/mailer";
 
 export async function POST(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const { name, email, password } = await request.json();
 
-		//check if user already exists
-		const user = await User.findOne({ email });
+		// check if user already exists
+		const [existingUser] = await db
+			.select()
+			.from(users)
+			.where(eq(users.email, email));
 
 		// check if user is verified
-		if (user && user.isVerified) {
+		if (existingUser && existingUser.isVerified) {
 			return NextResponse.json(
 				{ error: "User already exists" },
 				{ status: 400 },
@@ -23,32 +25,35 @@ export async function POST(request: NextRequest) {
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		// user exists, change the password and send email
-		if (user) {
-			user.password = hashedPassword;
-			await user.save();
+		// user exists but not verified, update password and resend email
+		if (existingUser) {
+			await db
+				.update(users)
+				.set({ password: hashedPassword })
+				.where(eq(users.id, existingUser.id));
 
 			// send verification email
-			await sendEmail(email, "VERIFY", user._id);
+			await sendEmail(email, "VERIFY", existingUser.id);
 
 			return NextResponse.json({
 				message: "User updated successfully",
 				success: true,
-				savedUser: user,
+				savedUser: existingUser,
 			});
 		}
 
 		// otherwise create new user
-		const newUser = new User({
-			name,
-			email,
-			password: hashedPassword,
-		});
-
-		const savedUser = await newUser.save();
+		const [savedUser] = await db
+			.insert(users)
+			.values({
+				name,
+				email,
+				password: hashedPassword,
+			})
+			.returning();
 
 		// send verification email
-		await sendEmail(email, "VERIFY", savedUser._id);
+		await sendEmail(email, "VERIFY", savedUser.id);
 
 		return NextResponse.json({
 			message: "User created successfully",

@@ -1,12 +1,5 @@
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
-import { FaRegComments } from "react-icons/fa";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
+import { IoChatbubbleOutline } from "react-icons/io5";
 import Post from "./post";
 import { Comment } from "./comment";
 import CreateComment from "./comments";
@@ -32,11 +25,15 @@ export default function PostExpanded(props: { postId: string }) {
 		setLoading(false);
 	}, [props.postId]);
 	return (
-		<Dialog>
-			<DialogTrigger>
-				<FaRegComments className="text-xl text-muted-foreground cursor-pointer" />
-			</DialogTrigger>
-			<DialogContent className="flex flex-col overflow-y-auto">
+		<ResponsiveDialog
+			trigger={
+				<button className="outline-none flex items-center justify-center">
+					<IoChatbubbleOutline className="text-xl text-muted-foreground cursor-pointer" />
+				</button>
+			}
+			title="Comments"
+		>
+			<div className="flex flex-col overflow-y-auto max-h-[70vh]">
 				{loading && <></>}
 				{!loading && (
 					<>
@@ -60,7 +57,7 @@ export default function PostExpanded(props: { postId: string }) {
 						</div>
 					</>
 				)}
-			</DialogContent>
-		</Dialog>
+			</div>
+		</ResponsiveDialog>
 	);
 }

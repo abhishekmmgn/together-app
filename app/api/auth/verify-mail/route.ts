@@ -1,43 +1,51 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { and, eq, gt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
 export async function POST(request: NextRequest) {
 	try {
-		await connectDB();
 		const reqBody = await request.json();
 		const { verificationToken } = reqBody;
 
-		const user = await User.findOne({
-			verifyToken: verificationToken,
-			verifyTokenExpiry: { $gt: Date.now() },
-		});
+		const [user] = await db
+			.select()
+			.from(users)
+			.where(
+				and(
+					eq(users.verifyToken, verificationToken),
+					gt(users.verifyTokenExpiry, new Date()),
+				),
+			);
 
 		if (!user) {
 			return NextResponse.json({ error: "Invalid token" }, { status: 400 });
 		}
 
-		await user.save({
-			isVerfied: true,
-			verifyToken: undefined,
-			verifyTokenExpiry: undefined,
-		});
+		await db
+			.update(users)
+			.set({
+				isVerified: true,
+				verifyToken: null,
+				verifyTokenExpiry: null,
+			})
+			.where(eq(users.id, user.id));
 
-		//create token data
+		// create token data
 		const tokenData = {
-			id: user._id,
+			id: user.id,
 			email: user.email,
 		};
 
-		//create token
+		// create token
 		const tokenSecret = process.env.TOKEN_SECRET || "";
 		const token = jwt.sign(tokenData, tokenSecret, {
 			expiresIn: "30d",
 		});
 
-		cookies().set("token", token, {
+		(await cookies()).set("token", token, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
 			sameSite: "strict",

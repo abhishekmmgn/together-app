@@ -1,19 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export async function PUT(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const { password, _id } = await request.json();
 
 		let user;
 
-		//check if user already exists
+		// check if user already exists
 		if (_id) {
-			user = await User.findOne({ _id });
+			const [found] = await db.select().from(users).where(eq(users.id, _id));
+			user = found;
 		}
 
 		if (!user) {
@@ -24,8 +24,10 @@ export async function PUT(request: NextRequest) {
 		}
 
 		const hashedPassword = await bcrypt.hash(password, 10);
-		user.password = hashedPassword;
-		await user.save();
+		await db
+			.update(users)
+			.set({ password: hashedPassword })
+			.where(eq(users.id, user.id));
 
 		return NextResponse.json({
 			message: "Password updated successfully",

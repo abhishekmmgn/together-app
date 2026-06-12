@@ -1,146 +1,197 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import Post from "@/models/posts";
+import { db } from "@/lib/db";
+import { users, posts, comments, postLikes } from "@/lib/db/schema";
+import { eq, sql, and } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
-import Users from "@/models/users";
-import type { CommentsType } from "@/types";
 
 type Props = {
-  params: { id: string };
+	params: Promise<{ id: string }>;
 };
 
-export async function GET(request: NextRequest, { params }: Props) {
-  try {
-    await connectDB();
+export async function GET(request: NextRequest, props: Props) {
+	const params = await props.params;
+	try {
+		const id = params.id;
+		const [post] = await db
+			.select({
+				id: posts.id,
+				thread: posts.thread,
+				image: posts.image,
+				creatorId: posts.creatorId,
+				createdAt: posts.createdAt,
+				likesCount: sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
+				commentsCount: sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
+			})
+			.from(posts)
+			.where(eq(posts.id, id));
 
-    const id = params.id;
-    const post = await Post.findOne({ _id: id });
-    if (!post) {
-      return NextResponse.json({ error: "Post not found." }, { status: 404 });
-    }
+		if (!post) {
+			return NextResponse.json({ error: "Post not found." }, { status: 404 });
+		}
 
-    const curUserId = await getDataFromToken(request);
+		const curUserId = (await getDataFromToken(request)) || "00000000-0000-0000-0000-000000000000";
+		const [likedStatus] = await db
+			.select()
+			.from(postLikes)
+			.where(
+				and(eq(postLikes.postId, post.id), eq(postLikes.userId, curUserId)),
+			);
 
-    // find the creator details
-    const creator = await Users.findOne({ _id: post.creator }).select(
-      "name profilePhoto"
-    );
+		// find the creator details
+		const [creator] = await db
+			.select({
+				id: users.id,
+				name: users.name,
+				profilePhoto: users.profilePhoto,
+			})
+			.from(users)
+			.where(eq(users.id, post.creatorId));
 
-    const comments: Array<CommentsType> = [];
+		// find the comments
+		const postComments = await db
+			.select({
+				id: comments.id,
+				text: comments.text,
+				createdAt: comments.createdAt,
+				creatorId: comments.creatorId,
+				creatorName: users.name,
+				creatorPhoto: users.profilePhoto,
+			})
+			.from(comments)
+			.leftJoin(users, eq(comments.creatorId, users.id))
+			.where(eq(comments.postId, post.id));
 
-    await Promise.all(
-      post.comments.map(async (comment: CommentsType) => {
-        const creator = await Users.findOne({ _id: comment.createdBy });
-        comments.push({
-          ...comment,
-          createdBy: {
-            _id: creator._id,
-            name: creator.name,
-            profilePhoto: creator.profilePhoto,
-          },
-        });
-      })
-    );
+		const formattedComments = postComments.map((comment) => ({
+			_id: comment.id,
+			message: comment.text,
+			createdAt: comment.createdAt,
+			createdBy: {
+				_id: comment.creatorId,
+				name: comment.creatorName,
+				profilePhoto: comment.creatorPhoto,
+			},
+		}));
 
-    const postData = {
-      _id: post._id,
-      thread: post.thread,
-      image: post.image[0],
-      likes: post.likes.length,
-      commentsLength: post.comments.length,
-      createdAt: post.createdAt,
-      liked: post.likes.includes(curUserId),
-      creator,
-      comments,
-    };
+		const postData = {
+			_id: post.id,
+			thread: post.thread,
+			image: post.image?.[0] || "",
+			likes: post.likesCount,
+			commentsLength: post.commentsCount,
+			createdAt: post.createdAt,
+			liked: !!likedStatus,
+			creator: {
+				_id: creator?.id,
+				name: creator?.name,
+				profilePhoto: creator?.profilePhoto,
+			},
+			comments: formattedComments,
+		};
 
-    return NextResponse.json({
-      message: "Post found",
-      data: postData,
-    });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 501 });
-  }
+		return NextResponse.json({
+			message: "Post found",
+			data: postData,
+		});
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 501 });
+	}
 }
 
-export async function PUT(request: NextRequest, { params }: Props) {
-  try {
-    await connectDB();
+export async function PUT(request: NextRequest, props: Props) {
+	const params = await props.params;
+	try {
+		const { like, message } = await request.json();
 
-    const { like, message } = await request.json();
+		const curUserId = await getDataFromToken(request);
+		const [user] = await db
+			.select()
+			.from(users)
+			.where(eq(users.id, curUserId));
+		if (!user) {
+			return NextResponse.json({ error: "User not found." }, { status: 404 });
+		}
 
-    const curUserId = await getDataFromToken(request);
-    const user = await Users.findOne({ _id: curUserId });
-    if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 404 });
-    }
+		const postId = params.id;
+		const [post] = await db
+			.select()
+			.from(posts)
+			.where(eq(posts.id, postId));
+		if (!post) {
+			return NextResponse.json({ error: "Post not found." }, { status: 404 });
+		}
 
-    const postId = params.id;
-    const post = await Post.findOne({ _id: postId });
-    if (!post) {
-      return NextResponse.json({ error: "Post not found." }, { status: 404 });
-    }
+		// update likes
+		if (like) {
+			const [existingLike] = await db
+				.select()
+				.from(postLikes)
+				.where(
+					and(eq(postLikes.postId, post.id), eq(postLikes.userId, curUserId)),
+				);
 
-    // update likes
-    if (like) {
-      const isLiked = post.likes.includes(curUserId);
-      if (isLiked) {
-        post.likes.pull(curUserId);
-      } else {
-        post.likes.push(curUserId);
-      }
-    }
+			if (existingLike) {
+				await db
+					.delete(postLikes)
+					.where(
+						and(eq(postLikes.postId, post.id), eq(postLikes.userId, curUserId)),
+					);
+			} else {
+				await db.insert(postLikes).values({
+					postId: post.id,
+					userId: curUserId,
+				});
+			}
+		}
 
-    // update comments
-    if (message) {
-      const comment = { createdBy: curUserId, message, createdAt: new Date() };
+		// update comments
+		if (message) {
+			await db.insert(comments).values({
+				postId: post.id,
+				creatorId: curUserId,
+				text: message,
+			});
+		}
 
-      post.comments.push(comment);
-    }
-
-    await post.save();
-
-    return NextResponse.json(
-      {
-        message: "Updated post",
-      },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 501 });
-  }
+		return NextResponse.json(
+			{
+				message: "Updated post",
+			},
+			{ status: 200 },
+		);
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 501 });
+	}
 }
 
-export async function DELETE(request: NextRequest, params: { id: string }) {
-  try {
-    await connectDB();
+export async function DELETE(request: NextRequest, props: Props) {
+	try {
+		const { postId } = await request.json();
+		const userId = await getDataFromToken(request);
 
-    const { postId } = await request.json();
-    const userId = await getDataFromToken(request);
+		const [user] = await db
+			.select()
+			.from(users)
+			.where(eq(users.id, userId));
+		const [post] = await db
+			.select()
+			.from(posts)
+			.where(eq(posts.id, postId));
 
-    const user = await Users.findOne({ _id: userId });
-    const post = await Post.findOne({ _id: postId });
+		if (!user || !post) {
+			return NextResponse.json(
+				{ error: "User or post does not exists" },
+				{ status: 400 },
+			);
+		}
 
-    if (!user || !post) {
-      return NextResponse.json(
-        { error: "User or post does not exists" },
-        { status: 400 }
-      );
-    }
+		// cascade will delete related likes and comments automatically
+		await db.delete(posts).where(eq(posts.id, postId));
 
-    await Post.deleteOne({ _id: postId });
-
-    // remove post id from user's posts array
-    const index = user.posts.indexOf(postId);
-    user.posts.splice(index, 1);
-
-    await user.save();
-
-    return NextResponse.json(
-      { message: "Post deleted successfully." },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+		return NextResponse.json(
+			{ message: "Post deleted successfully." },
+			{ status: 200 },
+		);
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 500 });
+	}
 }

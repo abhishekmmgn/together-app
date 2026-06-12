@@ -1,64 +1,90 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
-import Conversations from "@/models/conversations";
+import { db } from "@/lib/db";
+import {
+	users,
+	conversations,
+	conversationMembers,
+	messages,
+} from "@/lib/db/schema";
+import { eq, desc, and, ne, sql } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 
 export async function GET(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const _id = await getDataFromToken(request);
-		const currentUser = await User.findOne({ _id });
 
-		const userConversations = currentUser.conversations;
+		// find all conversations the user is a member of
+		const memberships = await db
+			.select({ conversationId: conversationMembers.conversationId })
+			.from(conversationMembers)
+			.where(eq(conversationMembers.userId, _id));
 
-		if (userConversations.length === 0) {
+		if (memberships.length === 0) {
 			return NextResponse.json({
 				message: "No conversations found.",
-				data: userConversations,
-			});
-		} else {
-			const updatedConversations = await Promise.all(
-				userConversations.map(async (conversation: any) => {
-					const userId = Object.keys(conversation)[0];
-					const conversationId = conversation[userId];
-
-					// get the conversation
-					const foundConversation = await Conversations.findOne({
-						_id: conversationId,
-					});
-					// get other user's details
-					const otherUser: any = await User.findOne({ _id: userId }).select(
-						"name profilePhoto",
-					);
-
-					const lastConversation =
-						foundConversation.messages[foundConversation.messages.length - 1];
-					const lastConversationId = Object.keys(lastConversation)[0];
-					const lastMessage = lastConversation[lastConversationId];
-
-					const response = {
-						conversationId: conversationId,
-						lastMessage: {
-							time: foundConversation.updatedAt,
-							message: lastMessage,
-						},
-						user: {
-							_id: otherUser._id,
-							name: otherUser.name,
-							profilePhoto: otherUser.profilePhoto,
-						},
-					};
-					return response;
-				}),
-			);
-
-			return NextResponse.json({
-				message: "Conversations found",
-				data: updatedConversations,
+				data: [],
 			});
 		}
+
+		const updatedConversations = await Promise.all(
+			memberships.map(async (membership) => {
+				const convId = membership.conversationId;
+
+				// get the other user in this conversation
+				const [otherMember] = await db
+					.select({ userId: conversationMembers.userId })
+					.from(conversationMembers)
+					.where(
+						and(
+							eq(conversationMembers.conversationId, convId),
+							ne(conversationMembers.userId, _id),
+						),
+					);
+
+				if (!otherMember) return null;
+
+				// get other user's details
+				const [otherUser] = await db
+					.select({
+						id: users.id,
+						name: users.name,
+						profilePhoto: users.profilePhoto,
+					})
+					.from(users)
+					.where(eq(users.id, otherMember.userId));
+
+				// get the last message
+				const [lastMessage] = await db
+					.select({
+						content: messages.content,
+						createdAt: messages.createdAt,
+					})
+					.from(messages)
+					.where(eq(messages.conversationId, convId))
+					.orderBy(desc(messages.createdAt))
+					.limit(1);
+
+				return {
+					conversationId: convId,
+					lastMessage: lastMessage
+						? {
+								time: lastMessage.createdAt,
+								message: lastMessage.content,
+							}
+						: { time: null, message: "" },
+					user: {
+						_id: otherUser?.id,
+						name: otherUser?.name,
+						profilePhoto: otherUser?.profilePhoto,
+					},
+				};
+			}),
+		);
+
+		return NextResponse.json({
+			message: "Conversations found",
+			data: updatedConversations.filter(Boolean),
+		});
 	} catch (error: any) {
 		return NextResponse.json({ error: error.message }, { status: 500 });
 	}

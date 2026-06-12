@@ -1,75 +1,111 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
-import Conversations from "@/models/conversations";
+import { db } from "@/lib/db";
+import {
+	users,
+	conversations,
+	conversationMembers,
+	messages,
+} from "@/lib/db/schema";
+import { eq, and, asc } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 
 type Params = {
-	params: { id: string };
+	params: Promise<{ id: string }>;
 };
 
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(request: NextRequest, props: Params) {
+	const params = await props.params;
 	try {
-		await connectDB();
 		const userId = await getDataFromToken(request);
 		const otherUserId = params.id;
 
-		const currentUser: any = await User.findOne({ _id: userId });
-		const foundConversation = currentUser.conversations.find(
-			(conversation: any) => {
-				return conversation[otherUserId];
-			},
-		);
+		// find a conversation where both users are members
+		const myConversations = await db
+			.select({ conversationId: conversationMembers.conversationId })
+			.from(conversationMembers)
+			.where(eq(conversationMembers.userId, userId));
 
-		let messages: any[] = [];
-		if (foundConversation) {
-			const conversationId = (foundConversation as Record<string, string>)[
-				otherUserId
-			];
-			if (conversationId) {
-				const conversation: any = await Conversations.findOne({
-					_id: conversationId,
-				});
-				messages = conversation.messages;
+		let foundMessages: any[] = [];
+		for (const conv of myConversations) {
+			const [otherMember] = await db
+				.select()
+				.from(conversationMembers)
+				.where(
+					and(
+						eq(conversationMembers.conversationId, conv.conversationId),
+						eq(conversationMembers.userId, otherUserId),
+					),
+				);
+
+			if (otherMember) {
+				const convMessages = await db
+					.select({
+						senderId: messages.senderId,
+						content: messages.content,
+						createdAt: messages.createdAt,
+					})
+					.from(messages)
+					.where(eq(messages.conversationId, conv.conversationId))
+					.orderBy(asc(messages.createdAt));
+
+				foundMessages = convMessages.map((msg) => ({
+					[msg.senderId]: msg.content,
+				}));
+				break;
 			}
 		}
 
-		const otherUser: any = await User.findOne({ _id: otherUserId }).select(
-			"_id name profilePhoto",
-		);
+		const [otherUser] = await db
+			.select({
+				id: users.id,
+				name: users.name,
+				profilePhoto: users.profilePhoto,
+			})
+			.from(users)
+			.where(eq(users.id, otherUserId));
 
 		return NextResponse.json({
 			message: "Success.",
-			data: [otherUser, messages, "0"],
+			data: [
+				{
+					_id: otherUser?.id,
+					name: otherUser?.name,
+					profilePhoto: otherUser?.profilePhoto,
+				},
+				foundMessages,
+				"0",
+			],
 		});
 	} catch (error: any) {
 		return NextResponse.json({ error: error.message }, { status: 500 });
 	}
 }
 
-export async function POST(request: NextRequest, { params }: Params) {
+export async function POST(request: NextRequest, props: Params) {
+	const params = await props.params;
 	try {
-		await connectDB();
-
 		const currentUserId = await getDataFromToken(request);
-		const currentUser = await User.findOne({ _id: currentUserId });
 		const { message } = await request.json();
-
 		const otherUserId = params.id;
-		const otherUser = await User.findOne({ _id: otherUserId });
 
-		const conversation = new Conversations({
-			members: [currentUserId, otherUserId],
-			messages: [{ [currentUserId]: message }],
+		// create conversation
+		const [conversation] = await db
+			.insert(conversations)
+			.values({})
+			.returning();
+
+		// add both members
+		await db.insert(conversationMembers).values([
+			{ conversationId: conversation.id, userId: currentUserId },
+			{ conversationId: conversation.id, userId: otherUserId },
+		]);
+
+		// add the first message
+		await db.insert(messages).values({
+			conversationId: conversation.id,
+			senderId: currentUserId,
+			content: message,
 		});
-
-		const savedConversation = await conversation.save();
-
-		currentUser.conversations.push({ [otherUserId]: savedConversation._id });
-		otherUser.conversations.push({ [currentUserId]: savedConversation._id });
-
-		await currentUser.save();
-		await otherUser.save();
 
 		console.log("Works.");
 		return NextResponse.json(

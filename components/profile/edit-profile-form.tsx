@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import { UploadButton } from "@/lib/uploadthing";
 import userIcon from "../../public/user.png";
@@ -31,6 +31,7 @@ type PropsType = {
 };
 
 export default function EditProfileForm(props: PropsType) {
+	const { closeDialog } = useResponsiveDialog();
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -70,6 +71,7 @@ export default function EditProfileForm(props: PropsType) {
 			toast.success("Profile updated successfully");
 			form.reset();
 			queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+			closeDialog();
 		},
 		onError: (error: Error) => {
 			console.log("Error: ", error.message);
@@ -132,10 +134,7 @@ export default function EditProfileForm(props: PropsType) {
 							)}
 						/>
 					</div>
-					<Button type="submit" disabled={!hasDataChanged || isPending}>
-						{isPending && (
-							<AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-						)}
+					<Button type="submit" disabled={!hasDataChanged} loading={isPending} loadingText="Saving">
 						Done
 					</Button>
 				</form>

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,8 +16,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "../ui/input";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { UploadDropzone } from "@/lib/uploadthing";
@@ -33,6 +33,7 @@ const formSchema = z.object({
 type formSchemaType = z.infer<typeof formSchema>;
 
 export default function NewPostForm() {
+	const { closeDialog } = useResponsiveDialog();
 	const [image, setImage] = useState<string>("");
 	const [disabled, setDisabled] = useState<boolean>(false);
 
@@ -68,6 +69,7 @@ export default function NewPostForm() {
 				toast.success("Post created successfully");
 				form.reset();
 				sendNotification("There are new posts.", "/");
+				closeDialog();
 			} else if (res.status === 400) {
 				console.log(res.status);
 				toast.error(res.statusText);
@@ -151,10 +153,7 @@ export default function NewPostForm() {
 							)}
 						/>
 					</div>
-					<Button type="submit" disabled={!hasDataChanged || disabled}>
-						{disabled && (
-							<AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-						)}
+					<Button type="submit" disabled={!hasDataChanged} loading={disabled} loadingText="Saving">
 						Done
 					</Button>
 				</form>

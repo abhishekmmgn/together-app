@@ -3,6 +3,9 @@
 import { useState } from "react";
 import ForgotPasswordForm from "./forgot-password-form";
 import { IoMailOutline } from "react-icons/io5";
+import { AuthCard } from "@/components/auth-card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function ForgotPasswordPage() {
 	const [formFilled, setFormFilled] = useState(false);
@@ -10,19 +13,24 @@ export default function ForgotPasswordPage() {
 	return (
 		<>
 			{formFilled ? (
-				<>
-					<IoMailOutline className="mx-auto text-5xl md:text-6xl mb-2" />
-					<h1 className="text-center leading-tight text-2xl font-medium md:text-3xl mb-7 md:mb-10">
-						A mail has been sent to you with the link to reset password.
-					</h1>
-				</>
+				<AuthCard
+					title="Mail Sent"
+					description="Verification link sent successfully"
+				>
+					<div className="flex flex-col items-center justify-center gap-4 py-2">
+						<IoMailOutline className="text-5xl text-primary animate-pulse" />
+						<p className="text-center text-sm text-muted-foreground leading-normal">
+							A mail has been sent to you with the link to reset your password.
+						</p>
+						<Link href="/auth/login" className="w-full mt-2">
+							<Button className="w-full" variant="outline">
+								Back to Sign In
+							</Button>
+						</Link>
+					</div>
+				</AuthCard>
 			) : (
-				<>
-					<h1 className="text-center text-3xl font-semibold md:text-4xl mb-7">
-						Forgot Password
-					</h1>
-					<ForgotPasswordForm setFormFilled={setFormFilled} />
-				</>
+				<ForgotPasswordForm setFormFilled={setFormFilled} />
 			)}
 		</>
 	);

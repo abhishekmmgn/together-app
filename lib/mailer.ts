@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import bcryptjs from "bcryptjs";
 
 export const sendEmail = async (
@@ -12,15 +14,21 @@ export const sendEmail = async (
 		const hashedToken = await bcryptjs.hash(userId.toString(), 10);
 
 		if (emailType === "VERIFY") {
-			await User.findByIdAndUpdate(userId, {
-				verifyToken: hashedToken,
-				verifyTokenExpiry: Date.now() + 3600000,
-			});
+			await db
+				.update(users)
+				.set({
+					verifyToken: hashedToken,
+					verifyTokenExpiry: new Date(Date.now() + 3600000),
+				})
+				.where(eq(users.id, userId));
 		} else if (emailType === "RESET") {
-			await User.findByIdAndUpdate(userId, {
-				forgotPasswordToken: hashedToken,
-				forgotPasswordTokenExpiry: Date.now() + 3600000,
-			});
+			await db
+				.update(users)
+				.set({
+					forgotPasswordToken: hashedToken,
+					forgotPasswordTokenExpiry: new Date(Date.now() + 3600000),
+				})
+				.where(eq(users.id, userId));
 		}
 		var transport = nodemailer.createTransport({
 			host: "sandbox.smtp.mailtrap.io",

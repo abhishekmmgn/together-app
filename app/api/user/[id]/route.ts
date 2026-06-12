@@ -1,136 +1,126 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import Users from "@/models/users";
-import Posts from "@/models/posts";
+import { db } from "@/lib/db";
+import { users, posts, friends, postLikes, comments } from "@/lib/db/schema";
+import { eq, and, sql, desc } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 import type { BasicPostInterface } from "@/types";
 
 type Params = {
-  params: { id: string };
+	params: Promise<{ id: string }>;
 };
 
-export async function GET(request: NextRequest, { params }: Params) {
-  try {
-    await connectDB();
+export async function GET(request: NextRequest, props: Params) {
+	const params = await props.params;
+	try {
+		const [user] = await db
+			.select({
+				id: users.id,
+				name: users.name,
+				profilePhoto: users.profilePhoto,
+				bio: users.bio,
+			})
+			.from(users)
+			.where(eq(users.id, params.id));
 
-    const user = await Users.findOne({ _id: params.id }).select(
-      "name profilePhoto bio friends posts"
-    );
+		if (!user) {
+			return NextResponse.json({ error: "User not found" }, { status: 404 });
+		}
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+		const curUserId = await getDataFromToken(request);
 
-    const curUserId = await getDataFromToken(request);
-    const isFriend = user.friends.includes(curUserId);
+		// check if they're friends
+		const [friendship] = await db
+			.select()
+			.from(friends)
+			.where(
+				and(eq(friends.userId, curUserId), eq(friends.friendId, params.id)),
+			);
+		const isFriend = !!friendship;
 
-    const posts = await Posts.find({
-      _id: { $in: user.posts },
-    });
+		// get user's posts with counts
+		const userPosts = await db
+			.select({
+				id: posts.id,
+				thread: posts.thread,
+				image: posts.image,
+				createdAt: posts.createdAt,
+				likesCount: sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
+				commentsCount: sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
+				liked: sql<boolean>`EXISTS(SELECT 1 FROM post_likes WHERE post_likes.post_id = ${posts.id} AND post_likes.user_id = ${curUserId || "00000000-0000-0000-0000-000000000000"})`,
+			})
+			.from(posts)
+			.where(eq(posts.creatorId, params.id));
 
-    // format posts
-    const formattedPosts: BasicPostInterface[] = [];
-    posts.map((post) => {
-      formattedPosts.push({
-        _id: post._id,
-        thread: post.thread,
-        image: post.image[0],
-        liked: post.likes.includes(user._id),
-        likes: post.likes.length,
-        commentsLength: post.comments.length,
-        createdAt: post.createdAt,
-      });
-    });
+		// format posts
+		const formattedPosts: BasicPostInterface[] = userPosts.map((post) => ({
+			_id: post.id,
+			thread: post.thread,
+			image: post.image?.[0] || "",
+			liked: post.liked,
+			likes: post.likesCount,
+			commentsLength: post.commentsCount,
+			createdAt: post.createdAt?.toISOString() || "",
+		}));
 
-    const data = {
-      _id: user._id,
-      name: user.name,
-      profilePhoto: user.profilePhoto,
-      bio: user.bio,
-      isFriend,
-      posts: formattedPosts,
-    };
+		const data = {
+			_id: user.id,
+			name: user.name,
+			profilePhoto: user.profilePhoto,
+			bio: user.bio,
+			isFriend,
+			posts: formattedPosts,
+		};
 
-    return NextResponse.json(
-      {
-        message: "User found",
-        data: data,
-      },
-      {
-        status: 200,
-      }
-    );
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+		return NextResponse.json(
+			{
+				message: "User found",
+				data: data,
+			},
+			{
+				status: 200,
+			},
+		);
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 500 });
+	}
 }
 
-export async function PUT(request: NextRequest, { params }: Params) {
-  try {
-    await connectDB();
+export async function PUT(request: NextRequest, props: Params) {
+	const params = await props.params;
+	try {
+		const { _id, action } = await request.json();
+		const curUserId = await getDataFromToken(request);
 
-    const { _id, action } = await request.json();
+		if (action === "remove") {
+			// Remove both directions of the friendship
+			await db
+				.delete(friends)
+				.where(and(eq(friends.userId, _id), eq(friends.friendId, curUserId)));
+			await db
+				.delete(friends)
+				.where(
+					and(eq(friends.userId, curUserId), eq(friends.friendId, params.id)),
+				);
 
-    const user = await Users.findOne({ _id }).select("friends");
+			return NextResponse.json({
+				message: "Friend removed successfully.",
+				success: true,
+			});
+		}
 
-    console.log(user);
+		if (action === "add") {
+			// Add both directions of the friendship
+			await db.insert(friends).values([
+				{ userId: _id, friendId: curUserId },
+				{ userId: curUserId, friendId: params.id },
+			]);
 
-    const curUserId = await getDataFromToken(request);
-
-    if (action === "remove") {
-      const result = await Users.updateOne(
-        { _id },
-        { $pull: { friends: curUserId } }
-      );
-
-      if (result.modifiedCount > 0) {
-        console.log("Document updated successfully.");
-
-        // Update current user's friends list
-        await Users.updateOne(
-          { _id: curUserId },
-          { $pull: { friends: params.id } }
-        );
-
-        return NextResponse.json({
-          message: "Friend removed successfully.",
-          success: true,
-        });
-      }
-      console.log("No document was updated.");
-      return NextResponse.json({
-        message: "Something went wrong.",
-        success: false,
-      });
-    }
-    if (action === "add") {
-      const result = await Users.updateOne(
-        { _id },
-        { $push: { friends: curUserId } }
-      );
-
-      if (result.modifiedCount > 0) {
-        console.log("Document updated successfully.");
-
-        // Update current user's friends list
-        await Users.updateOne(
-          { _id: curUserId },
-          { $push: { friends: params.id } }
-        );
-
-        return NextResponse.json({
-          message: "Friend added successfully.",
-          success: true,
-        });
-      }
-
-      console.log("No document was updated.");
-      return NextResponse.json({
-        message: "Something went wrong.",
-        success: false,
-      });
-    }
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
+			return NextResponse.json({
+				message: "Friend added successfully.",
+				success: true,
+			});
+		}
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 400 });
+	}
 }

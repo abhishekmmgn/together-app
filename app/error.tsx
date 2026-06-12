@@ -1,5 +1,6 @@
 "use client";
 
+import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
@@ -15,15 +16,16 @@ export default function Error({
 	}, [error]);
 
 	return (
-		<main className="grid h-screen place-items-center px-6 py-24 sm:py-32 lg:px-8">
-			<div className="text-center">
-				<h1 className="m-4 text-3xl font-bold tracking-tight text-secondary-foreground sm:text-5xl">
-					Something went wrong!
-				</h1>
-				<Button variant="secondary" onClick={() => reset()}>
-					Try again
-				</Button>
-			</div>
-		</main>
+		<>
+			<Header />
+			<main className="text-center grid h-screen place-items-center horizontal-padding vertical-padding">
+				<div className="space-y-4">
+					<h1 className="heading-2">Something went wrong!</h1>
+					<Button variant="secondary" onClick={() => reset()}>
+						Try again
+					</Button>
+				</div>
+			</main>
+		</>
 	);
 }

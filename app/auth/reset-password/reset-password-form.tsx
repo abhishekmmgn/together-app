@@ -4,17 +4,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
 import { useRouter } from "next/navigation";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { Button } from "@/components/ui/button";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
+import { Form, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+	Field,
+	FieldGroup,
+	FieldLabel,
+	FieldError,
+} from "@/components/ui/field";
+import { AuthCard } from "@/components/auth-card";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
 import { changePasswordFormSchema } from "@/lib/definitions";
@@ -72,58 +71,61 @@ export default function ResetPasswordForm(props: propsType) {
 	}
 
 	return (
-		<>
+		<AuthCard
+			title="Reset Password"
+			description="Enter your new password below"
+		>
 			<Form {...form}>
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="w-full space-y-4"
-				>
-					<div className="space-y-2">
+				<form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+					<FieldGroup>
 						<FormField
 							control={form.control}
 							name="password"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>New Password</FormLabel>
-									<FormControl>
-										<Input
-											type="password"
-											placeholder="********"
-											className=""
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
+							render={({ field, fieldState }) => (
+								<Field data-invalid={!!fieldState.error}>
+									<FieldLabel htmlFor="password">New Password</FieldLabel>
+									<Input
+										id="password"
+										type="password"
+										placeholder="********"
+										disabled={disabled}
+										{...field}
+									/>
+									{fieldState.error && (
+										<FieldError>{fieldState.error.message}</FieldError>
+									)}
+								</Field>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="confirmPassword"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Confirm Password</FormLabel>
-									<FormControl>
-										<Input
-											type="password"
-											placeholder="********"
-											className=""
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
+							render={({ field, fieldState }) => (
+								<Field data-invalid={!!fieldState.error}>
+									<FieldLabel htmlFor="confirmPassword">
+										Confirm Password
+									</FieldLabel>
+									<Input
+										id="confirmPassword"
+										type="password"
+										placeholder="********"
+										disabled={disabled}
+										{...field}
+									/>
+									{fieldState.error && (
+										<FieldError>{fieldState.error.message}</FieldError>
+									)}
+								</Field>
 							)}
 						/>
-					</div>
-					<Button type="submit" disabled={disabled}>
-						{disabled && (
-							<AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-						)}
-						Done
-					</Button>
+						<Field>
+							<Button type="submit" loading={disabled} loadingText="Resetting Password">
+								Done
+							</Button>
+						</Field>
+					</FieldGroup>
 				</form>
 			</Form>
-		</>
+		</AuthCard>
 	);
 }

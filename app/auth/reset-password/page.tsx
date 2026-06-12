@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import ResetPasswordForm from "./reset-password-form";
 import { toast } from "react-hot-toast";
+import { AuthCard } from "@/components/auth-card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function ResetPasswordPage() {
 	const [token, setToken] = useState("");
@@ -38,23 +41,47 @@ export default function ResetPasswordPage() {
 				}
 			} catch (error: any) {
 				setError(true);
-				console.log(error.reponse.data);
-				toast.error(error.response.data.message);
+				console.log(error);
+				toast.error("Something went wrong");
 			}
 		}
 		if (token.length > 0 && !verified && !error) {
 			verifyMail();
 		}
-	}, [token]);
+	}, [token, verified, error]);
 
 	return (
 		<>
-			<h1 className="text-center text-3xl font-semibold md:text-4xl lg:text-5xl mb-7 md:mb-10">
-				{token.length > 0 && verified && !error && "Reset Password"}
-				{token.length > 0 && !verified && !error && "Verifying..."}
-				{error && "Email verification failed"}
-			</h1>
-			{verified && !error && <ResetPasswordForm userId={userId!} />}
+			{token.length > 0 && verified && !error ? (
+				<ResetPasswordForm userId={userId!} />
+			) : (
+				<AuthCard
+					title={
+						error
+							? "Verification Failed"
+							: token.length > 0
+								? "Verifying Link"
+								: "Invalid Request"
+					}
+					description={
+						error
+							? "The password reset token is invalid or has expired."
+							: token.length > 0
+								? "Please wait while we check your verification link..."
+								: "No reset token provided."
+					}
+				>
+					{error && (
+						<div className="flex flex-col items-center justify-center gap-4 py-2">
+							<Link href="/auth/login" className="w-full">
+								<Button className="w-full" variant="outline">
+									Back to Sign In
+								</Button>
+							</Link>
+						</div>
+					)}
+				</AuthCard>
+			)}
 		</>
 	);
 }

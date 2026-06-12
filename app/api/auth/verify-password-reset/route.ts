@@ -1,20 +1,24 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { and, eq, gt } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const reqBody = await request.json();
 		const { token } = reqBody;
 
 		console.log(token);
 
-		const user = await User.findOne({
-			forgotPasswordToken: token,
-			forgotPasswordTokenExpiry: { $gt: Date.now() },
-		});
+		const [user] = await db
+			.select()
+			.from(users)
+			.where(
+				and(
+					eq(users.forgotPasswordToken, token),
+					gt(users.forgotPasswordTokenExpiry, new Date()),
+				),
+			);
 
 		console.log("User:", user);
 
@@ -22,14 +26,18 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: "Invalid token" }, { status: 400 });
 		}
 
-		user.forgotPasswordToken = undefined;
-		user.forgotPasswordTokenExpiry = undefined;
-		await user.save();
+		await db
+			.update(users)
+			.set({
+				forgotPasswordToken: null,
+				forgotPasswordTokenExpiry: null,
+			})
+			.where(eq(users.id, user.id));
 
 		return NextResponse.json({
 			message: "Verification successful",
 			success: true,
-			userId: user._id,
+			userId: user.id,
 		});
 	} catch (error: any) {
 		return NextResponse.json({ error: error.message }, { status: 500 });

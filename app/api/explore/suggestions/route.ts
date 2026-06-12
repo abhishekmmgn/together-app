@@ -1,21 +1,31 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import Users from "@/models/users";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { ne, desc } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 
 export async function GET(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const curUserId = await getDataFromToken(request);
 
-		const users = await Users.find()
-			.select("name profilePhoto _id, bio")
-			.sort({ createdAt: -1 })
+		const allUsers = await db
+			.select({
+				id: users.id,
+				name: users.name,
+				profilePhoto: users.profilePhoto,
+				bio: users.bio,
+			})
+			.from(users)
+			.where(ne(users.id, curUserId))
+			.orderBy(desc(users.createdAt))
 			.limit(10);
 
-		// remove current user from suggestions
-		const updatedUsers = users.filter((user) => user._id != curUserId);
+		const updatedUsers = allUsers.map((u) => ({
+			_id: u.id,
+			name: u.name,
+			profilePhoto: u.profilePhoto,
+			bio: u.bio,
+		}));
 
 		return NextResponse.json({
 			message: "Users found",

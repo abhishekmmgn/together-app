@@ -1,27 +1,45 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import Post from "@/models/posts";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { posts, users, postLikes, comments } from "@/lib/db/schema";
+import { eq, sql } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 
-export async function GET(request: NextRequest, params: { id: string }) {
+export async function GET(request: NextRequest) {
 	try {
-		await connectDB();
+		const postId = request.nextUrl.searchParams.get("id");
+		const curUserId = await getDataFromToken(request);
 
-		const _id = params.id;
-		const post = await Post.findOne({ _id });
+		const [post] = await db
+			.select({
+				id: posts.id,
+				thread: posts.thread,
+				image: posts.image,
+				tags: posts.tags,
+				creatorId: posts.creatorId,
+				createdAt: posts.createdAt,
+				updatedAt: posts.updatedAt,
+				likesCount: sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
+				commentsCount: sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
+				liked: sql<boolean>`EXISTS(SELECT 1 FROM post_likes WHERE post_likes.post_id = ${posts.id} AND post_likes.user_id = ${curUserId || "00000000-0000-0000-0000-000000000000"})`,
+			})
+			.from(posts)
+			.where(eq(posts.id, postId!));
 
 		if (!post) {
 			return NextResponse.json({ error: "Post not found." }, { status: 404 });
 		}
 
-		// check if post has been liked by current user
-		const curUserId = await getDataFromToken(request);
-		const isLiked = post.likes.includes(curUserId);
-
 		const updatedPost = {
-			...post.toJSON(),
-			liked: isLiked,
+			_id: post.id,
+			thread: post.thread,
+			image: post.image,
+			tags: post.tags,
+			creator: post.creatorId,
+			likes: post.likesCount,
+			commentsLength: post.commentsCount,
+			liked: post.liked,
+			createdAt: post.createdAt,
+			updatedAt: post.updatedAt,
 		};
 
 		return NextResponse.json({
@@ -35,14 +53,12 @@ export async function GET(request: NextRequest, params: { id: string }) {
 
 export async function POST(request: NextRequest) {
 	try {
-		await connectDB();
-
 		let { image, thread, tags } = await request.json();
 
 		const _id = await getDataFromToken(request);
 
-		//check if user already exists
-		const user = await User.findOne({ _id });
+		// check if user exists
+		const [user] = await db.select().from(users).where(eq(users.id, _id));
 
 		if (!user) {
 			return NextResponse.json(
@@ -51,27 +67,22 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		tags = tags.split(",");
-		const post = new Post({
-			image,
-			thread,
-			tags,
-			creator: _id,
-		});
+		const tagsArray = typeof tags === "string" ? tags.split(",") : tags;
+		const imageArray = Array.isArray(image) ? image : [image];
 
-		const savedPost = await post.save();
+		const [savedPost] = await db
+			.insert(posts)
+			.values({
+				image: imageArray,
+				thread,
+				tags: tagsArray,
+				creatorId: _id,
+			})
+			.returning();
 
-		user.posts.push(savedPost._id);
-		const savedUser = await user.save();
-
-		// check if user and post saved successfully
-		if (!savedUser || !savedPost) {
+		if (!savedPost) {
 			return NextResponse.json({ error: "Error saving post" }, { status: 500 });
 		}
-		const data = {
-			postId: savedPost._id,
-			userId: _id,
-		};
 
 		return NextResponse.json(
 			{

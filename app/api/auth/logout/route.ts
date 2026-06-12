@@ -3,7 +3,10 @@ import { cookies } from "next/headers";
 
 export async function GET() {
 	try {
-		cookies().set("token", "", { httpOnly: true, expires: new Date(0) });
+		(await cookies()).set("token", "", {
+			httpOnly: true,
+			expires: new Date(0),
+		});
 
 		console.log("Logout successful");
 

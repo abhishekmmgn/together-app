@@ -1,41 +1,48 @@
 import { type NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users, posts, postLikes, comments } from "@/lib/db/schema";
+import { eq, sql } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
-import { cookies } from "next/headers";
-import Posts from "@/models/posts";
 import type { BasicPostInterface } from "@/types";
 
 export async function GET(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const curUserId = await getDataFromToken(request);
-		const user = await User.findOne({ _id: curUserId }).select(
-			"name profilePhoto posts",
-		);
+		const [user] = await db
+			.select({
+				id: users.id,
+				name: users.name,
+				profilePhoto: users.profilePhoto,
+			})
+			.from(users)
+			.where(eq(users.id, curUserId));
 
-		const posts = await Posts.find({
-			_id: { $in: user.posts },
-		});
+		const userPosts = await db
+			.select({
+				id: posts.id,
+				thread: posts.thread,
+				image: posts.image,
+				createdAt: posts.createdAt,
+				likesCount: sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
+				commentsCount: sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
+				liked: sql<boolean>`EXISTS(SELECT 1 FROM post_likes WHERE post_likes.post_id = ${posts.id} AND post_likes.user_id = ${curUserId || "00000000-0000-0000-0000-000000000000"})`,
+			})
+			.from(posts)
+			.where(eq(posts.creatorId, curUserId));
 
 		// format posts
-		const formattedPosts: BasicPostInterface[] = [];
-		posts.map((post) => {
-			formattedPosts.push({
-				_id: post._id,
-				thread: post.thread,
-				image: post.image[0],
-				liked: post.likes.includes(user._id),
-				likes: post.likes.length,
-				commentsLength: post.comments.length,
-				createdAt: post.createdAt,
-			});
-		});
+		const formattedPosts: BasicPostInterface[] = userPosts.map((post) => ({
+			_id: post.id,
+			thread: post.thread,
+			image: post.image?.[0] || "",
+			liked: post.liked,
+			likes: post.likesCount,
+			commentsLength: post.commentsCount,
+			createdAt: post.createdAt?.toISOString() || "",
+		}));
 
 		const data = {
-			_id: user._id,
+			_id: user.id,
 			name: user.name,
 			profilePhoto: user.profilePhoto,
 			posts: formattedPosts,

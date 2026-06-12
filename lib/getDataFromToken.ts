@@ -9,7 +9,7 @@ export const getDataFromToken = (request: NextRequest) => {
 			const decodedToken: any = jwt.verify(token, tokenSecret);
 			return decodedToken.id;
 		}
-		return token;
+		return null;
 	} catch (error: any) {
 		throw new Error(error.message);
 	}

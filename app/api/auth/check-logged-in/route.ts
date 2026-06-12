@@ -1,24 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 
 export async function GET(request: NextRequest) {
-  try {
-    await connectDB();
+	try {
+		const _id = await getDataFromToken(request);
+		const [user] = await db.select().from(users).where(eq(users.id, _id));
 
-    const _id = await getDataFromToken(request);
-    const user = await User.findOne({ _id });
+		if (!user) {
+			return NextResponse.json({ error: "User not found." }, { status: 404 });
+		}
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      message: "User found",
-      data: user,
-    });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 501 });
-  }
+		return NextResponse.json({
+			message: "User found",
+			data: user,
+		});
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 501 });
+	}
 }

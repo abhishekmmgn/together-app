@@ -1,15 +1,16 @@
-// @ts-expect-error
 import { useFormStatus } from "react-dom";
 import { Button } from "./ui/button";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
-export default function FormButton({ title }: { title: string }) {
+export default function FormButton({
+	title,
+	loadingText,
+}: {
+	title: string;
+	loadingText?: string;
+}) {
 	const { pending } = useFormStatus();
 	return (
-		<Button type="submit" disabled={pending}>
-			{pending && (
-				<AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-			)}
+		<Button type="submit" loading={pending} loadingText={loadingText}>
 			{title}
 		</Button>
 	);

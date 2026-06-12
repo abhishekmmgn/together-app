@@ -4,7 +4,7 @@ export async function checkLoggedIn() {
 		if (res.ok) {
 			return true;
 		}
-			return false;
+		return false;
 	} catch (err: any) {
 		console.log("Error: ", err.message);
 		return false;

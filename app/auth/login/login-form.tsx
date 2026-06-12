@@ -4,17 +4,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
+import { Form, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+	Field,
+	FieldGroup,
+	FieldLabel,
+	FieldError,
+} from "@/components/ui/field";
+import { AuthCard } from "@/components/auth-card";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
 
@@ -74,58 +74,81 @@ export default function LoginForm() {
 	}
 
 	return (
-		<>
+		<AuthCard
+			title="Login to your account"
+			description="Enter your email below to login to your account"
+			footerText={
+				<>
+					Don&apos;t have an account?{" "}
+					<Link
+						href="/auth/register"
+						className="underline underline-offset-4 hover:text-primary"
+					>
+						Sign up
+					</Link>
+				</>
+			}
+			showConsent
+		>
 			<Form {...form}>
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="w-full space-y-4"
-				>
-					<div className="space-y-2">
+				<form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+					<FieldGroup>
 						<FormField
 							control={form.control}
 							name="email"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email</FormLabel>
-									<FormControl>
-										<Input
-											type="email"
-											autoComplete="email"
-											placeholder="johndoe@email.com"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
+							render={({ field, fieldState }) => (
+								<Field data-invalid={!!fieldState.error}>
+									<FieldLabel htmlFor="email">Email</FieldLabel>
+									<Input
+										id="email"
+										type="email"
+										autoComplete="email"
+										placeholder="johndoe@email.com"
+										disabled={disabled}
+										{...field}
+									/>
+									{fieldState.error && (
+										<FieldError>{fieldState.error.message}</FieldError>
+									)}
+								</Field>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="password"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Password</FormLabel>
-									<FormControl>
-										<Input
-											type="password"
-											autoComplete="current-password"
-											placeholder="********"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
+							render={({ field, fieldState }) => (
+								<Field data-invalid={!!fieldState.error}>
+									<div className="flex items-center">
+										<FieldLabel htmlFor="password">Password</FieldLabel>
+										<Link
+											href="/auth/forgot-password"
+											className="ml-auto inline-block text-xs underline underline-offset-4 hover:text-primary"
+										>
+											Forgot your password?
+										</Link>
+									</div>
+									<Input
+										id="password"
+										type="password"
+										autoComplete="current-password"
+										placeholder="********"
+										disabled={disabled}
+										{...field}
+									/>
+									{fieldState.error && (
+										<FieldError>{fieldState.error.message}</FieldError>
+									)}
+								</Field>
 							)}
 						/>
-					</div>
-					<Button type="submit" disabled={disabled}>
-						{disabled && (
-							<AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-						)}
-						Sign In
-					</Button>
+						<Field>
+							<Button type="submit" loading={disabled} loadingText="Signing in">
+								Sign In
+							</Button>
+						</Field>
+					</FieldGroup>
 				</form>
 			</Form>
-		</>
+		</AuthCard>
 	);
 }

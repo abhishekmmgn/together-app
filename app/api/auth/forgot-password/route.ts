@@ -1,17 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
-import bcrypt from "bcryptjs";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { sendEmail } from "@/lib/mailer";
 
 export async function POST(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const { email } = await request.json();
 
-		//check if user already exists
-		const user = await User.findOne({ email });
+		// check if user already exists
+		const [user] = await db.select().from(users).where(eq(users.email, email));
 
 		console.log(user);
 
@@ -23,7 +21,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// send verification email
-		await sendEmail(email, "RESET", user._id);
+		await sendEmail(email, "RESET", user.id);
 
 		return NextResponse.json({
 			message: "Email send successfully",

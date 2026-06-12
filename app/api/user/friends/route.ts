@@ -1,29 +1,55 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users, friends } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 import type { PersonProfileType } from "@/types";
 
 export async function GET(request: NextRequest) {
-  try {
-    await connectDB();
+	try {
+		const _id = await getDataFromToken(request);
 
-    const _id = await getDataFromToken(request);
-    const user = await User.findOne({ _id }).select("friends");
-    console.log(`user: ${user}`);
+		// get friend IDs from the friends junction table
+		const friendships = await db
+			.select({ friendId: friends.friendId })
+			.from(friends)
+			.where(eq(friends.userId, _id));
 
-    // remove '' from friends array, if any
-    const friends = user.friends.filter((item: string) => item !== "");
+		const friendIds = friendships.map((f) => f.friendId);
 
-    const friendsData: PersonProfileType[] = await User.find({
-      _id: { $in: friends },
-    }).select("name bio profilePhoto _id");
+		if (friendIds.length === 0) {
+			return NextResponse.json({
+				message: "Friends found",
+				data: [],
+			});
+		}
 
-    return NextResponse.json({
-      message: "Friends found",
-      data: friendsData,
-    });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
+		// get friend details
+		const friendsData: PersonProfileType[] = await Promise.all(
+			friendIds.map(async (friendId) => {
+				const [friend] = await db
+					.select({
+						id: users.id,
+						name: users.name,
+						bio: users.bio,
+						profilePhoto: users.profilePhoto,
+					})
+					.from(users)
+					.where(eq(users.id, friendId));
+				return {
+					_id: friend.id,
+					name: friend.name,
+					bio: friend.bio || "",
+					profilePhoto: friend.profilePhoto || "",
+				};
+			}),
+		);
+
+		return NextResponse.json({
+			message: "Friends found",
+			data: friendsData,
+		});
+	} catch (error: any) {
+		return NextResponse.json({ error: error.message }, { status: 400 });
+	}
 }

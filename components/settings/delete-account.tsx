@@ -1,25 +1,15 @@
 "use client";
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useState } from "react";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
+import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 export default function DeleteAccountComponent() {
 	const router = useRouter();
 	const [disabled, setDisabled] = useState<boolean>(false);
+	const [open, setOpen] = useState(false);
 
 	async function deleteAccount() {
 		setDisabled(true);
@@ -56,31 +46,31 @@ export default function DeleteAccountComponent() {
 					authentication associations. Delete any and all content you have, such
 					as posts, comments, or your messages.
 				</p>
-				<AlertDialog>
-					<AlertDialogTrigger asChild>
+				<ResponsiveDialog
+					open={open}
+					onOpenChange={setOpen}
+					trigger={
 						<Button variant="destructive" className="mx-auto">
 							Delete Account
 						</Button>
-					</AlertDialogTrigger>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-							<AlertDialogDescription>
-								This action cannot be undone. This will permanently delete your
-								account and remove your data from our servers.
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel>Cancel</AlertDialogCancel>
-							<AlertDialogAction onClick={deleteAccount}>
-								{disabled && (
-									<AiOutlineLoading3Quarters className="mr-2 h-4 w-4 animate-spin" />
-								)}
-								Delete Account
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
+					}
+					title="Are you absolutely sure?"
+					description="This action cannot be undone. This will permanently delete your account and remove your data from our servers."
+				>
+					<div className="flex flex-col gap-4 min-[512px]:flex-row min-[512px]:justify-end">
+						<Button variant="outline" onClick={() => setOpen(false)}>
+							Cancel
+						</Button>
+						<Button
+							variant="destructive"
+							onClick={deleteAccount}
+							loading={disabled}
+							loadingText="Deleting Account"
+						>
+							Delete Account
+						</Button>
+					</div>
+				</ResponsiveDialog>
 			</div>
 		</>
 	);

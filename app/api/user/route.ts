@@ -1,21 +1,25 @@
 import { type NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/users";
+import { db } from "@/lib/db";
+import { users, posts } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 import { cookies } from "next/headers";
-import Posts from "@/models/posts";
 
 export async function GET(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const curUserId = await getDataFromToken(request);
-		const user = await User.findOne({ _id: curUserId }).select(
-			"name profilePhoto bio",
-		);
+		const [user] = await db
+			.select({
+				id: users.id,
+				name: users.name,
+				profilePhoto: users.profilePhoto,
+				bio: users.bio,
+			})
+			.from(users)
+			.where(eq(users.id, curUserId));
+
 		const data = {
-			_id: user._id,
+			_id: user.id,
 			name: user.name,
 			profilePhoto: user.profilePhoto,
 			bio: user.bio,
@@ -30,15 +34,13 @@ export async function GET(request: NextRequest) {
 		return NextResponse.json({ error: error.message }, { status: 400 });
 	}
 }
+
 export async function PUT(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const userId = await getDataFromToken(request);
 		const { profilePhoto, bio } = await request.json();
 
-		const _id = userId;
-		const user = await User.findOne({ _id });
+		const [user] = await db.select().from(users).where(eq(users.id, userId));
 
 		if (!user) {
 			return NextResponse.json(
@@ -47,11 +49,13 @@ export async function PUT(request: NextRequest) {
 			);
 		}
 
-		const result = await User.updateOne(
-			{ _id },
-			{ $set: { profilePhoto, bio } },
-		);
-		if (result.modifiedCount > 0) {
+		const result = await db
+			.update(users)
+			.set({ profilePhoto, bio })
+			.where(eq(users.id, userId))
+			.returning();
+
+		if (result.length > 0) {
 			console.log("Document updated successfully.");
 			return NextResponse.json({
 				message: "Profile updated successfully.",
@@ -71,24 +75,25 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
 	try {
-		await connectDB();
-
 		const _id = await getDataFromToken(request);
 
-		const user = await User.findOne({ _id });
+		const [user] = await db.select().from(users).where(eq(users.id, _id));
 
 		if (!user) {
 			return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 		}
 
-		// delete all posts by the user
-		await Posts.deleteMany({ _id: { $in: user.posts } });
+		// delete all posts by the user (cascade will handle post_likes, comments)
+		await db.delete(posts).where(eq(posts.creatorId, _id));
 
-		// delete user
-		await User.deleteOne({ _id });
+		// delete user (cascade will handle friends, notifications, etc.)
+		await db.delete(users).where(eq(users.id, _id));
 
 		// remove token
-		cookies().set("token", "", { httpOnly: true, expires: new Date(0) });
+		(await cookies()).set("token", "", {
+			httpOnly: true,
+			expires: new Date(0),
+		});
 
 		return NextResponse.json({
 			message: "User deleted successfully",

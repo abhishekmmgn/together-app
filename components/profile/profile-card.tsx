@@ -2,13 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IoPencil } from "react-icons/io5";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import EditProfileForm from "@/components/profile/edit-profile-form";
 import formatAvatarName from "@/lib/formatAvatarName";
 import LoadingSkeleton from "@/components/loading-skeleton";
@@ -68,19 +62,18 @@ export default function ProfileCard() {
 					</div>
 				</div>
 				<div className="size-8 hover:bg-primary/20 grid place-items-center rounded-full">
-					<Dialog>
-						<DialogTrigger className="w-full">
-							<IoPencil className="size-5 hover:text-primary cursor-pointer" />
-						</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Edit Profile</DialogTitle>
-							</DialogHeader>
-							<div>
-								<EditProfileForm photo={data.profilePhoto} bio={data.bio} />
-							</div>
-						</DialogContent>
-					</Dialog>
+					<ResponsiveDialog
+						trigger={
+							<button className="flex items-center justify-center w-full h-full outline-none">
+								<IoPencil className="size-5 hover:text-primary cursor-pointer" />
+							</button>
+						}
+						title="Edit Profile"
+					>
+						<div>
+							<EditProfileForm photo={data.profilePhoto} bio={data.bio} />
+						</div>
+					</ResponsiveDialog>
 				</div>
 			</div>
 		</>

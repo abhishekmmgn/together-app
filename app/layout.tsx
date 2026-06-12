@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import "./globals.css";
 import { ThemeProvider } from "@/components/settings/theme-provider";
 import type { Metadata } from "next";
@@ -9,7 +10,7 @@ const roboto = Roboto({
 	style: ["normal", "italic"],
 	subsets: ["latin"],
 	display: "swap",
-});
+	});
 
 export const metadata: Metadata = {
 	title: {
@@ -41,7 +42,9 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					<TanstackProvider>{children}</TanstackProvider>
+					<Suspense>
+						<TanstackProvider>{children}</TanstackProvider>
+					</Suspense>
 				</ThemeProvider>
 			</body>
 		</html>

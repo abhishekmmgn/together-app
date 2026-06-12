@@ -42,7 +42,7 @@ export default function UserPosts() {
 		<>
 			{data.posts.length ? (
 				<>
-					{data.posts.map((post) => (
+					{data.posts.map((post: PostType) => (
 						<Post
 							key={post._id}
 							post={{

@@ -6,12 +6,13 @@ export const metadata: Metadata = {
 	title: "Explore",
 };
 
-export const revalidate = 0;
-
 export default async function SearchPage() {
-	const suggestions = await fetch(
-		`${process.env.NEXT_PUBLIC_DOMAIN}/api/explore/suggestions`,
-	).then((res) => res.json());
+	let domain = process.env.NEXT_PUBLIC_DOMAIN || "localhost:3000";
+	if (!/^https?:\/\//.test(domain)) domain = `http://${domain}`;
+
+	const suggestions = await fetch(`${domain}/api/explore/suggestions`).then(
+		(res) => res.json(),
+	);
 	return (
 		<Search>
 			<SearchDefault suggestions={suggestions.data} />

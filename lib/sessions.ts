@@ -45,7 +45,7 @@ export async function createSession(userId: string) {
 	const session = await encrypt({ userId, expiresAt });
 
 	// Store the session in cookies for optimistic auth checks
-	cookies().set(cookie.name, session, {
+	(await cookies()).set(cookie.name, session, {
 		httpOnly: true,
 		secure: true,
 		expires: expiresAt,
@@ -56,7 +56,7 @@ export async function createSession(userId: string) {
 }
 
 export async function verifySession() {
-	const returnedCookie = cookies().get(cookie.name)?.value;
+	const returnedCookie = (await cookies()).get(cookie.name)?.value;
 	const session = await decrypt(returnedCookie);
 	if (!session?.userId) {
 		redirect("/login");
@@ -65,6 +65,6 @@ export async function verifySession() {
 }
 
 export async function deleteSession() {
-	cookies().delete(cookie.name);
+	(await cookies()).delete(cookie.name);
 	redirect("/login");
 }

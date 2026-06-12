@@ -1,21 +1,14 @@
 "use client";
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 export default function LogoutComponent() {
 	const router = useRouter();
+	const [open, setOpen] = useState(false);
 
 	async function handleLogout() {
 		try {
@@ -32,24 +25,25 @@ export default function LogoutComponent() {
 	return (
 		<>
 			<h3 className="mb-1 text-lg font-medium">Sign Out</h3>
-			<AlertDialog>
-				<AlertDialogTrigger asChild>
+			<ResponsiveDialog
+				open={open}
+				onOpenChange={setOpen}
+				trigger={
 					<Button variant="secondary" className="mx-auto">
 						Sign Out
 					</Button>
-				</AlertDialogTrigger>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Sign out of current device?</AlertDialogTitle>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={handleLogout}>
-							Confirm
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+				}
+				title="Sign out of current device?"
+			>
+				<div className="flex flex-col gap-4 min-[512px]:flex-row min-[512px]:justify-end">
+					<Button variant="outline" onClick={() => setOpen(false)}>
+						Cancel
+					</Button>
+					<Button onClick={handleLogout}>
+						Confirm
+					</Button>
+				</div>
+			</ResponsiveDialog>
 		</>
 	);
 }
