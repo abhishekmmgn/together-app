@@ -35,3 +35,7 @@ jobs:
 
       - name: SST deploy
         run: bunx sst deploy --stage dev
+        env:
+          # Baked into the client bundle + Lambda env at build time
+          # (share links, email verification links)
+          NEXT_PUBLIC_DOMAIN: https://d2vbz50pycdtbo.cloudfront.net

@@ -1,33 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { ne, desc } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
+import { getSuggestions } from "@/lib/get-suggestions";
 
 export async function GET(request: NextRequest) {
 	try {
 		const curUserId = await getDataFromToken(request);
 
-		const allUsers = await db
-			.select({
-				id: users.id,
-				name: users.name,
-				username: users.username,
-				profilePhoto: users.profilePhoto,
-				bio: users.bio,
-			})
-			.from(users)
-			.where(curUserId ? ne(users.id, curUserId) : undefined)
-			.orderBy(desc(users.createdAt))
-			.limit(20);
-
-		const updatedUsers = allUsers.map((u) => ({
-			_id: u.id,
-			name: u.name,
-			username: u.username,
-			profilePhoto: u.profilePhoto,
-			bio: u.bio,
-		}));
+		const updatedUsers = await getSuggestions(curUserId);
 
 		return NextResponse.json({
 			message: "Users found",
