@@ -21,7 +21,13 @@ export default $config({
 		const mailTrapPassword = new sst.Secret("MailTrapPassword");
 		const senderEmail = new sst.Secret("SenderEmail");
 
+		// S3 bucket for user-uploaded media (images)
+		const mediaBucket = new sst.aws.Bucket("MediaBucket", {
+			public: true,
+		});
+
 		const site = new sst.aws.Nextjs("Together", {
+			link: [mediaBucket],
 			environment: {
 				DATABASE_URL: databaseUrl.value,
 				TOKEN_SECRET: tokenSecret.value,
@@ -32,6 +38,8 @@ export default $config({
 				// CloudFront URL, which isn't known until the first deploy — set it
 				// as a secret after deploy #1, or wire up `site.url` with a domain.
 				NEXT_PUBLIC_DOMAIN: process.env.NEXT_PUBLIC_DOMAIN ?? "",
+				S3_BUCKET_NAME: mediaBucket.name,
+				S3_BUCKET_REGION: "ap-south-1",
 			},
 		});
 
