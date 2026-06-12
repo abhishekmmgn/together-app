@@ -15,8 +15,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
-import { UploadButton } from "@/lib/uploadthing";
+import { useS3Upload } from "@/hooks/use-s3-upload";
+import { Dropzone, DropzoneEmptyState, DropzoneContent } from "@/components/dropzone";
 import userIcon from "../../public/user.png";
+import { useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
@@ -24,6 +26,11 @@ const formSchema = z.object({
 		.string()
 		.min(2, "Name must be at least 2 characters")
 		.max(64, "Name must be less than 64 characters"),
+	username: z
+		.string()
+		.min(3, "Username must be at least 3 characters")
+		.max(50, "Username must be less than 50 characters")
+		.regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
 	photo: z.string().optional(),
 	bio: z.string().max(128, "Bio must be less than 128 characters").optional(),
 });
@@ -32,6 +39,7 @@ type formSchemaType = z.infer<typeof formSchema>;
 
 type PropsType = {
 	name: string;
+	username: string;
 	photo: string;
 	bio: string;
 };
@@ -42,6 +50,7 @@ export default function EditProfileForm(props: PropsType) {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: props.name || "",
+			username: props.username || "",
 			photo: props.photo || "",
 			bio: props.bio,
 		},
@@ -52,6 +61,19 @@ export default function EditProfileForm(props: PropsType) {
 	const hasDataChanged =
 		JSON.stringify(watchAllFields) !==
 		JSON.stringify(form.formState.defaultValues);
+
+	const uploadProps = useS3Upload({
+		maxFiles: 1,
+		maxFileSize: 1_000_000, // 1 MB
+		allowedMimeTypes: ["image/*"],
+	});
+
+	// When upload succeeds, set the photo URL in the form
+	useEffect(() => {
+		if (uploadProps.isSuccess && uploadProps.uploadedUrls.length > 0) {
+			form.setValue("photo", uploadProps.uploadedUrls[0]);
+		}
+	}, [uploadProps.isSuccess, uploadProps.uploadedUrls, form]);
 
 	const queryClient = useQueryClient();
 
@@ -64,6 +86,7 @@ export default function EditProfileForm(props: PropsType) {
 				},
 				body: JSON.stringify({
 					name: data.name,
+					username: data.username,
 					profilePhoto: data.photo,
 					bio: data.bio,
 				}),
@@ -107,22 +130,13 @@ export default function EditProfileForm(props: PropsType) {
 								height={148}
 								className="w-24 lg:w-28 object-cover aspect-square bg-secondary rounded-md border border-border mx-auto"
 							/>
-							<UploadButton
-								endpoint="imageUploader"
-								onClientUploadComplete={(res) => {
-									console.log(res);
-									form.setValue("photo", res[0].url);
-								}}
-								onUploadError={(error: Error) => {
-									console.error(error);
-									if (error.message === "Invalid config: FileSizeMismatch") {
-										toast.error("File size should be less than 1 MB");
-									} else {
-										toast.error("Error in uploading file");
-									}
-								}}
-								className="text-sm"
-							/>
+							<Dropzone
+								{...uploadProps}
+								className="w-full"
+							>
+								<DropzoneEmptyState />
+								<DropzoneContent />
+							</Dropzone>
 						</div>
 						<FormField
 							control={form.control}
@@ -132,6 +146,19 @@ export default function EditProfileForm(props: PropsType) {
 									<FormLabel>Name</FormLabel>
 									<FormControl>
 										<Input placeholder="Name" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="username"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Username</FormLabel>
+									<FormControl>
+										<Input placeholder="Username" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>

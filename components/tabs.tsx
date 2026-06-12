@@ -11,31 +11,31 @@ export const tabs = [
 	{
 		link: "/",
 		name: "Home",
-		icon: <IoHomeOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
+		icon: <IoHomeOutline size={26} />,
 	},
 	{
 		link: "/explore",
 		name: "Explore",
-		icon: <IoSearchOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
+		icon: <IoSearchOutline size={26} />,
 	},
 	{
 		link: "/messages",
 		name: "Messages",
-		icon: <IoChatbubbleOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
+		icon: <IoChatbubbleOutline size={26} />,
 	},
 	{
 		link: "/notifications",
 		name: "Notifications",
-		icon: <IoNotificationsOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
+		icon: <IoNotificationsOutline size={26} />,
 	},
 	{
 		link: "/profile",
 		name: "Profile",
-		icon: <IoPersonOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
+		icon: <IoPersonOutline size={26} />,
 	},
 	{
 		link: "/settings",
 		name: "Settings",
-		icon: <IoSettingsOutline className="w-6 h-6 sm:w-5 sm:h-5" />,
+		icon: <IoSettingsOutline size={26} />,
 	},
 ];

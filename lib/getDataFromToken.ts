@@ -11,6 +11,6 @@ export const getDataFromToken = (request: NextRequest) => {
 		}
 		return null;
 	} catch (error: any) {
-		throw new Error(error.message);
+		return null;
 	}
 };

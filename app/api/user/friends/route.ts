@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
 					.select({
 						id: users.id,
 						name: users.name,
+						username: users.username,
 						bio: users.bio,
 						profilePhoto: users.profilePhoto,
 					})
@@ -39,6 +40,7 @@ export async function GET(request: NextRequest) {
 				return {
 					_id: friend.id,
 					name: friend.name,
+					username: friend.username || "",
 					bio: friend.bio || "",
 					profilePhoto: friend.profilePhoto || "",
 				};

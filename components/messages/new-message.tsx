@@ -79,6 +79,7 @@ export default function NewMessage(props: PropsType) {
 											>
 												<ProfileCard
 													name={friend.name}
+													username={friend.username}
 													bio={friend.bio}
 													profilePhoto={friend.profilePhoto}
 													_id={friend._id}

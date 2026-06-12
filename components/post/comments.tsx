@@ -60,6 +60,7 @@ export default function Comments({
 			createdBy: {
 				_id: userProfile?._id || "",
 				name: userProfile?.name || "You",
+				username: userProfile?.username || "",
 				profilePhoto: userProfile?.profilePhoto || "",
 			},
 			message: commentText,

@@ -42,11 +42,27 @@ export async function POST(request: NextRequest) {
 			});
 		}
 
+		// generate base username
+		const baseUsername = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+		let uniqueUsername = baseUsername;
+		
+		// check uniqueness in a loop
+		let isUnique = false;
+		while (!isUnique) {
+			const [existing] = await db.select().from(users).where(eq(users.username, uniqueUsername));
+			if (!existing) {
+				isUnique = true;
+			} else {
+				uniqueUsername = `${baseUsername}${Math.floor(Math.random() * 10000)}`;
+			}
+		}
+
 		// otherwise create new user
 		const [savedUser] = await db
 			.insert(users)
 			.values({
 				name,
+				username: uniqueUsername,
 				email,
 				password: hashedPassword,
 			})

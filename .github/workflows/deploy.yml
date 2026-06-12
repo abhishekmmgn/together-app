@@ -31,7 +31,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: us-east-1
+          aws-region: ap-south-1
 
       - name: SST deploy
         run: bunx sst deploy --stage dev

@@ -34,6 +34,7 @@ export async function GET(request: NextRequest, props: Params) {
 			.select({
 				id: users.id,
 				name: users.name,
+				username: users.username,
 				profilePhoto: users.profilePhoto,
 			})
 			.from(users)
@@ -60,6 +61,7 @@ export async function GET(request: NextRequest, props: Params) {
 			{
 				_id: otherUser.id,
 				name: otherUser.name,
+				username: otherUser.username,
 				profilePhoto: otherUser.profilePhoto,
 			},
 			formattedMessages,

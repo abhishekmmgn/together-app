@@ -13,6 +13,7 @@ export default function UserPosts() {
 	const { isPending, error, data, isError } = useQuery<{
 		_id: string;
 		name: string;
+		username: string;
 		profilePhoto: string;
 		posts: PostType[];
 	}>({
@@ -50,6 +51,7 @@ export default function UserPosts() {
 								creator: {
 									_id: data._id,
 									name: data.name,
+									username: data.username,
 									profilePhoto: data.profilePhoto,
 								},
 							}}

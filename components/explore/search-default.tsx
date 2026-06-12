@@ -29,6 +29,7 @@ export default function SearchDefault({
 							key={person._id}
 							_id={person._id}
 							name={person.name}
+							username={person.username}
 							profilePhoto={person.profilePhoto}
 							bio={person.bio}
 						/>

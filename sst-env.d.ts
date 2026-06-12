@@ -18,6 +18,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "MediaBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "SenderEmail": {
       "type": "sst.sst.Secret"
       "value": string

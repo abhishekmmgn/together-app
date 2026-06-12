@@ -14,6 +14,7 @@ export default function ProfileCard() {
 	const { isPending, error, data, isError } = useQuery<{
 		_id: string;
 		name: string;
+		username: string;
 		profilePhoto: string;
 		bio: string;
 	}>({
@@ -73,6 +74,7 @@ export default function ProfileCard() {
 					<div>
 						<EditProfileForm
 							name={data.name}
+							username={data.username}
 							photo={data.profilePhoto}
 							bio={data.bio}
 						/>

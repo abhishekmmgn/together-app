@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
 			.select({
 				id: users.id,
 				name: users.name,
+				username: users.username,
 				profilePhoto: users.profilePhoto,
 				bio: users.bio,
 			})
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
 		const updatedUsers = allUsers.map((u) => ({
 			_id: u.id,
 			name: u.name,
+			username: u.username,
 			profilePhoto: u.profilePhoto,
 			bio: u.bio,
 		}));

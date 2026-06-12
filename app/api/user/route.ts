@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
 			.select({
 				id: users.id,
 				name: users.name,
+				username: users.username,
 				email: users.email,
 				profilePhoto: users.profilePhoto,
 				bio: users.bio,
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
 		const data = {
 			_id: user.id,
 			name: user.name,
+			username: user.username,
 			email: user.email,
 			profilePhoto: user.profilePhoto,
 			bio: user.bio,
@@ -40,7 +42,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
 	try {
 		const userId = await getDataFromToken(request);
-		const { name, profilePhoto, bio } = await request.json();
+		const { name, username, profilePhoto, bio } = await request.json();
 
 		const [user] = await db.select().from(users).where(eq(users.id, userId));
 
@@ -51,9 +53,17 @@ export async function PUT(request: NextRequest) {
 			);
 		}
 
+		if (username && username !== user.username) {
+			// check if username is taken
+			const [existing] = await db.select().from(users).where(eq(users.username, username));
+			if (existing) {
+				return NextResponse.json({ error: "Username is already taken." }, { status: 400 });
+			}
+		}
+
 		const result = await db
 			.update(users)
-			.set({ name, profilePhoto, bio })
+			.set({ name, username, profilePhoto, bio })
 			.where(eq(users.id, userId))
 			.returning();
 

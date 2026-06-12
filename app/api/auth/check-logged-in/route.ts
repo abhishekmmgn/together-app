@@ -7,6 +7,11 @@ import { getDataFromToken } from "@/lib/getDataFromToken";
 export async function GET(request: NextRequest) {
 	try {
 		const _id = await getDataFromToken(request);
+		
+		if (!_id) {
+			return NextResponse.json({ error: "User not logged in." }, { status: 401 });
+		}
+
 		const [user] = await db.select().from(users).where(eq(users.id, _id));
 
 		if (!user) {

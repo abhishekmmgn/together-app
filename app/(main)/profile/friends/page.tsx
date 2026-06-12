@@ -46,6 +46,7 @@ export default function FriendsPage() {
 							key={user._id}
 							_id={user._id}
 							name={user.name}
+							username={user.username}
 							profilePhoto={user.profilePhoto}
 							bio={user.bio}
 						/>

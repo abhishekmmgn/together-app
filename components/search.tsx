@@ -19,8 +19,8 @@ export default function Search({ children }: { children: React.ReactNode }) {
 				className="relative sm:top-0 shrink-0"
 			/>
 
-			{searchQuery && !isActive && <SearchResults query={searchQuery} />}
-			{!searchQuery && !isActive && children}
+			{searchQuery && <SearchResults query={searchQuery} />}
+			{!searchQuery && children}
 		</div>
 	);
 }

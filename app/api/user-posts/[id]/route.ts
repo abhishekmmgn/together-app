@@ -15,6 +15,7 @@ export async function GET(request: NextRequest, props: Params) {
 			.select({
 				id: users.id,
 				name: users.name,
+				username: users.username,
 				profilePhoto: users.profilePhoto,
 			})
 			.from(users)
@@ -50,6 +51,7 @@ export async function GET(request: NextRequest, props: Params) {
 			creator: {
 				_id: user.id,
 				name: user.name,
+				username: user.username,
 				profilePhoto: user.profilePhoto,
 			},
 		}));

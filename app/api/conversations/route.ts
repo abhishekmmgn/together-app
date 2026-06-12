@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
 					.select({
 						id: users.id,
 						name: users.name,
+						username: users.username,
 						profilePhoto: users.profilePhoto,
 					})
 					.from(users)
@@ -75,6 +76,7 @@ export async function GET(request: NextRequest) {
 					user: {
 						_id: otherUser?.id,
 						name: otherUser?.name,
+						username: otherUser?.username,
 						profilePhoto: otherUser?.profilePhoto,
 					},
 				};

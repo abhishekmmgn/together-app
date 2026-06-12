@@ -10,7 +10,7 @@ const nextConfig = {
 		remotePatterns: [
 			{
 				protocol: "https",
-				hostname: "utfs.io",
+				hostname: "*.s3.ap-south-1.amazonaws.com",
 				port: "",
 			},
 		],

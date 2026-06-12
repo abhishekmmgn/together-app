@@ -1,6 +1,7 @@
 export type PersonProfileType = {
   _id: string;
   name: string;
+  username: string;
   bio: string;
   profilePhoto: string;
 };
@@ -19,6 +20,7 @@ export interface PostType extends BasicPostInterface {
   creator: {
     _id: string;
     name: string;
+    username: string;
     profilePhoto: string;
   };
 }
@@ -28,6 +30,7 @@ export type CommentsType = {
   createdBy: {
     _id: string;
     name: string;
+    username: string;
     profilePhoto: string;
   };
   message: string;
@@ -56,6 +59,7 @@ export type ConversationType = {
   user: {
     _id: string;
     name: string;
+    username: string;
     profilePhoto: string;
   };
 };

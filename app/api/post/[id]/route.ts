@@ -42,6 +42,7 @@ export async function GET(request: NextRequest, props: Props) {
 			.select({
 				id: users.id,
 				name: users.name,
+				username: users.username,
 				profilePhoto: users.profilePhoto,
 			})
 			.from(users)
@@ -55,6 +56,7 @@ export async function GET(request: NextRequest, props: Props) {
 				createdAt: comments.createdAt,
 				creatorId: comments.creatorId,
 				creatorName: users.name,
+				creatorUsername: users.username,
 				creatorPhoto: users.profilePhoto,
 			})
 			.from(comments)
@@ -68,6 +70,7 @@ export async function GET(request: NextRequest, props: Props) {
 			createdBy: {
 				_id: comment.creatorId,
 				name: comment.creatorName,
+				username: comment.creatorUsername,
 				profilePhoto: comment.creatorPhoto,
 			},
 		}));
@@ -83,6 +86,7 @@ export async function GET(request: NextRequest, props: Props) {
 			creator: {
 				_id: creator?.id,
 				name: creator?.name,
+				username: creator?.username,
 				profilePhoto: creator?.profilePhoto,
 			},
 			comments: formattedComments,
