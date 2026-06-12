@@ -298,22 +298,24 @@ function PostContent(props: {
 						)}
 					</div>
 				</div>
-				<p
-					className={`${
-						!props.paddingX && "px-4"
-					} mb-2 text-sm+ lg:text-base line-clamp-3 md:mb-3 md:mt-1 lg:px-0`}
-				>
-					{props.post?.thread}
-				</p>
-				{props.post?.image && (
-					<Image
-						src={props.post?.image}
-						alt="Post Photo"
-						width={480}
-						height={360}
-						className="object-cover w-full aspect-3/2 bg-secondary shadow-sm"
-					/>
-				)}
+				<Link href={`/post/${props.post?._id}`}>
+					<p
+						className={`${
+							!props.paddingX && "px-4"
+						} mb-2 text-sm+ lg:text-base line-clamp-3 md:mb-3 md:mt-1 lg:px-0`}
+					>
+						{props.post?.thread}
+					</p>
+					{props.post?.image && (
+						<Image
+							src={props.post?.image}
+							alt="Post Photo"
+							width={480}
+							height={360}
+							className="object-cover w-full aspect-3/2 bg-secondary shadow-sm"
+						/>
+					)}
+				</Link>
 				<div
 					className={`${
 						!props.paddingX && "px-4 lg:px-0"

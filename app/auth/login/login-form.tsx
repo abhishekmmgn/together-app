@@ -58,7 +58,7 @@ export default function LoginForm() {
 			if (res.ok) {
 				toast.success("Logged in successfully");
 				form.reset();
-				router.push("/");
+				window.location.href = "/";
 			} else if (res.status === 400) {
 				toast.error("Incorrect email or password");
 			} else if (res.status === 404) {

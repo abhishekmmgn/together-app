@@ -16,7 +16,7 @@ export default function LogoutComponent() {
 			const res = await fetch("/api/auth/logout");
 			if (res.ok) {
 				toast.success("Logout successfully");
-				router.push("/auth/login");
+				window.location.href = "/auth/login";
 			}
 		} catch (err: any) {
 			console.log("Error: ", err.message);
