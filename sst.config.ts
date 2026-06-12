@@ -9,7 +9,12 @@ export default $config({
 			protect: ["production"].includes(input?.stage),
 			home: "aws",
 			providers: {
-				aws: { region: "us-east-1", profile: "sst" },
+				aws: {
+					region: "us-east-1",
+					// Local dev uses the named `sst` profile; CI (GitHub Actions)
+					// gets ambient credentials via OIDC, so no profile there.
+					profile: process.env.CI ? undefined : "sst",
+				},
 			},
 		};
 	},
