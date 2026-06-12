@@ -45,11 +45,14 @@ export async function POST(request: NextRequest) {
 		// generate base username
 		const baseUsername = name.toLowerCase().replace(/[^a-z0-9]/g, "");
 		let uniqueUsername = baseUsername;
-		
+
 		// check uniqueness in a loop
 		let isUnique = false;
 		while (!isUnique) {
-			const [existing] = await db.select().from(users).where(eq(users.username, uniqueUsername));
+			const [existing] = await db
+				.select()
+				.from(users)
+				.where(eq(users.username, uniqueUsername));
 			if (!existing) {
 				isUnique = true;
 			} else {

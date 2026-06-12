@@ -64,7 +64,12 @@ export default function SearchBar(props: PropsType) {
 	};
 
 	return (
-		<div className={cn("sticky inset-x-0 z-40 px-5 py-4 bg-background backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14 lg:px-0 group", props.className)}>
+		<div
+			className={cn(
+				"sticky inset-x-0 z-40 px-5 py-4 bg-background backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14 lg:px-0 group",
+				props.className,
+			)}
+		>
 			<div className="relative w-full group">
 				<IoSearch className="text-muted-foreground size-4 absolute top-3 left-3 md:top-3 md:left-3.5" />
 				<Input

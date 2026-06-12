@@ -185,7 +185,11 @@ export default function RegisterForm() {
 							)}
 						/>
 						<Field>
-							<Button type="submit" loading={disabled} loadingText="Creating Account">
+							<Button
+								type="submit"
+								loading={disabled}
+								loadingText="Creating Account"
+							>
 								Create Account
 							</Button>
 						</Field>

@@ -10,7 +10,7 @@ const roboto = Roboto({
 	style: ["normal", "italic"],
 	subsets: ["latin"],
 	display: "swap",
-	});
+});
 
 export const metadata: Metadata = {
 	title: {

@@ -100,7 +100,11 @@ export default function ForgotPasswordForm(props: PropsType) {
 							)}
 						/>
 						<Field>
-							<Button type="submit" loading={disabled} loadingText="Sending verification link">
+							<Button
+								type="submit"
+								loading={disabled}
+								loadingText="Sending verification link"
+							>
 								Send verification link
 							</Button>
 						</Field>

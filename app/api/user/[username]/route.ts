@@ -33,9 +33,7 @@ export async function GET(request: NextRequest, props: Params) {
 		const [friendship] = await db
 			.select()
 			.from(friends)
-			.where(
-				and(eq(friends.userId, curUserId), eq(friends.friendId, user.id)),
-			);
+			.where(and(eq(friends.userId, curUserId), eq(friends.friendId, user.id)));
 		const isFriend = !!friendship;
 
 		// get user's posts with counts
@@ -101,9 +99,7 @@ export async function PUT(request: NextRequest, props: Params) {
 				.where(and(eq(friends.userId, _id), eq(friends.friendId, curUserId)));
 			await db
 				.delete(friends)
-				.where(
-					and(eq(friends.userId, curUserId), eq(friends.friendId, _id)),
-				);
+				.where(and(eq(friends.userId, curUserId), eq(friends.friendId, _id)));
 
 			return NextResponse.json({
 				message: "Friend removed successfully.",

@@ -63,7 +63,10 @@ export default function InfinitePosts({
 	return (
 		<>
 			{posts.map((post: PostType, index: number) => (
-				<div ref={index === posts.length - 1 ? lastElementRef : undefined} key={post._id}>
+				<div
+					ref={index === posts.length - 1 ? lastElementRef : undefined}
+					key={post._id}
+				>
 					<Post post={post} />
 				</div>
 			))}

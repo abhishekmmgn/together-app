@@ -305,7 +305,9 @@ export default function NewPostForm() {
 								{uploadLoading && (
 									<div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 text-white">
 										<ProgressRing percent={uploadProgress} />
-										<p className="text-sm font-medium">Uploading… {uploadProgress}%</p>
+										<p className="text-sm font-medium">
+											Uploading… {uploadProgress}%
+										</p>
 									</div>
 								)}
 							</>
@@ -347,7 +349,9 @@ export default function NewPostForm() {
 
 					<Button
 						className="w-full"
-						disabled={!currentFile || uploadLoading || !!fileSizeError || !!fileError}
+						disabled={
+							!currentFile || uploadLoading || !!fileSizeError || !!fileError
+						}
 						loading={uploadLoading}
 						loadingText={`Uploading… ${uploadProgress}%`}
 						onClick={handleContinue}

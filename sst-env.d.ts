@@ -5,37 +5,37 @@
 /* biome-ignore-all lint: auto-generated */
 
 declare module "sst" {
-  export interface Resource {
-    "DatabaseUrl": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "MailTrapPassword": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "MailTrapUser": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "MediaBucket": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "SenderEmail": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "Together": {
-      "type": "sst.aws.Nextjs"
-      "url": string
-    }
-    "TokenSecret": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-  }
+	export interface Resource {
+		DatabaseUrl: {
+			type: "sst.sst.Secret";
+			value: string;
+		};
+		MailTrapPassword: {
+			type: "sst.sst.Secret";
+			value: string;
+		};
+		MailTrapUser: {
+			type: "sst.sst.Secret";
+			value: string;
+		};
+		MediaBucket: {
+			name: string;
+			type: "sst.aws.Bucket";
+		};
+		SenderEmail: {
+			type: "sst.sst.Secret";
+			value: string;
+		};
+		Together: {
+			type: "sst.aws.Nextjs";
+			url: string;
+		};
+		TokenSecret: {
+			type: "sst.sst.Secret";
+			value: string;
+		};
+	}
 }
 
-import "sst"
-export {}
+import "sst";
+export {};

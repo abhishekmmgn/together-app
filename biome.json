@@ -1,5 +1,16 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+	"files": {
+		"ignore": [
+			".next",
+			"node_modules",
+			"dist",
+			"build",
+			".open-next",
+			".sst",
+			"sst-env.d.ts"
+		]
+	},
 	"organizeImports": { "enabled": true },
 	"linter": { "enabled": true, "rules": { "recommended": false } }
 }

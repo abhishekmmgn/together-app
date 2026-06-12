@@ -55,9 +55,15 @@ export async function PUT(request: NextRequest) {
 
 		if (username && username !== user.username) {
 			// check if username is taken
-			const [existing] = await db.select().from(users).where(eq(users.username, username));
+			const [existing] = await db
+				.select()
+				.from(users)
+				.where(eq(users.username, username));
 			if (existing) {
-				return NextResponse.json({ error: "Username is already taken." }, { status: 400 });
+				return NextResponse.json(
+					{ error: "Username is already taken." },
+					{ status: 400 },
+				);
 			}
 		}
 

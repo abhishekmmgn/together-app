@@ -16,7 +16,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
 import { useS3Upload } from "@/hooks/use-s3-upload";
-import { Dropzone, DropzoneEmptyState, DropzoneContent } from "@/components/dropzone";
+import {
+	Dropzone,
+	DropzoneEmptyState,
+	DropzoneContent,
+} from "@/components/dropzone";
 import userIcon from "../../public/user.png";
 import { useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -30,7 +34,10 @@ const formSchema = z.object({
 		.string()
 		.min(3, "Username must be at least 3 characters")
 		.max(50, "Username must be less than 50 characters")
-		.regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+		.regex(
+			/^[a-zA-Z0-9_]+$/,
+			"Username can only contain letters, numbers, and underscores",
+		),
 	photo: z.string().optional(),
 	bio: z.string().max(128, "Bio must be less than 128 characters").optional(),
 });
@@ -130,10 +137,7 @@ export default function EditProfileForm(props: PropsType) {
 								height={148}
 								className="w-24 lg:w-28 object-cover aspect-square bg-secondary rounded-md border border-border mx-auto"
 							/>
-							<Dropzone
-								{...uploadProps}
-								className="w-full"
-							>
+							<Dropzone {...uploadProps} className="w-full">
 								<DropzoneEmptyState />
 								<DropzoneContent />
 							</Dropzone>

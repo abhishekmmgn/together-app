@@ -29,7 +29,9 @@ export async function GET(request: NextRequest, props: Props) {
 			return NextResponse.json({ error: "Post not found." }, { status: 404 });
 		}
 
-		const curUserId = (await getDataFromToken(request)) || "00000000-0000-0000-0000-000000000000";
+		const curUserId =
+			(await getDataFromToken(request)) ||
+			"00000000-0000-0000-0000-000000000000";
 		const [likedStatus] = await db
 			.select()
 			.from(postLikes)
@@ -107,19 +109,13 @@ export async function PUT(request: NextRequest, props: Props) {
 		const { like, message } = await request.json();
 
 		const curUserId = await getDataFromToken(request);
-		const [user] = await db
-			.select()
-			.from(users)
-			.where(eq(users.id, curUserId));
+		const [user] = await db.select().from(users).where(eq(users.id, curUserId));
 		if (!user) {
 			return NextResponse.json({ error: "User not found." }, { status: 404 });
 		}
 
 		const postId = params.id;
-		const [post] = await db
-			.select()
-			.from(posts)
-			.where(eq(posts.id, postId));
+		const [post] = await db.select().from(posts).where(eq(posts.id, postId));
 		if (!post) {
 			return NextResponse.json({ error: "Post not found." }, { status: 404 });
 		}
@@ -172,14 +168,8 @@ export async function DELETE(request: NextRequest, props: Props) {
 		const { postId } = await request.json();
 		const userId = await getDataFromToken(request);
 
-		const [user] = await db
-			.select()
-			.from(users)
-			.where(eq(users.id, userId));
-		const [post] = await db
-			.select()
-			.from(posts)
-			.where(eq(posts.id, postId));
+		const [user] = await db.select().from(users).where(eq(users.id, userId));
+		const [post] = await db.select().from(posts).where(eq(posts.id, postId));
 
 		if (!user || !post) {
 			return NextResponse.json(
