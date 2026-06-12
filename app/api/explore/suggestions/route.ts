@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
 				bio: users.bio,
 			})
 			.from(users)
-			.where(ne(users.id, curUserId))
+			.where(curUserId ? ne(users.id, curUserId) : undefined)
 			.orderBy(desc(users.createdAt))
-			.limit(10);
+			.limit(20);
 
 		const updatedUsers = allUsers.map((u) => ({
 			_id: u.id,

@@ -13,9 +13,9 @@ import {
 	FieldLabel,
 	FieldError,
 } from "@/components/ui/field";
-import { AuthCard } from "@/components/auth-card";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 import { changePasswordFormSchema } from "@/lib/definitions";
 
 type formSchemaType = z.infer<typeof changePasswordFormSchema>;
@@ -27,6 +27,9 @@ type propsType = {
 export default function ResetPasswordForm(props: propsType) {
 	const router = useRouter();
 	const [disabled, setDisabled] = useState<boolean>(false);
+	const [showPassword, setShowPassword] = useState<boolean>(false);
+	const [showConfirmPassword, setShowConfirmPassword] =
+		useState<boolean>(false);
 
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(changePasswordFormSchema),
@@ -71,61 +74,88 @@ export default function ResetPasswordForm(props: propsType) {
 	}
 
 	return (
-		<AuthCard
-			title="Reset Password"
-			description="Enter your new password below"
-		>
-			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
-					<FieldGroup>
-						<FormField
-							control={form.control}
-							name="password"
-							render={({ field, fieldState }) => (
-								<Field data-invalid={!!fieldState.error}>
-									<FieldLabel htmlFor="password">New Password</FieldLabel>
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+				<FieldGroup>
+					<FormField
+						control={form.control}
+						name="password"
+						render={({ field, fieldState }) => (
+							<Field data-invalid={!!fieldState.error}>
+								<FieldLabel htmlFor="password">New Password</FieldLabel>
+								<div className="relative">
 									<Input
 										id="password"
-										type="password"
+										type={showPassword ? "text" : "password"}
 										placeholder="********"
 										disabled={disabled}
+										className="pr-10"
 										{...field}
 									/>
-									{fieldState.error && (
-										<FieldError>{fieldState.error.message}</FieldError>
-									)}
-								</Field>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="confirmPassword"
-							render={({ field, fieldState }) => (
-								<Field data-invalid={!!fieldState.error}>
-									<FieldLabel htmlFor="confirmPassword">
-										Confirm Password
-									</FieldLabel>
+									<button
+										type="button"
+										onClick={() => setShowPassword((prev) => !prev)}
+										className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none flex items-center justify-center"
+									>
+										{showPassword ? (
+											<IoEyeOffOutline className="h-5 w-5" />
+										) : (
+											<IoEyeOutline className="h-5 w-5" />
+										)}
+									</button>
+								</div>
+								{fieldState.error && (
+									<FieldError>{fieldState.error.message}</FieldError>
+								)}
+							</Field>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="confirmPassword"
+						render={({ field, fieldState }) => (
+							<Field data-invalid={!!fieldState.error}>
+								<FieldLabel htmlFor="confirmPassword">
+									Confirm Password
+								</FieldLabel>
+								<div className="relative">
 									<Input
 										id="confirmPassword"
-										type="password"
+										type={showConfirmPassword ? "text" : "password"}
 										placeholder="********"
 										disabled={disabled}
+										className="pr-10"
 										{...field}
 									/>
-									{fieldState.error && (
-										<FieldError>{fieldState.error.message}</FieldError>
-									)}
-								</Field>
-							)}
-						/>
-						<Field>
-							<Button type="submit" loading={disabled} loadingText="Resetting Password">
-								Done
-							</Button>
-						</Field>
-					</FieldGroup>
-				</form>
-			</Form>
-		</AuthCard>
+									<button
+										type="button"
+										onClick={() => setShowConfirmPassword((prev) => !prev)}
+										className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none flex items-center justify-center"
+									>
+										{showConfirmPassword ? (
+											<IoEyeOffOutline className="h-5 w-5" />
+										) : (
+											<IoEyeOutline className="h-5 w-5" />
+										)}
+									</button>
+								</div>
+								{fieldState.error && (
+									<FieldError>{fieldState.error.message}</FieldError>
+								)}
+							</Field>
+						)}
+					/>
+					<Field>
+						<Button
+							type="submit"
+							loading={disabled}
+							loadingText="Resetting Password"
+						>
+							Done
+						</Button>
+					</Field>
+				</FieldGroup>
+			</form>
+		</Form>
 	);
 }

@@ -23,16 +23,16 @@ export function Comment(props: propsType) {
 				</Avatar>
 			)}
 			<div
-				className={`w-fit max-w-[75%] px-3 py-1 rounded-[var(--radius)] ${
+				className={`w-fit max-w-[75%] px-3 py-1 rounded-lg ${
 					props.type === "sent" ? "bg-primary" : "bg-secondary"
 				}`}
 			>
 				{props.type === "recieved" && (
-					<p className="font-medium text-sm capitalize">
+					<p className="text-sm text-muted-foreground capitalize">
 						{props.createdBy.name}
 					</p>
 				)}
-				<p className="text-sm+ text-secondary-foreground">{props.comment}</p>
+				<p>{props.comment}</p>
 			</div>
 		</div>
 	);

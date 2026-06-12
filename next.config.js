@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: false,
-	cacheComponents: true,
 	turbopack: {},
 	compiler: {
 		removeConsole: process.env.NODE_ENV !== "development",

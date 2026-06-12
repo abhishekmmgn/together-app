@@ -45,7 +45,7 @@ export default function SearchResults(props: { query: string }) {
 									</>
 								) : (
 									<div className="text-tertiary-foreground">
-										No results found.
+										No results found
 									</div>
 								)}
 							</>
@@ -78,7 +78,7 @@ export default function SearchResults(props: { query: string }) {
 									</>
 								) : (
 									<div className="text-tertiary-foreground">
-										No results found.
+										No results found
 									</div>
 								)}
 							</>

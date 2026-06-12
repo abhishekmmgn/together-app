@@ -21,7 +21,7 @@ import {
 	DrawerTitle,
 	DrawerTrigger,
 } from "@/components/ui/drawer";
-import { useMediaQuery } from "@/hooks/use-mediaquery";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 type ResponsiveDialogContextType = {
 	closeDialog: () => void;
@@ -41,6 +41,7 @@ export const ResponsiveDialog = ({
 	children,
 	open,
 	onOpenChange,
+	hideCancel = false,
 }: {
 	trigger: React.ReactNode;
 	isTriggerChild?: boolean;
@@ -48,10 +49,15 @@ export const ResponsiveDialog = ({
 	description?: string;
 	children: React.ReactNode;
 	open?: boolean;
+	hideCancel?: boolean;
 	onOpenChange?: (open: boolean) => void;
 }) => {
 	const [internalOpen, setInternalOpen] = useState(false);
-	const isMobile = useMediaQuery("(max-width: 768px)");
+	const matches = useMediaQuery("(min-width: 768px)", {
+		initializeWithValue: false,
+	});
+
+	const isMobile = !matches;
 
 	const isControlled = open !== undefined;
 	const isOpen = isControlled ? open : internalOpen;
@@ -66,7 +72,7 @@ export const ResponsiveDialog = ({
 					<DrawerTrigger asChild={isTriggerChild}>{trigger}</DrawerTrigger>
 					<DrawerContent className="h-fit">
 						<DrawerHeader>
-							<DrawerTitle className="font-sans">{title}</DrawerTitle>
+							<DrawerTitle>{title}</DrawerTitle>
 							{description && (
 								<DrawerDescription>{description}</DrawerDescription>
 							)}
@@ -74,13 +80,15 @@ export const ResponsiveDialog = ({
 						<div className="mx-auto w-full max-w-lg px-4 min-[512px]:px-0">
 							{children}
 						</div>
-						<DrawerFooter>
-							<DrawerClose asChild className="mx-auto">
-								<Button variant="outline" className="w-full max-w-lg">
-									Cancel
-								</Button>
-							</DrawerClose>
-						</DrawerFooter>
+						{!hideCancel && (
+							<DrawerFooter>
+								<DrawerClose asChild className="mx-auto">
+									<Button variant="outline" className="w-full max-w-lg">
+										Cancel
+									</Button>
+								</DrawerClose>
+							</DrawerFooter>
+						)}
 					</DrawerContent>
 				</Drawer>
 			</ResponsiveDialogContext.Provider>
@@ -90,14 +98,14 @@ export const ResponsiveDialog = ({
 	return (
 		<ResponsiveDialogContext.Provider value={{ closeDialog }}>
 			<Dialog open={isOpen} onOpenChange={setIsOpen}>
-				{isTriggerChild ? (
-					<DialogTrigger render={trigger as React.ReactElement} />
-				) : (
-					<DialogTrigger>{trigger}</DialogTrigger>
-				)}
+				<DialogTrigger
+					render={isTriggerChild ? (trigger as React.ReactElement) : undefined}
+				>
+					{!isTriggerChild && trigger}
+				</DialogTrigger>
 				<DialogContent className="sm:max-w-lg">
 					<DialogHeader>
-						<DialogTitle className="font-sans">{title}</DialogTitle>
+						<DialogTitle>{title}</DialogTitle>
 						{description && (
 							<DialogDescription>{description}</DialogDescription>
 						)}

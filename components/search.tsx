@@ -11,15 +11,16 @@ export default function Search({ children }: { children: React.ReactNode }) {
 	const searchQuery = searchParams ? searchParams.get("query") : null;
 
 	return (
-		<>
+		<div className="w-full h-full flex flex-col overflow-hidden">
 			<SearchBar
 				searchActive={isActive}
 				setSearchActive={setIsActive}
-				placeholder="Search for people, posts and more."
+				placeholder="Search for people, posts and more"
+				className="relative sm:top-0 shrink-0"
 			/>
 
 			{searchQuery && !isActive && <SearchResults query={searchQuery} />}
 			{!searchQuery && !isActive && children}
-		</>
+		</div>
 	);
 }

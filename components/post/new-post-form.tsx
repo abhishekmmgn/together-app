@@ -95,14 +95,14 @@ export default function NewPostForm() {
 					onSubmit={form.handleSubmit(onSubmit)}
 					className="w-full space-y-4"
 				>
-					<div className="space-y-2">
-						<div className="relative flex flex-col items-center gap-2 w-full aspect-[4/3]">
+					<div className="space-y-4">
+						<div className="relative flex flex-col items-center gap-2 w-full aspect-4/3">
 							<Image
 								src={image}
 								alt="New Post"
 								fill
 								sizes="(max-width: 768px) 400px, 600px"
-								className="object-cover bg-secondary rounded-[var(--radius)] border mx-auto"
+								className="object-cover bg-secondary rounded-lg border mx-auto"
 							/>
 							<UploadDropzone
 								endpoint="imageUploader"
@@ -114,7 +114,7 @@ export default function NewPostForm() {
 								onUploadError={(error: Error) => {
 									toast.error(`ERROR! ${error.message}`);
 								}}
-								className="absolute z-10 inset-0 bg-black bg-opacity-60 border-border rounded-[var(--radius)] -mt-[2px] text-primary"
+								className="absolute z-10 inset-0 bg-black bg-opacity-60 border-border rounded-lg -mt-0.5 text-primary"
 							/>
 						</div>
 						<FormField
@@ -127,7 +127,7 @@ export default function NewPostForm() {
 										<Textarea
 											placeholder="What's on your mind?"
 											{...field}
-											className="resize-none"
+											className="resize-none min-h-32"
 										/>
 									</FormControl>
 									<FormMessage />
@@ -143,7 +143,7 @@ export default function NewPostForm() {
 									<FormControl>
 										<Input
 											type="text"
-											placeholder="Write upto 5 tags..."
+											placeholder="Travel, Food, etc"
 											{...field}
 										/>
 									</FormControl>
@@ -153,7 +153,13 @@ export default function NewPostForm() {
 							)}
 						/>
 					</div>
-					<Button type="submit" disabled={!hasDataChanged} loading={disabled} loadingText="Saving">
+					<Button
+						type="submit"
+						disabled={!hasDataChanged}
+						loading={disabled}
+						loadingText="Saving"
+						className="w-full"
+					>
 						Done
 					</Button>
 				</form>

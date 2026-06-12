@@ -1,9 +1,9 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { users, posts } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { posts, users } from "@/lib/db/schema";
 import { getDataFromToken } from "@/lib/getDataFromToken";
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
 	try {
@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
 			.select({
 				id: users.id,
 				name: users.name,
+				email: users.email,
 				profilePhoto: users.profilePhoto,
 				bio: users.bio,
 			})
@@ -21,6 +22,7 @@ export async function GET(request: NextRequest) {
 		const data = {
 			_id: user.id,
 			name: user.name,
+			email: user.email,
 			profilePhoto: user.profilePhoto,
 			bio: user.bio,
 		};
@@ -38,7 +40,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
 	try {
 		const userId = await getDataFromToken(request);
-		const { profilePhoto, bio } = await request.json();
+		const { name, profilePhoto, bio } = await request.json();
 
 		const [user] = await db.select().from(users).where(eq(users.id, userId));
 
@@ -51,7 +53,7 @@ export async function PUT(request: NextRequest) {
 
 		const result = await db
 			.update(users)
-			.set({ profilePhoto, bio })
+			.set({ name, profilePhoto, bio })
 			.where(eq(users.id, userId))
 			.returning();
 

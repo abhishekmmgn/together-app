@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { Button } from "../ui/button";
-import { IoAddOutline } from "react-icons/io5";
 import NewPostForm from "./new-post-form";
 import { checkLoggedIn } from "@/lib/checkLoggedIn";
 import { useRouter } from "next/navigation";
@@ -15,9 +14,7 @@ export default function NewPost() {
 
 	useEffect(() => {
 		checkLoggedIn().then((res) => {
-			if (res) {
-				setIsLoggedIn(true);
-			}
+			if (res) setIsLoggedIn(true);
 		});
 	}, []);
 
@@ -32,15 +29,7 @@ export default function NewPost() {
 						setOpen(val);
 					}
 				}}
-				trigger={
-					<Button
-						size="sm"
-						className="h-10"
-					>
-						<IoAddOutline className="w-5 h-5 mr-1" />
-						<span className="text-sm">New Post</span>
-					</Button>
-				}
+				trigger={<Button>New post</Button>}
 				title="New Post"
 			>
 				<NewPostForm />

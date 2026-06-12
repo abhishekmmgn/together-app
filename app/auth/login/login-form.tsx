@@ -17,6 +17,7 @@ import {
 import { AuthCard } from "@/components/auth-card";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 const formSchema = z.object({
 	email: z.string().email(),
@@ -31,6 +32,7 @@ type formSchemaType = z.infer<typeof formSchema>;
 export default function LoginForm() {
 	const router = useRouter();
 	const [disabled, setDisabled] = useState<boolean>(false);
+	const [showPassword, setShowPassword] = useState<boolean>(false);
 
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(formSchema),
@@ -127,14 +129,28 @@ export default function LoginForm() {
 											Forgot your password?
 										</Link>
 									</div>
-									<Input
-										id="password"
-										type="password"
-										autoComplete="current-password"
-										placeholder="********"
-										disabled={disabled}
-										{...field}
-									/>
+									<div className="relative">
+										<Input
+											id="password"
+											type={showPassword ? "text" : "password"}
+											autoComplete="current-password"
+											placeholder="********"
+											disabled={disabled}
+											className="pr-10"
+											{...field}
+										/>
+										<button
+											type="button"
+											onClick={() => setShowPassword((prev) => !prev)}
+											className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none flex items-center justify-center"
+										>
+											{showPassword ? (
+												<IoEyeOffOutline className="h-5 w-5" />
+											) : (
+												<IoEyeOutline className="h-5 w-5" />
+											)}
+										</button>
+									</div>
 									{fieldState.error && (
 										<FieldError>{fieldState.error.message}</FieldError>
 									)}

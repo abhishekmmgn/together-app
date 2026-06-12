@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { IoChevronForwardOutline } from "react-icons/io5";
 
 export default function DeleteAccountComponent() {
 	const router = useRouter();
@@ -38,40 +39,32 @@ export default function DeleteAccountComponent() {
 		}
 	}
 	return (
-		<>
-			<div>
-				<h3 className="mb-1 text-lg font-medium">Delete Account</h3>
-				<p className="mb-4 text-sm text-muted-foreground">
-					Deleting your account will: Delete your profile, along with your
-					authentication associations. Delete any and all content you have, such
-					as posts, comments, or your messages.
-				</p>
-				<ResponsiveDialog
-					open={open}
-					onOpenChange={setOpen}
-					trigger={
-						<Button variant="destructive" className="mx-auto">
-							Delete Account
-						</Button>
-					}
-					title="Are you absolutely sure?"
-					description="This action cannot be undone. This will permanently delete your account and remove your data from our servers."
-				>
-					<div className="flex flex-col gap-4 min-[512px]:flex-row min-[512px]:justify-end">
-						<Button variant="outline" onClick={() => setOpen(false)}>
-							Cancel
-						</Button>
-						<Button
-							variant="destructive"
-							onClick={deleteAccount}
-							loading={disabled}
-							loadingText="Deleting Account"
-						>
-							Delete Account
-						</Button>
+		<ResponsiveDialog
+			open={open}
+			onOpenChange={setOpen}
+			trigger={
+				<button className="w-full flex items-center justify-between text-left outline-none cursor-pointer p-4 hover:bg-destructive/5 dark:hover:bg-destructive/10 transition-colors text-destructive">
+					<div className="space-y-0.5">
+						<div className="text-base font-medium">Delete Account</div>
+						<div className="text-sm text-muted-foreground/80">
+							Permanently delete your profile, posts, comments, and messages
+						</div>
 					</div>
-				</ResponsiveDialog>
-			</div>
-		</>
+					<IoChevronForwardOutline className="h-5 w-5 text-destructive" />
+				</button>
+			}
+			title="Are you absolutely sure?"
+			description="This action cannot be undone. This will permanently delete your account and remove your data from our servers."
+		>
+			<Button
+				variant="destructive"
+				className="w-full mt-12"
+				onClick={deleteAccount}
+				loading={disabled}
+				loadingText="Deleting Account"
+			>
+				Delete Account
+			</Button>
+		</ResponsiveDialog>
 	);
 }

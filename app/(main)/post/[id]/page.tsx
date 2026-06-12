@@ -1,7 +1,5 @@
 import PostPageClient from "./post-page-client";
 
-
-
 type Props = {
 	params: Promise<{ id: string }>;
 };

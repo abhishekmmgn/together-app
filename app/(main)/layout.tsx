@@ -9,17 +9,11 @@ export default function LayoutOne({ children }: { children: React.ReactNode }) {
 	return (
 		<SidebarProvider>
 			<Toaster />
-			<Suspense fallback={null}>
-				<Navbar />
-			</Suspense>
-			<Suspense fallback={null}>
-				<GlobalSidebar />
-			</Suspense>
+			<Navbar />
+			<GlobalSidebar />
 			<div className="flex-1 flex items-center justify-center">
-				<div className="w-full h-[calc(100vh-56px)] mt-23 sm:mt-14 max-w-2xl">
-					<Suspense fallback={null}>
-						{children}
-					</Suspense>
+				<div className="w-full h-[calc(100vh-56px)] mt-23 md:mt-14 max-w-2xl">
+					{children}
 				</div>
 			</div>
 		</SidebarProvider>

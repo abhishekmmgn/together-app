@@ -13,19 +13,25 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
 import { UploadButton } from "@/lib/uploadthing";
 import userIcon from "../../public/user.png";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
+	name: z
+		.string()
+		.min(2, "Name must be at least 2 characters")
+		.max(64, "Name must be less than 64 characters"),
 	photo: z.string().optional(),
-	bio: z.string().max(128, "Name must be less than 128 characters").optional(),
+	bio: z.string().max(128, "Bio must be less than 128 characters").optional(),
 });
 
 type formSchemaType = z.infer<typeof formSchema>;
 
 type PropsType = {
+	name: string;
 	photo: string;
 	bio: string;
 };
@@ -35,6 +41,7 @@ export default function EditProfileForm(props: PropsType) {
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
+			name: props.name || "",
 			photo: props.photo || "",
 			bio: props.bio,
 		},
@@ -56,6 +63,7 @@ export default function EditProfileForm(props: PropsType) {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
+					name: data.name,
 					profilePhoto: data.photo,
 					bio: data.bio,
 				}),
@@ -118,6 +126,19 @@ export default function EditProfileForm(props: PropsType) {
 						</div>
 						<FormField
 							control={form.control}
+							name="name"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input placeholder="Name" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
 							name="bio"
 							render={({ field }) => (
 								<FormItem>
@@ -126,7 +147,7 @@ export default function EditProfileForm(props: PropsType) {
 										<Textarea
 											placeholder="..."
 											{...field}
-											className="resize-none"
+											className="h-20 resize-none"
 										/>
 									</FormControl>
 									<FormMessage />
@@ -134,7 +155,13 @@ export default function EditProfileForm(props: PropsType) {
 							)}
 						/>
 					</div>
-					<Button type="submit" disabled={!hasDataChanged} loading={isPending} loadingText="Saving">
+					<Button
+						type="submit"
+						className="w-full"
+						disabled={!hasDataChanged}
+						loading={isPending}
+						loadingText="Saving"
+					>
 						Done
 					</Button>
 				</form>

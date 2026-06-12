@@ -7,18 +7,12 @@ import PostSkeleton from "@/components/post/post-skeleton";
 import { useQuery } from "@tanstack/react-query";
 import ErrorInfo from "@/components/error-info";
 
-type Props = {
-	id: string;
-};
-
-export default function PostPageClient({ id }: Props) {
+export default function PostPageClient({ id }: { id: string }) {
 	const { isPending, error, data, isError } = useQuery({
 		queryKey: ["post", id],
 		queryFn: async () => {
 			const res = await fetch(`/api/post/${id}`);
-			if (res.status === 404) {
-				throw new Error("Not found");
-			}
+			if (res.status === 404) throw new Error("Not found");
 			if (res.ok) {
 				const data = await res.json();
 				return data.data;
@@ -35,9 +29,7 @@ export default function PostPageClient({ id }: Props) {
 		);
 	}
 
-	if (isError && error.message === "Not found") {
-		notFound();
-	}
+	if (isError && error.message === "Not found") notFound();
 
 	if (isError) {
 		console.log(error, error.message, error.name);
@@ -46,7 +38,7 @@ export default function PostPageClient({ id }: Props) {
 
 	return (
 		<>
-			<Post post={data} />
+			<Post post={data} hideDropdown={true} />
 			<div className="p-5 lg:px-0">
 				<Comments postId={id} comments={data.comments} />
 			</div>

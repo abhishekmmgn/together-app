@@ -6,6 +6,7 @@ import {
 	boolean,
 	timestamp,
 	primaryKey,
+	index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -40,6 +41,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 	notifications: many(notifications, { relationName: "userNotifications" }),
 	conversationMemberships: many(conversationMembers),
 	sentMessages: many(messages),
+	wsConnections: many(wsConnections),
 }));
 
 // ─── Friends (self-referencing junction) ────────────────────────────────────
@@ -237,6 +239,27 @@ export const messagesRelations = relations(messages, ({ one }) => ({
 	}),
 	sender: one(users, {
 		fields: [messages.senderId],
+		references: [users.id],
+	}),
+}));
+
+// ─── WebSocket Connections ──────────────────────────────────────────────────
+
+export const wsConnections = pgTable(
+	"ws_connections",
+	{
+		connectionId: text("connection_id").primaryKey(),
+		userId: uuid("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		connectedAt: timestamp("connected_at", { withTimezone: true }).defaultNow(),
+	},
+	(t) => [index("ws_connections_user_id_idx").on(t.userId)],
+);
+
+export const wsConnectionsRelations = relations(wsConnections, ({ one }) => ({
+	user: one(users, {
+		fields: [wsConnections.userId],
 		references: [users.id],
 	}),
 }));

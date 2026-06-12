@@ -8,6 +8,7 @@ import formatAvatarName from "@/lib/formatAvatarName";
 import LoadingSkeleton from "@/components/loading-skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { ShortErrorInfo } from "@/components/error-info";
+import { Button } from "../ui/button";
 
 export default function ProfileCard() {
 	const { isPending, error, data, isError } = useQuery<{
@@ -41,9 +42,9 @@ export default function ProfileCard() {
 	}
 	return (
 		<>
-			<div className="w-full h-[72px] px-5 flex items-center justify-between lg:px-0 md:h-[76px]">
+			<div className="w-full h-18 px-5 flex items-center justify-between lg:px-0 md:h-19">
 				<div className="w-full flex gap-3">
-					<Avatar className="w-14 h-14 lg:w-[60px] lg:h-[60px]">
+					<Avatar className="w-14 h-14 lg:w-15 lg:h-15">
 						<AvatarImage
 							src={data.profilePhoto}
 							alt="Your Profile profilePhoto"
@@ -61,20 +62,22 @@ export default function ProfileCard() {
 						</p>
 					</div>
 				</div>
-				<div className="size-8 hover:bg-primary/20 grid place-items-center rounded-full">
-					<ResponsiveDialog
-						trigger={
-							<button className="flex items-center justify-center w-full h-full outline-none">
-								<IoPencil className="size-5 hover:text-primary cursor-pointer" />
-							</button>
-						}
-						title="Edit Profile"
-					>
-						<div>
-							<EditProfileForm photo={data.profilePhoto} bio={data.bio} />
-						</div>
-					</ResponsiveDialog>
-				</div>
+				<ResponsiveDialog
+					trigger={
+						<Button size="sm" variant="ghost">
+							<IoPencil className="size-5" />
+						</Button>
+					}
+					title="Edit Profile"
+				>
+					<div>
+						<EditProfileForm
+							name={data.name}
+							photo={data.profilePhoto}
+							bio={data.bio}
+						/>
+					</div>
+				</ResponsiveDialog>
 			</div>
 		</>
 	);

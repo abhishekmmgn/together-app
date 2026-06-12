@@ -1,56 +1,84 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
 	IoSearch,
-	IoSearchCircle,
-	IoSearchCircleOutline,
+	IoCloseCircle,
 } from "react-icons/io5";
+import { cn } from "@/lib/utils";
 
 type PropsType = {
 	searchActive: boolean;
 	setSearchActive: React.Dispatch<React.SetStateAction<boolean>>;
 	placeholder: string;
+	className?: string;
 };
 
 export default function SearchBar(props: PropsType) {
-	const [searchTerm, setSearchTerm] = useState("");
 	const router = useRouter();
-
 	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const queryParam = searchParams.get("query") || "";
+
+	const [searchTerm, setSearchTerm] = useState(queryParam);
+
+	useEffect(() => {
+		setSearchTerm(queryParam);
+	}, [queryParam]);
 
 	function handleKeydown(e: React.KeyboardEvent<HTMLInputElement>) {
-		setSearchTerm((e.target as HTMLInputElement).value.toLowerCase());
-		console.log(searchTerm);
-
 		if (e.key === "Enter") {
-			if (searchTerm) {
+			const term = searchTerm.trim();
+			if (term) {
 				props.setSearchActive(false);
-				router.push(`${pathname}?query=${searchTerm}`);
+				const params = new URLSearchParams(searchParams.toString());
+				params.set("query", term.toLowerCase());
+				router.push(`${pathname}?${params.toString()}`);
 			}
 		}
 	}
 
+	const handleClear = () => {
+		setSearchTerm("");
+		const params = new URLSearchParams(searchParams.toString());
+		params.delete("query");
+		const newQuery = params.toString();
+		router.push(newQuery ? `${pathname}?${newQuery}` : pathname);
+	};
+
 	return (
-		<div className="sticky inset-x-0 z-40 px-5 py-4 bg-background backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14 lg:px-0 group">
+		<div className={cn("sticky inset-x-0 z-40 px-5 py-4 bg-background backdrop-filter backdrop-blur-xl bg-opacity-80 flex gap-4 items-center justify-between sm:top-14 lg:px-0 group", props.className)}>
 			<div className="relative w-full group">
-				<IoSearch className="text-muted-foreground size-4 absolute top-3 left-3 md:top-[14px] md:left-[14px]" />
+				<IoSearch className="text-muted-foreground size-4 absolute top-3 left-3 md:top-3 md:left-3.5" />
 				<Input
-					type="search"
-					defaultValue={searchTerm}
+					type="text"
+					value={searchTerm}
 					placeholder={props.placeholder}
 					onFocus={() => props.setSearchActive(true)}
+					onChange={(e) => setSearchTerm(e.target.value)}
 					onKeyDown={handleKeydown}
-					className="bg-secondary pl-8 md:pl-9"
+					className="bg-secondary pl-8 pr-8 md:pl-9 md:pr-9"
 				/>
+				{searchTerm && (
+					<button
+						type="button"
+						onClick={handleClear}
+						className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none flex items-center justify-center"
+					>
+						<IoCloseCircle className="size-4" />
+					</button>
+				)}
 			</div>
 			{props.searchActive && (
 				<Button
 					variant="secondary"
 					size="sm"
 					className="transform px-0 text-primary bg-background hover:bg-background"
-					onClick={() => props.setSearchActive(false)}
+					onClick={() => {
+						props.setSearchActive(false);
+						handleClear();
+					}}
 				>
 					Cancel
 				</Button>

@@ -16,14 +16,14 @@ export default function SearchDefault({
 		return <></>;
 	}
 	return (
-		<div className="pt-1 px-5 lg:px-0">
-			<h2 className="pb-2 text-2xl font-semibold text-secondary-foreground">
+		<div className="w-full h-full px-5 lg:px-0 flex flex-col overflow-hidden">
+			<h2 className="pb-2 text-2xl font-semibold text-secondary-foreground shrink-0">
 				People you may know
 			</h2>
 			{suggestions.length === 0 ? (
 				<div className="text-tertiary-foreground">No suggestions.</div>
 			) : (
-				<>
+				<div className="flex-1 overflow-y-auto pr-1">
 					{suggestions.map((person: PersonProfileType, index) => (
 						<ProfileCard
 							key={person._id}
@@ -33,7 +33,7 @@ export default function SearchDefault({
 							bio={person.bio}
 						/>
 					))}
-				</>
+				</div>
 			)}
 		</div>
 	);

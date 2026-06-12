@@ -22,7 +22,8 @@ export default function FriendsPage() {
 
 	if (isPending) {
 		return (
-			<div className="p-5 w-full h-full flex flex-col justify-start">
+			<div className="w-full h-full px-5 lg:px-0">
+				<Back />
 				{Array(10)
 					.fill(0)
 					.map((_, index) => (
