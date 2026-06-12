@@ -5,7 +5,7 @@ import {
 	DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { verifySession } from "@/lib/sessions";
+import { getUserIdFromCookies } from "@/lib/getDataFromToken";
 
 const s3Client = new S3Client({
 	region: process.env.S3_BUCKET_REGION ?? "ap-south-1",
@@ -21,27 +21,38 @@ const s3Client = new S3Client({
 const MAX_IMAGE_SIZE = 3 * 1024 * 1024; // 3 MB
 const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20 MB
 
+// Allowlist of inert media types → server-derived extension.
+// Deliberately excludes scriptable types like image/svg+xml (stored XSS vector).
+const ALLOWED_TYPES: Record<string, string> = {
+	"image/jpeg": "jpg",
+	"image/png": "png",
+	"image/webp": "webp",
+	"image/gif": "gif",
+	"video/mp4": "mp4",
+	"video/webm": "webm",
+	"video/quicktime": "mov",
+};
+
 /** POST /api/upload-url — returns a presigned PUT URL + public file URL */
 export async function POST(request: Request) {
 	try {
-		const { userId } = await verifySession();
+		const userId = await getUserIdFromCookies();
 		if (!userId) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		const body = await request.json();
-		const { contentType, fileName, fileSize } = body;
+		const { contentType, fileSize } = body;
 
-		// Validate content type — only images and videos allowed
-		const isImage = contentType?.startsWith("image/");
-		const isVideo = contentType?.startsWith("video/");
-
-		if (!contentType || (!isImage && !isVideo)) {
+		// Validate content type against the allowlist
+		if (!contentType || !ALLOWED_TYPES[contentType]) {
 			return NextResponse.json(
 				{ error: "Only image or video files are allowed" },
 				{ status: 400 },
 			);
 		}
+		const isVideo = contentType.startsWith("video/");
+		const isImage = !isVideo;
 
 		// Validate file size server-side
 		if (isImage && fileSize > MAX_IMAGE_SIZE) {
@@ -65,8 +76,9 @@ export async function POST(request: Request) {
 			);
 		}
 
-		// Generate a unique key for the file
-		const ext = fileName?.split(".").pop() ?? (isVideo ? "mp4" : "jpg");
+		// Generate a unique key for the file (extension derived from the
+		// validated content type, never from the client-supplied file name)
+		const ext = ALLOWED_TYPES[contentType];
 		const folder = isVideo ? "videos" : "images";
 		const key = `uploads/${folder}/${userId}/${crypto.randomUUID()}.${ext}`;
 
@@ -97,7 +109,7 @@ export async function POST(request: Request) {
 /** DELETE /api/upload-url — deletes an S3 object by key (cleanup on abandon) */
 export async function DELETE(request: Request) {
 	try {
-		const { userId } = await verifySession();
+		const userId = await getUserIdFromCookies();
 		if (!userId) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}

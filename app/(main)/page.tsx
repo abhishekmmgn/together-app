@@ -1,19 +1,16 @@
 import InfinitePosts from "@/components/post/infinite-posts";
 import NewPost from "@/components/post/new-post";
+import { getPosts } from "@/lib/get-posts";
+import { getUserIdFromCookies } from "@/lib/getDataFromToken";
 
 export default async function Home() {
-	let domain = process.env.NEXT_PUBLIC_DOMAIN || "localhost:3000";
-	if (!/^https?:\/\//.test(domain)) domain = `http://${domain}`;
+	const curUserId = await getUserIdFromCookies();
+	const data = await getPosts(1, curUserId);
 
-	const response = await fetch(`${domain}/api/posts?page=1`, {
-		cache: "no-store",
-	});
-
-	const { data } = await response.json();
 	return (
 		<>
 			<NewPost />
-			<InfinitePosts prerenderedPosts={data ?? []} />
+			<InfinitePosts prerenderedPosts={data} />
 		</>
 	);
 }
