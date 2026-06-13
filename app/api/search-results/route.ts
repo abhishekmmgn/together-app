@@ -63,7 +63,9 @@ export async function GET(request: NextRequest) {
 				creatorPhoto: users.profilePhoto,
 				likesCount: sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
 				commentsCount: sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
-				liked: sql<boolean>`EXISTS(SELECT 1 FROM post_likes WHERE post_likes.post_id = ${posts.id} AND post_likes.user_id = ${curUserId || "00000000-0000-0000-0000-000000000000"})`,
+				liked: curUserId
+					? sql<boolean>`EXISTS(SELECT 1 FROM post_likes WHERE post_likes.post_id = ${posts.id} AND post_likes.user_id = ${curUserId})`
+					: sql<boolean>`false`,
 			})
 			.from(posts)
 			.leftJoin(users, eq(posts.creatorId, users.id))

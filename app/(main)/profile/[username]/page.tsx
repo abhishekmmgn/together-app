@@ -29,15 +29,18 @@ export default async function Page(props: {
 	if (currentUserId === user.id) redirect("/profile");
 
 	const [[friendship], userPosts] = await Promise.all([
-		db
-			.select()
-			.from(friends)
-			.where(
-				and(
-					eq(friends.userId, currentUserId ?? ""),
-					eq(friends.friendId, user.id),
-				),
-			),
+		// '' is not a valid uuid — skip the lookup entirely when logged out
+		currentUserId
+			? db
+					.select()
+					.from(friends)
+					.where(
+						and(
+							eq(friends.userId, currentUserId),
+							eq(friends.friendId, user.id),
+						),
+					)
+			: Promise.resolve([]),
 		db
 			.select({
 				id: posts.id,
@@ -48,7 +51,9 @@ export default async function Page(props: {
 					sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
 				commentsCount:
 					sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
-				liked: sql<boolean>`EXISTS(SELECT 1 FROM post_likes WHERE post_likes.post_id = ${posts.id} AND post_likes.user_id = ${currentUserId ?? "00000000-0000-0000-0000-000000000000"})`,
+				liked: currentUserId
+					? sql<boolean>`EXISTS(SELECT 1 FROM post_likes WHERE post_likes.post_id = ${posts.id} AND post_likes.user_id = ${currentUserId})`
+					: sql<boolean>`false`,
 			})
 			.from(posts)
 			.where(eq(posts.creatorId, user.id)),

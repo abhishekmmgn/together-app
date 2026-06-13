@@ -29,15 +29,15 @@ export async function GET(request: NextRequest, props: Props) {
 			return NextResponse.json({ error: "Post not found." }, { status: 404 });
 		}
 
-		const curUserId =
-			(await getDataFromToken(request)) ||
-			"00000000-0000-0000-0000-000000000000";
-		const [likedStatus] = await db
-			.select()
-			.from(postLikes)
-			.where(
-				and(eq(postLikes.postId, post.id), eq(postLikes.userId, curUserId)),
-			);
+		const curUserId = await getDataFromToken(request);
+		const [likedStatus] = curUserId
+			? await db
+					.select()
+					.from(postLikes)
+					.where(
+						and(eq(postLikes.postId, post.id), eq(postLikes.userId, curUserId)),
+					)
+			: [null];
 
 		// find the creator details
 		const [creator] = await db

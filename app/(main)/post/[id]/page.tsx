@@ -32,17 +32,17 @@ export default async function Page(props: Props) {
 
 	if (!post) notFound();
 
-	const currentUserId =
-		(await getUserIdFromCookies()) ??
-		"00000000-0000-0000-0000-000000000000";
+	const currentUserId = await getUserIdFromCookies();
 
 	const [[likedStatus], [creator], postComments] = await Promise.all([
-		db
-			.select()
-			.from(postLikes)
-			.where(
-				and(eq(postLikes.postId, post.id), eq(postLikes.userId, currentUserId)),
-			),
+		currentUserId
+			? db
+					.select()
+					.from(postLikes)
+					.where(
+						and(eq(postLikes.postId, post.id), eq(postLikes.userId, currentUserId)),
+					)
+			: Promise.resolve([]),
 		db
 			.select({
 				id: users.id,
@@ -102,11 +102,7 @@ export default async function Page(props: Props) {
 				<Comments
 					postId={id}
 					comments={formattedComments}
-					currentUserId={
-						currentUserId === "00000000-0000-0000-0000-000000000000"
-							? undefined
-							: currentUserId
-					}
+					currentUserId={currentUserId ?? undefined}
 				/>
 			</div>
 		</>
