@@ -99,5 +99,17 @@ async function getConversations(userId: string): Promise<ConversationType[]> {
 		}),
 	);
 
-	return results.filter((r): r is ConversationType => r !== null);
+	const filtered = results.filter((r): r is ConversationType => r !== null);
+
+	filtered.sort((a, b) => {
+		const timeA = a.lastMessage?.time
+			? new Date(a.lastMessage.time).getTime()
+			: 0;
+		const timeB = b.lastMessage?.time
+			? new Date(b.lastMessage.time).getTime()
+			: 0;
+		return timeB - timeA;
+	});
+
+	return filtered;
 }

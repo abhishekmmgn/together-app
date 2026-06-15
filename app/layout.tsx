@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/settings/theme-provider";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import TanstackProvider from "@/lib/tanstack-provider";
+import { Toaster } from "react-hot-toast";
 
 const roboto = Roboto({
 	weight: ["100", "300", "400", "500", "700"],
@@ -45,6 +46,7 @@ export default function RootLayout({
 					<Suspense>
 						<TanstackProvider>{children}</TanstackProvider>
 					</Suspense>
+					<Toaster />
 				</ThemeProvider>
 			</body>
 		</html>

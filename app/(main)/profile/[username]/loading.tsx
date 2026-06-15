@@ -1,25 +1,27 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton, SkeletonButton } from "@/components/ui/skeleton";
 import PostSkeleton from "@/components/post/post-skeleton";
 
-export default function LoadingDynamicProfile() {
+export default function ProfilePageLoading() {
 	return (
 		<div className="p-5">
 			<div className="grid gap-4 pb-4">
-				<Skeleton className="w-28 lg:w-32 aspect-square rounded-[var(--radius)]" />
+				<Skeleton className="w-28 h-28 lg:w-32 lg:h-32 rounded-xl" />
 				<div>
-					<Skeleton className="mt-1 h-5 w-24" />
-					<Skeleton className="mb-1 h-4 w-48" />
+					<Skeleton className="h-7 w-40 mb-1" />
+					<Skeleton className="h-5 w-56" />
 				</div>
 				<div className="flex flex-col gap-3">
-					<Skeleton className="h-10 w-full max-w-md mx-auto" />
-					<Skeleton className="h-10 w-full max-w-md mx-auto" />
+					<SkeletonButton className="h-9 w-full max-w-md mx-auto" />
+					<SkeletonButton className="h-9 w-full max-w-md mx-auto" />
 				</div>
 			</div>
+
+			<Separator />
+
 			<div className="py-6 space-y-4">
-				<div className="space-y-2">
-					<Skeleton className="h-4 w-32" />
-					<PostSkeleton />
-				</div>
+				<Skeleton className="h-7 w-24" />
+				<PostSkeleton />
 			</div>
 		</div>
 	);

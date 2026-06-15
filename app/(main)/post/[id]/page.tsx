@@ -1,10 +1,11 @@
+import { notFound } from "next/navigation";
+import { eq, sql, and } from "drizzle-orm";
+
 import Post from "@/components/post/post";
 import Comments from "@/components/post/comments";
 import ErrorInfo from "@/components/error-info";
-import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { users, posts, comments, postLikes } from "@/lib/db/schema";
-import { eq, sql, and } from "drizzle-orm";
 import { getUserIdFromCookies } from "@/lib/getDataFromToken";
 import type { PostType, CommentsType } from "@/types";
 
@@ -22,10 +23,8 @@ export default async function Page(props: Props) {
 			image: posts.image,
 			creatorId: posts.creatorId,
 			createdAt: posts.createdAt,
-			likesCount:
-				sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
-			commentsCount:
-				sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
+			likesCount: sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
+			commentsCount: sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
 		})
 		.from(posts)
 		.where(eq(posts.id, id));
@@ -40,7 +39,10 @@ export default async function Page(props: Props) {
 					.select()
 					.from(postLikes)
 					.where(
-						and(eq(postLikes.postId, post.id), eq(postLikes.userId, currentUserId)),
+						and(
+							eq(postLikes.postId, post.id),
+							eq(postLikes.userId, currentUserId),
+						),
 					)
 			: Promise.resolve([]),
 		db

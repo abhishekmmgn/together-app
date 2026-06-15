@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+
 import type { APIGatewayProxyWebsocketHandlerV2 } from "aws-lambda";
 import {
 	ApiGatewayManagementApiClient,
@@ -8,6 +9,7 @@ import {
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq, inArray } from "drizzle-orm";
+
 import {
 	messages,
 	conversations,
@@ -71,7 +73,7 @@ export const handler: APIGatewayProxyWebsocketHandlerV2 = async (event) => {
 	const id = randomUUID();
 	const createdAt = new Date();
 
-	const { domainName, stage } = event.requestContext as any;
+	const { domainName, stage } = event.requestContext;
 	const apigw = new ApiGatewayManagementApiClient({
 		endpoint: `https://${domainName}/${stage}`,
 	});
@@ -111,7 +113,9 @@ export const handler: APIGatewayProxyWebsocketHandlerV2 = async (event) => {
 	// would be dropped. This way the recipient isn't gated behind the insert, but
 	// the message is still guaranteed durable.
 	const persist = Promise.all([
-		db.insert(messages).values({ id, conversationId, senderId, content: trimmed, createdAt }),
+		db
+			.insert(messages)
+			.values({ id, conversationId, senderId, content: trimmed, createdAt }),
 		db
 			.update(conversations)
 			.set({ updatedAt: createdAt })

@@ -22,8 +22,6 @@ export default $config({
 		// Secrets — set per stage with: npx sst secret set <Name> <value>
 		const databaseUrl = new sst.Secret("DatabaseUrl");
 		const tokenSecret = new sst.Secret("TokenSecret");
-		const mailtrapApiToken = new sst.Secret("MailtrapApiToken");
-		const senderEmail = new sst.Secret("SenderEmail");
 
 		// S3 bucket for user-uploaded media (images)
 		const mediaBucket = new sst.aws.Bucket("MediaBucket", {
@@ -74,15 +72,17 @@ export default $config({
 			environment: {
 				DATABASE_URL: databaseUrl.value,
 				TOKEN_SECRET: tokenSecret.value,
-				MAILTRAP_API_TOKEN: mailtrapApiToken.value,
-				SENDER_EMAIL: senderEmail.value,
 				// Public site origin. Until a custom domain is attached this is the
 				// CloudFront URL, which isn't known until the first deploy — set it
 				// as a secret after deploy #1, or wire up `site.url` with a domain.
 				NEXT_PUBLIC_DOMAIN: process.env.NEXT_PUBLIC_DOMAIN ?? "",
 				S3_BUCKET_NAME: mediaBucket.name,
 				S3_BUCKET_REGION: "ap-south-1",
-				NEXT_PUBLIC_WS_URL: wsApi.url,
+				// NOT NEXT_PUBLIC: the URL ends in the `$default` stage, and the
+				// client-bundle text substitution shell-expands `$default` to "",
+				// breaking the URL. Kept server-only and handed to the client at
+				// runtime via /api/ws-ticket, where the env value stays intact.
+				WS_URL: wsApi.url,
 			},
 		});
 

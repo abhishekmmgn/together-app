@@ -3,7 +3,7 @@ import { posts, users } from "@/lib/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import type { PostType } from "@/types";
 
-export const POSTS_PER_PAGE = 3;
+export const POSTS_PER_PAGE = 5;
 
 /** Fetch a page of the feed directly from the DB (shared by the API route and RSC pages). */
 export async function getPosts(

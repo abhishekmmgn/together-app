@@ -1,9 +1,12 @@
-import { db } from "./lib/db";
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import { users } from "./lib/db/schema";
 import { isNull, eq } from "drizzle-orm";
 
 async function main() {
 	try {
+		const { db } = await import("./lib/db");
 		console.log("Fetching users with no username...");
 		const usersWithoutUsername = await db
 			.select()

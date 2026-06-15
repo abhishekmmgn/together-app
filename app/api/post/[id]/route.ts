@@ -4,21 +4,8 @@ import { users, posts, comments, postLikes } from "@/lib/db/schema";
 import { eq, sql, and } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 import { S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { s3 } from "@/lib/s3";
 
-const s3 = new S3Client({
-	region: process.env.S3_BUCKET_REGION ?? "ap-south-1",
-	credentials:
-		process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
-			? {
-					accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-					secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-				}
-			: undefined, // falls back to ambient IAM role in Lambda / SST
-});
-
-/** Extract the S3 object key from a full public URL.
- *  https://bucket.s3.region.amazonaws.com/uploads/images/…  →  uploads/images/…
- */
 function s3KeyFromUrl(url: string): string | null {
 	try {
 		const { pathname } = new URL(url);

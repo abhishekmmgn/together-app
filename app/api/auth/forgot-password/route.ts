@@ -2,16 +2,13 @@ import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { sendEmail } from "@/lib/mailer";
+import bcryptjs from "bcryptjs";
 
 export async function POST(request: NextRequest) {
 	try {
 		const { email } = await request.json();
 
-		// check if user already exists
 		const [user] = await db.select().from(users).where(eq(users.email, email));
-
-		console.log(user);
 
 		if (!user) {
 			return NextResponse.json(
@@ -20,13 +17,23 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// send verification email
-		await sendEmail(email, "RESET", user.id);
+		const hashedToken = await bcryptjs.hash(user.id.toString(), 10);
+		await db
+			.update(users)
+			.set({
+				forgotPasswordToken: hashedToken,
+				forgotPasswordTokenExpiry: new Date(Date.now() + 3600000),
+			})
+			.where(eq(users.id, user.id));
+
+		const domain = process.env.NEXT_PUBLIC_DOMAIN || "localhost:3000";
+		const protocol = domain.startsWith("localhost") ? "http" : "https";
+		const resetLink = `${protocol}://${domain}/auth/reset-password?token=${hashedToken}`;
+		console.log(`[Forgot Password] Reset link for ${email}: ${resetLink}`);
 
 		return NextResponse.json({
-			message: "Email send successfully",
+			message: "Password reset link generated successfully.",
 			success: true,
-			user,
 		});
 	} catch (error: any) {
 		return NextResponse.json({ error: error.message }, { status: 500 });

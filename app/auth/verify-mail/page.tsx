@@ -56,9 +56,7 @@ export default function EmailVerificationPage() {
 	if (token.length === 0 && !verified && !error) {
 		title = "Verify email";
 		description = "A verification link has been sent to your email.";
-		statusIcon = (
-			<IoMailOutline className="text-5xl text-primary animate-bounce" />
-		);
+		statusIcon = <IoMailOutline className="text-5xl text-primary" />;
 	} else if (token.length > 0 && verified && !error) {
 		title = "Email verified";
 		description = "Your email has been verified successfully.";
@@ -66,9 +64,7 @@ export default function EmailVerificationPage() {
 	} else if (token.length > 0 && !verified && !error) {
 		title = "Verifying email...";
 		description = "Please wait while we verify your email address.";
-		statusIcon = (
-			<IoMailOutline className="text-5xl text-primary animate-spin" />
-		);
+		statusIcon = <IoMailOutline className="text-5xl text-primary" />;
 	} else if (error) {
 		title = "Verification failed";
 		description = "The verification link is invalid or has expired.";

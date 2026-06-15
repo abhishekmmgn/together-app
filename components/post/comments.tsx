@@ -1,14 +1,16 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { IoArrowUpCircle } from "react-icons/io5";
 import { useState, useTransition, useOptimistic } from "react";
-import { Comment } from "./comment";
-import type { CommentsType } from "@/types";
-import { checkLoggedIn } from "@/lib/checkLoggedIn";
 import { useRouter } from "next/navigation";
-import { Label } from "../ui/label";
+import { IoArrowUpCircle } from "react-icons/io5";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { checkLoggedIn } from "@/lib/checkLoggedIn";
+import type { CommentsType } from "@/types";
+
+import { Comment } from "./comment";
 
 export default function Comments({
 	postId,
@@ -21,13 +23,12 @@ export default function Comments({
 }) {
 	const [message, setMessage] = useState<string>("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const { replace } = useRouter();
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 
 	const [optimisticComments, addOptimisticComment] = useOptimistic(
 		comments || [],
-		(state: CommentsType[], newComment: CommentsType) => [...state, newComment]
+		(state: CommentsType[], newComment: CommentsType) => [...state, newComment],
 	);
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -36,7 +37,7 @@ export default function Comments({
 		if (!message.trim()) return;
 
 		if (!(await checkLoggedIn())) {
-			replace("/auth/login");
+			router.replace("/auth/login");
 			return;
 		}
 
@@ -67,8 +68,8 @@ export default function Comments({
 			});
 			if (!res.ok) throw new Error("Failed to post comment");
 			startTransition(() => router.refresh());
-		} catch (err: any) {
-			console.log("Error: ", err.message);
+		} catch (err) {
+			console.error(err);
 		} finally {
 			setIsSubmitting(false);
 		}

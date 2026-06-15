@@ -1,10 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import {
+	IoCheckmarkCircle,
+	IoCloudUpload,
+	IoClose,
+	IoVideocam,
+	IoImage,
+} from "react-icons/io5";
 import * as z from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -15,20 +24,12 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { useCallback, useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { useResponsiveDialog } from "@/components/ui/responsive-dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { useS3Upload } from "@/hooks/use-s3-upload";
 import { MAX_IMAGE_SIZE, MAX_VIDEO_SIZE } from "@/lib/constants";
 import sendNotification from "@/lib/sendNotification";
-import {
-	IoCheckmarkCircle,
-	IoCloudUpload,
-	IoClose,
-	IoVideocam,
-	IoImage,
-} from "react-icons/io5";
 import { cn, formatBytes } from "@/lib/utils";
 
 const formSchema = z.object({
@@ -41,101 +42,18 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-// ─── Step indicator ───────────────────────────────────────────────────────────
-
-function StepDots({ step }: { step: 1 | 2 }) {
-	return (
-		<div className="flex items-center justify-center gap-2 mb-5">
-			<div
-				className={cn(
-					"h-1.5 rounded-full transition-all duration-300",
-					step === 1 ? "w-6 bg-primary" : "w-3 bg-muted-foreground/40",
-				)}
-			/>
-			<div
-				className={cn(
-					"h-1.5 rounded-full transition-all duration-300",
-					step === 2 ? "w-6 bg-primary" : "w-3 bg-muted-foreground/40",
-				)}
-			/>
-		</div>
-	);
-}
-
-// ─── Inline upload status banner (shown in step 2) ────────────────────────────
-
-function UploadStatusBanner({
-	loading,
-	progress,
-	success,
-	error,
-}: {
-	loading: boolean;
-	progress: number;
-	success: boolean;
-	error: boolean;
-}) {
-	if (success) {
-		return (
-			<div className="flex items-center gap-2 rounded-lg bg-green-500/10 border border-green-500/20 px-3 py-2 text-sm text-green-600 dark:text-green-400">
-				<IoCheckmarkCircle size={16} className="shrink-0" />
-				<span>Media uploaded successfully</span>
-			</div>
-		);
-	}
-
-	if (error) {
-		return (
-			<div className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">
-				<IoClose size={16} className="shrink-0" />
-				<span>Upload failed — go back and try again</span>
-			</div>
-		);
-	}
-
-	if (loading) {
-		return (
-			<div className="space-y-1.5">
-				<div className="flex items-center justify-between text-xs text-muted-foreground">
-					<span className="flex items-center gap-1.5">
-						<IoCloudUpload size={13} />
-						Uploading media…
-					</span>
-					<span>{progress}%</span>
-				</div>
-				<div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-					<div
-						className="h-full rounded-full bg-primary transition-all duration-150"
-						style={{ width: `${progress}%` }}
-					/>
-				</div>
-			</div>
-		);
-	}
-
-	return null;
-}
-
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export default function NewPostForm() {
 	const { closeDialog } = useResponsiveDialog();
 
-	// Step 1 or 2
 	const [step, setStep] = useState<1 | 2>(1);
-
-	// The confirmed media URL (populated asynchronously after background upload)
 	const [mediaUrl, setMediaUrl] = useState<string>("");
 	const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
-
-	// Whether the upload has been fired (so we show the status banner in step 2)
 	const [uploadInitiated, setUploadInitiated] = useState(false);
 
 	// Mirrors mediaUrl in a ref so the unmount cleanup can read the latest value
 	// without needing it as a dependency (avoids re-registering the effect).
 	const mediaUrlRef = useRef<string>("");
 
-	// ── S3 upload hook ──
 	const {
 		files,
 		setFiles,
@@ -158,12 +76,10 @@ export default function NewPostForm() {
 		autoUpload: false,
 	});
 
-	// Keep the ref in sync so the unmount cleanup always has the latest URL.
 	useEffect(() => {
 		mediaUrlRef.current = mediaUrl;
 	}, [mediaUrl]);
 
-	// Capture the uploaded URL once the background upload completes.
 	useEffect(() => {
 		if (uploadSuccess && uploadedUrls.length > 0) {
 			const url = uploadedUrls[uploadedUrls.length - 1];
@@ -182,7 +98,6 @@ export default function NewPostForm() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// ── Step 2 form ──
 	const form = useForm<FormSchemaType>({
 		resolver: zodResolver(formSchema),
 		defaultValues: { thread: "", tags: "" },
@@ -192,7 +107,6 @@ export default function NewPostForm() {
 		JSON.stringify(form.watch()) !==
 		JSON.stringify(form.formState.defaultValues);
 
-	// ── Derived UI state ──
 	const currentFile = files[0];
 	const fileError = currentFile?.errors?.[0];
 
@@ -207,7 +121,6 @@ export default function NewPostForm() {
 					: null
 			: null;
 
-	// ── Continue: fire upload in background, advance to step 2 immediately ──
 	const handleContinue = useCallback(() => {
 		if (!currentFile || uploadLoading || !!fileSizeError || !!fileError) return;
 		// If a previous upload already landed (user went back and re-selected),
@@ -220,9 +133,16 @@ export default function NewPostForm() {
 		setUploadInitiated(true);
 		onUpload(); // fire-and-forget — intentionally NOT awaited
 		setStep(2);
-	}, [currentFile, uploadLoading, fileSizeError, fileError, mediaUrl, deleteUploadedFile, onUpload]);
+	}, [
+		currentFile,
+		uploadLoading,
+		fileSizeError,
+		fileError,
+		mediaUrl,
+		deleteUploadedFile,
+		onUpload,
+	]);
 
-	// ── Back: clean up any already-uploaded S3 object, reset upload state ──
 	const handleBack = useCallback(() => {
 		if (mediaUrl) {
 			deleteUploadedFile(mediaUrl);
@@ -233,7 +153,6 @@ export default function NewPostForm() {
 		setStep(1);
 	}, [mediaUrl, deleteUploadedFile]);
 
-	// ── Submit post ──
 	const [submitting, setSubmitting] = useState(false);
 
 	async function onSubmit(data: FormSchemaType) {
@@ -262,8 +181,10 @@ export default function NewPostForm() {
 					id: toastId,
 				});
 			}
-		} catch (err: any) {
-			toast.error(err.message, { id: toastId });
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : "Something went wrong", {
+				id: toastId,
+			});
 		} finally {
 			setSubmitting(false);
 		}
@@ -275,24 +196,19 @@ export default function NewPostForm() {
 		!!fileSizeError ||
 		uploadErrors.length > 0;
 
-	// Derived upload state used in step 2
 	const uploadInProgress = uploadInitiated && uploadLoading;
 	const uploadFailed = uploadInitiated && uploadErrors.length > 0;
-
-	// ── Render ────────────────────────────────────────────────────────────────
 
 	return (
 		<div className="w-full">
 			<StepDots step={step} />
 
-			{/* ── STEP 1: Media selection ── */}
 			{step === 1 && (
 				<div className="space-y-4">
 					<p className="text-sm text-muted-foreground text-center -mt-2 mb-4">
 						Add a photo or video to your post
 					</p>
 
-					{/* Drop zone */}
 					<div
 						{...getRootProps({
 							className: cn(
@@ -308,7 +224,6 @@ export default function NewPostForm() {
 					>
 						<input {...getInputProps()} />
 
-						{/* Local preview (only in step 1, before any upload) */}
 						{currentFile?.preview && !fileError && !fileSizeError ? (
 							<>
 								{currentFile.type.startsWith("video/") ? (
@@ -387,10 +302,8 @@ export default function NewPostForm() {
 				</div>
 			)}
 
-			{/* ── STEP 2: Thread + tags (no media preview) ── */}
 			{step === 2 && (
 				<div className="space-y-4">
-					{/* Compact upload status — shown only when media was selected */}
 					{uploadInitiated && (
 						<UploadStatusBanner
 							loading={uploadLoading}
@@ -463,4 +376,72 @@ export default function NewPostForm() {
 			)}
 		</div>
 	);
+}
+
+function StepDots({ step }: { step: 1 | 2 }) {
+	return (
+		<div className="flex items-center justify-center gap-2 mb-5">
+			<div
+				className={cn(
+					"h-1.5 rounded-full transition-all duration-300",
+					step === 1 ? "w-6 bg-primary" : "w-3 bg-muted-foreground/40",
+				)}
+			/>
+			<div
+				className={cn(
+					"h-1.5 rounded-full transition-all duration-300",
+					step === 2 ? "w-6 bg-primary" : "w-3 bg-muted-foreground/40",
+				)}
+			/>
+		</div>
+	);
+}
+
+function UploadStatusBanner({
+	loading,
+	progress,
+	success,
+	error,
+}: {
+	loading: boolean;
+	progress: number;
+	success: boolean;
+	error: boolean;
+}) {
+	if (success)
+		return (
+			<div className="flex items-center gap-2 rounded-lg bg-green-500/10 border border-green-500/20 px-3 py-2 text-sm text-green-600 dark:text-green-400">
+				<IoCheckmarkCircle size={16} className="shrink-0" />
+				<span>Media uploaded successfully</span>
+			</div>
+		);
+
+	if (error)
+		return (
+			<div className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">
+				<IoClose size={16} className="shrink-0" />
+				<span>Upload failed — go back and try again</span>
+			</div>
+		);
+
+	if (loading)
+		return (
+			<div className="space-y-1.5">
+				<div className="flex items-center justify-between text-xs text-muted-foreground">
+					<span className="flex items-center gap-1.5">
+						<IoCloudUpload size={13} />
+						Uploading media…
+					</span>
+					<span>{progress}%</span>
+				</div>
+				<div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+					<div
+						className="h-full rounded-full bg-primary transition-all duration-150"
+						style={{ width: `${progress}%` }}
+					/>
+				</div>
+			</div>
+		);
+
+	return null;
 }

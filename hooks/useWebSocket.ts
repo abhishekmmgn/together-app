@@ -16,11 +16,16 @@ type UseWebSocketOptions = {
 	enabled?: boolean;
 };
 
-export function useWebSocket({ onMessage, enabled = true }: UseWebSocketOptions) {
+export function useWebSocket({
+	onMessage,
+	enabled = true,
+}: UseWebSocketOptions) {
 	const wsRef = useRef<WebSocket | null>(null);
 	const retryDelayRef = useRef(1000);
 	const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-	const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+		null,
+	);
 	const mountedRef = useRef(true);
 	const onMessageRef = useRef(onMessage);
 	onMessageRef.current = onMessage;
@@ -43,14 +48,12 @@ export function useWebSocket({ onMessage, enabled = true }: UseWebSocketOptions)
 	const connect = useCallback(async () => {
 		if (!mountedRef.current) return;
 
-		const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
-		if (!wsUrl) {
-			console.error("[WS] NEXT_PUBLIC_WS_URL is not set");
-			return;
-		}
-
-		// Fetch a short-lived WS ticket
+		// Fetch a short-lived WS ticket. The ticket endpoint also returns the
+		// WS URL (with its `$default` stage path intact) — we can't use a
+		// NEXT_PUBLIC env var here because the stage path is mangled when
+		// inlined into the client bundle.
 		let token: string;
+		let wsUrl: string;
 		try {
 			const res = await fetch("/api/ws-ticket", { method: "POST" });
 			if (!res.ok) {
@@ -61,8 +64,9 @@ export function useWebSocket({ onMessage, enabled = true }: UseWebSocketOptions)
 			}
 			const json = await res.json();
 			token = json.token;
-			if (!token) {
-				console.error("[WS] ws-ticket response missing token field:", json);
+			wsUrl = json.url;
+			if (!token || !wsUrl) {
+				console.error("[WS] ws-ticket response missing token/url field:", json);
 				scheduleReconnect();
 				return;
 			}
@@ -81,9 +85,13 @@ export function useWebSocket({ onMessage, enabled = true }: UseWebSocketOptions)
 		ws.onopen = () => {
 			console.log("[WS] connected");
 			retryDelayRef.current = 1000;
-			pingIntervalRef.current = setInterval(() => {
-				if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ action: "ping" }));
-			}, 5 * 60 * 1000);
+			pingIntervalRef.current = setInterval(
+				() => {
+					if (ws.readyState === WebSocket.OPEN)
+						ws.send(JSON.stringify({ action: "ping" }));
+				},
+				5 * 60 * 1000,
+			);
 		};
 
 		ws.onmessage = (event) => {
@@ -114,7 +122,8 @@ export function useWebSocket({ onMessage, enabled = true }: UseWebSocketOptions)
 		return () => {
 			mountedRef.current = false;
 			clearPing();
-			if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
+			if (reconnectTimeoutRef.current)
+				clearTimeout(reconnectTimeoutRef.current);
 			wsRef.current?.close();
 		};
 	}, [enabled, connect]);

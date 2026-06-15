@@ -29,7 +29,7 @@ Rename the env-guide.txt file to .env.local and add environment variables
 - [NEXT.JS](https://nextjs.org/)
 - [MongoDB](https://mongodb.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
-- [Mail Trap](https://mailtrap.io/)
+- [Nodemailer](https://nodemailer.com/)
 - [Upload Thing](https://uploadthing.com/)
 - [Shadcn UI](https://ui.shadcn.com/)
 - [Vercel](https://vercel.com/)

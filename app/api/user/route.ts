@@ -1,9 +1,16 @@
 import { db } from "@/lib/db";
-import { posts, users } from "@/lib/db/schema";
+import {
+	conversationMembers,
+	conversations,
+	posts,
+	users,
+} from "@/lib/db/schema";
 import { getDataFromToken } from "@/lib/getDataFromToken";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { s3 } from "@/lib/s3";
 
 export async function GET(request: NextRequest) {
 	try {
@@ -93,21 +100,76 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
 	try {
-		const _id = await getDataFromToken(request);
+		const userId = await getDataFromToken(request);
 
-		const [user] = await db.select().from(users).where(eq(users.id, _id));
+		const [user] = await db.select().from(users).where(eq(users.id, userId));
 
 		if (!user) {
 			return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 		}
 
-		// delete all posts by the user (cascade will handle post_likes, comments)
-		await db.delete(posts).where(eq(posts.creatorId, _id));
+		// ── 1. Collect all S3 keys to delete ──────────────────────────────
+		const s3Keys: string[] = [];
 
-		// delete user (cascade will handle friends, notifications, etc.)
-		await db.delete(users).where(eq(users.id, _id));
+		const userPosts = await db
+			.select({ image: posts.image })
+			.from(posts)
+			.where(eq(posts.creatorId, userId));
 
-		// remove token
+		for (const post of userPosts) {
+			for (const url of post.image ?? []) {
+				const key = s3KeyFromUrl(url);
+				if (key) s3Keys.push(key);
+			}
+		}
+
+		if (user.profilePhoto) {
+			const key = s3KeyFromUrl(user.profilePhoto);
+			if (key) s3Keys.push(key);
+		}
+
+		// ── 2. Bulk-delete S3 objects ─────────────────────────────────────
+		const bucketName = process.env.S3_BUCKET_NAME;
+		if (bucketName && s3Keys.length > 0) {
+			const batches = toBatches(s3Keys, 1000);
+			for (const batch of batches) {
+				try {
+					await s3.send(
+						new DeleteObjectsCommand({
+							Bucket: bucketName,
+							Delete: {
+								Objects: batch.map((key) => ({ Key: key })),
+								Quiet: true,
+							},
+						}),
+					);
+				} catch (err) {
+					console.error("[DELETE /api/user] S3 cleanup failed:", err);
+				}
+			}
+		}
+
+		// ── 3. Delete conversations the user is part of ──────────────────
+		const memberships = await db
+			.select({ conversationId: conversationMembers.conversationId })
+			.from(conversationMembers)
+			.where(eq(conversationMembers.userId, userId));
+
+		const conversationIds = memberships.map((m) => m.conversationId);
+
+		if (conversationIds.length > 0) {
+			await db
+				.delete(conversations)
+				.where(inArray(conversations.id, conversationIds));
+		}
+
+		// ── 4. Delete all user's posts (cascade → post_likes, comments) ──
+		await db.delete(posts).where(eq(posts.creatorId, userId));
+
+		// ── 5. Delete user (cascade → friends, likes, comments, notifications, ws_connections) ──
+		await db.delete(users).where(eq(users.id, userId));
+
+		// ── 6. Clear auth cookie ─────────────────────────────────────────
 		(await cookies()).set("token", "", {
 			httpOnly: true,
 			expires: new Date(0),
@@ -120,4 +182,25 @@ export async function DELETE(request: NextRequest) {
 	} catch (error: any) {
 		return NextResponse.json({ error: error.message }, { status: 500 });
 	}
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Extract the S3 object key from a full public URL. */
+function s3KeyFromUrl(url: string): string | null {
+	try {
+		const { pathname } = new URL(url);
+		return pathname.startsWith("/") ? pathname.slice(1) : pathname;
+	} catch {
+		return null;
+	}
+}
+
+/** Split an array into chunks of `size`. */
+function toBatches<T>(items: T[], size: number): T[][] {
+	const result: T[][] = [];
+	for (let i = 0; i < items.length; i += size) {
+		result.push(items.slice(i, i + size));
+	}
+	return result;
 }

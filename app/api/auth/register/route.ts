@@ -1,22 +1,20 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { sendEmail } from "@/lib/mailer";
+
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
 
 export async function POST(request: NextRequest) {
 	try {
 		const { name, email, password } = await request.json();
 
-		// check if user already exists
 		const [existingUser] = await db
 			.select()
 			.from(users)
 			.where(eq(users.email, email));
 
-		// check if user is verified
-		if (existingUser && existingUser.isVerified) {
+		if (existingUser) {
 			return NextResponse.json(
 				{ error: "User already exists" },
 				{ status: 400 },
@@ -25,28 +23,8 @@ export async function POST(request: NextRequest) {
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		// user exists but not verified, update password and resend email
-		if (existingUser) {
-			await db
-				.update(users)
-				.set({ password: hashedPassword })
-				.where(eq(users.id, existingUser.id));
-
-			// send verification email
-			await sendEmail(email, "VERIFY", existingUser.id);
-
-			return NextResponse.json({
-				message: "User updated successfully",
-				success: true,
-				savedUser: existingUser,
-			});
-		}
-
-		// generate base username
 		const baseUsername = name.toLowerCase().replace(/[^a-z0-9]/g, "");
 		let uniqueUsername = baseUsername;
-
-		// check uniqueness in a loop
 		let isUnique = false;
 		while (!isUnique) {
 			const [existing] = await db
@@ -60,7 +38,6 @@ export async function POST(request: NextRequest) {
 			}
 		}
 
-		// otherwise create new user
 		const [savedUser] = await db
 			.insert(users)
 			.values({
@@ -68,18 +45,17 @@ export async function POST(request: NextRequest) {
 				username: uniqueUsername,
 				email,
 				password: hashedPassword,
+				isVerified: true,
 			})
 			.returning();
 
-		// send verification email
-		await sendEmail(email, "VERIFY", savedUser.id);
-
 		return NextResponse.json({
-			message: "User created successfully",
+			message: "Account created successfully.",
 			success: true,
-			savedUser,
 		});
-	} catch (error: any) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
+	} catch (error) {
+		const message =
+			error instanceof Error ? error.message : "Internal server error";
+		return NextResponse.json({ error: message }, { status: 500 });
 	}
 }

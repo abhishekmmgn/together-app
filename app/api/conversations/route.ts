@@ -89,9 +89,23 @@ export async function GET(request: NextRequest) {
 			}),
 		);
 
+		const filteredConversations = updatedConversations.filter(
+			(c): c is NonNullable<typeof c> => c !== null,
+		);
+
+		filteredConversations.sort((a, b) => {
+			const timeA = a.lastMessage?.time
+				? new Date(a.lastMessage.time).getTime()
+				: 0;
+			const timeB = b.lastMessage?.time
+				? new Date(b.lastMessage.time).getTime()
+				: 0;
+			return timeB - timeA;
+		});
+
 		return NextResponse.json({
 			message: "Conversations found",
-			data: updatedConversations.filter(Boolean),
+			data: filteredConversations,
 		});
 	} catch (error: any) {
 		return NextResponse.json({ error: error.message }, { status: 500 });

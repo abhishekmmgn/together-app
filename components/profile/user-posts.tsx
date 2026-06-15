@@ -1,13 +1,13 @@
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import Post from "@/components/post/post";
 import Link from "next/link";
-import { ShortErrorInfo } from "../error-info";
-import PostSkeleton from "../post/post-skeleton";
-import type { PostType } from "@/types";
-import { db } from "@/lib/db";
-import { users, posts, postLikes } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
+
+import { buttonVariants } from "@/components/ui/button";
+import Post from "@/components/post/post";
+import { ShortErrorInfo } from "@/components/error-info";
+import { db } from "@/lib/db";
+import { users, posts } from "@/lib/db/schema";
+import { cn } from "@/lib/utils";
+import type { PostType } from "@/types";
 
 export default async function UserPosts({ userId }: { userId: string }) {
 	try {
@@ -27,10 +27,8 @@ export default async function UserPosts({ userId }: { userId: string }) {
 				thread: posts.thread,
 				image: posts.image,
 				createdAt: posts.createdAt,
-				likesCount:
-					sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
-				commentsCount:
-					sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
+				likesCount: sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
+				commentsCount: sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
 				liked: sql<boolean>`EXISTS(SELECT 1 FROM post_likes WHERE post_likes.post_id = ${posts.id} AND post_likes.user_id = ${userId})`,
 			})
 			.from(posts)
@@ -58,10 +56,7 @@ export default async function UserPosts({ userId }: { userId: string }) {
 					<h3 className="text-center font-medium text-xl">
 						You don&apos;t have any posts yet.
 					</h3>
-					<Link
-						href="/"
-						className={cn(buttonVariants({ variant: "link" }))}
-					>
+					<Link href="/" className={cn(buttonVariants({ variant: "link" }))}>
 						New Post
 					</Link>
 				</div>

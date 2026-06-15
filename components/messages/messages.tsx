@@ -8,6 +8,7 @@ import {
 	type ReadonlyURLSearchParams,
 } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+
 import Conversation from "@/components/messages/conversation";
 import SearchBar from "@/components/searchbar";
 import MessageRoom from "@/components/messages/message-room";
@@ -20,38 +21,6 @@ import type {
 	ConversationData,
 	Message,
 } from "@/types";
-
-async function fetchConversations(): Promise<ConversationType[]> {
-	const res = await fetch("/api/conversations");
-	if (!res.ok) return [];
-	const json = await res.json();
-	return json.data ?? [];
-}
-
-// The open conversation lives in the URL so a refresh / deep link reopens it:
-//   ?c=<conversationId> for an existing conversation
-//   ?u=<otherUserId>    for a not-yet-created conversation
-// `conversationId: "0"` is the existing "new chat" sentinel (length 1 => looked
-// up by user in MessageRoom), so we reuse it for the ?u= case.
-function activeFromParams(
-	params: URLSearchParams | ReadonlyURLSearchParams,
-): ActiveConversationType {
-	const c = params.get("c");
-	if (c) return { conversationId: c, otherUserId: "" };
-	const u = params.get("u");
-	if (u) return { conversationId: "0", otherUserId: u };
-	return { conversationId: "", otherUserId: "" };
-}
-
-function paramsForActive(active: ActiveConversationType): string {
-	const params = new URLSearchParams();
-	if (active.conversationId && active.conversationId.length > 1) {
-		params.set("c", active.conversationId);
-	} else if (active.otherUserId) {
-		params.set("u", active.otherUserId);
-	}
-	return params.toString();
-}
 
 export default function Messages({
 	initialConversations,
@@ -99,13 +68,14 @@ export default function Messages({
 		);
 	}, [searchParams]);
 
-	const { data: conversations = initialConversations } =
-		useQuery<ConversationType[]>({
-			queryKey: ["conversations"],
-			queryFn: fetchConversations,
-			initialData: initialConversations,
-			staleTime: 30_000,
-		});
+	const { data: conversations = initialConversations } = useQuery<
+		ConversationType[]
+	>({
+		queryKey: ["conversations"],
+		queryFn: fetchConversations,
+		initialData: initialConversations,
+		staleTime: 30_000,
+	});
 
 	const handleWsMessage = useCallback(
 		(msg: WsMessage) => {
@@ -197,21 +167,51 @@ export default function Messages({
 							<p className="leading-7">No conversations yet</p>
 						</div>
 					) : (
-						<>
-							{conversations.map((conversation: ConversationType) => (
-								<Conversation
-									conversationId={conversation.conversationId}
-									setActiveConversation={setActiveConversation}
-									lastMessage={conversation.lastMessage}
-									user={conversation.user}
-									unreadCount={conversation.unreadCount}
-									key={conversation.conversationId}
-								/>
-							))}
-						</>
+						conversations.map((conversation: ConversationType) => (
+							<Conversation
+								conversationId={conversation.conversationId}
+								setActiveConversation={setActiveConversation}
+								lastMessage={conversation.lastMessage}
+								user={conversation.user}
+								unreadCount={conversation.unreadCount}
+								key={conversation.conversationId}
+							/>
+						))
 					)}
 				</>
 			)}
 		</>
 	);
+}
+
+async function fetchConversations(): Promise<ConversationType[]> {
+	const res = await fetch("/api/conversations");
+	if (!res.ok) return [];
+	const json = await res.json();
+	return json.data ?? [];
+}
+
+// The open conversation lives in the URL so a refresh / deep link reopens it:
+//   ?c=<conversationId> for an existing conversation
+//   ?u=<otherUserId>    for a not-yet-created conversation
+// `conversationId: "0"` is the existing "new chat" sentinel (length 1 => looked
+// up by user in MessageRoom), so we reuse it for the ?u= case.
+function activeFromParams(
+	params: URLSearchParams | ReadonlyURLSearchParams,
+): ActiveConversationType {
+	const c = params.get("c");
+	if (c) return { conversationId: c, otherUserId: "" };
+	const u = params.get("u");
+	if (u) return { conversationId: "0", otherUserId: u };
+	return { conversationId: "", otherUserId: "" };
+}
+
+function paramsForActive(active: ActiveConversationType): string {
+	const params = new URLSearchParams();
+	if (active.conversationId && active.conversationId.length > 1) {
+		params.set("c", active.conversationId);
+	} else if (active.otherUserId) {
+		params.set("u", active.otherUserId);
+	}
+	return params.toString();
 }

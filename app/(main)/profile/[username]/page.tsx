@@ -1,10 +1,12 @@
-import ExternalProfile from "./profile-page-client";
 import { notFound, redirect } from "next/navigation";
+import { eq, and, sql } from "drizzle-orm";
+
 import { getUserIdFromCookies } from "@/lib/getDataFromToken";
 import { db } from "@/lib/db";
 import { users, posts, friends } from "@/lib/db/schema";
-import { eq, and, sql } from "drizzle-orm";
 import type { PostType } from "@/types";
+
+import ExternalProfile from "./profile-page-client";
 
 export default async function Page(props: {
 	params: Promise<{ username: string }>;
@@ -47,10 +49,8 @@ export default async function Page(props: {
 				thread: posts.thread,
 				image: posts.image,
 				createdAt: posts.createdAt,
-				likesCount:
-					sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
-				commentsCount:
-					sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
+				likesCount: sql<number>`(SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = ${posts.id})::int`,
+				commentsCount: sql<number>`(SELECT COUNT(*) FROM comments WHERE comments.post_id = ${posts.id})::int`,
 				liked: currentUserId
 					? sql<boolean>`EXISTS(SELECT 1 FROM post_likes WHERE post_likes.post_id = ${posts.id} AND post_likes.user_id = ${currentUserId})`
 					: sql<boolean>`false`,

@@ -2,32 +2,14 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ActiveConversationType, ConversationData, Message } from "@/types";
+
+import type {
+	ActiveConversationType,
+	ConversationData,
+	Message,
+} from "@/types";
 
 export const MESSAGES_PAGE_SIZE = 25;
-
-// Fetch the most recent window of a conversation. The room is opened either by
-// an existing conversation id (?c=) or by the other user's id (?u=), so we pick
-// the matching endpoint. Both return [otherUser, messages, conversationId, hasMore].
-async function fetchInitial(
-	active: ActiveConversationType,
-): Promise<ConversationData> {
-	const url =
-		active.conversationId.length > 1
-			? `/api/conversation/${active.conversationId}?limit=${MESSAGES_PAGE_SIZE}`
-			: `/api/conversation-by-user/${active.otherUserId}?limit=${MESSAGES_PAGE_SIZE}`;
-
-	const res = await fetch(url, { cache: "no-store" });
-	if (!res.ok) throw new Error("Failed to fetch conversation");
-	const json = await res.json();
-	const data = json.data;
-	return {
-		otherUser: data[0],
-		messages: data[1] ?? [],
-		conversationId: data[2] ?? active.conversationId,
-		hasMore: data[3] ?? false,
-	};
-}
 
 export function useConversationMessages(active: ActiveConversationType) {
 	const queryClient = useQueryClient();
@@ -114,5 +96,28 @@ export function useConversationMessages(active: ActiveConversationType) {
 		hasMore: query.data?.hasMore ?? false,
 		isLoadingOlder,
 		loadOlder,
+	};
+}
+
+// The room is opened either by an existing conversation id (?c=) or by the
+// other user's id (?u=), so we pick the matching endpoint.
+// Both return [otherUser, messages, conversationId, hasMore].
+async function fetchInitial(
+	active: ActiveConversationType,
+): Promise<ConversationData> {
+	const url =
+		active.conversationId.length > 1
+			? `/api/conversation/${active.conversationId}?limit=${MESSAGES_PAGE_SIZE}`
+			: `/api/conversation-by-user/${active.otherUserId}?limit=${MESSAGES_PAGE_SIZE}`;
+
+	const res = await fetch(url, { cache: "no-store" });
+	if (!res.ok) throw new Error("Failed to fetch conversation");
+	const json = await res.json();
+	const data = json.data;
+	return {
+		otherUser: data[0],
+		messages: data[1] ?? [],
+		conversationId: data[2] ?? active.conversationId,
+		hasMore: data[3] ?? false,
 	};
 }

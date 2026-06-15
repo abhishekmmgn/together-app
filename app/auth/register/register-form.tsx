@@ -17,6 +17,7 @@ import {
 import { AuthCard } from "@/components/auth-card";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 const formSchema = z
 	.object({
@@ -41,6 +42,9 @@ type formSchemaType = z.infer<typeof formSchema>;
 export default function RegisterForm() {
 	const router = useRouter();
 	const [disabled, setDisabled] = useState<boolean>(false);
+	const [showPassword, setShowPassword] = useState<boolean>(false);
+	const [showConfirmPassword, setShowConfirmPassword] =
+		useState<boolean>(false);
 
 	const form = useForm<formSchemaType>({
 		resolver: zodResolver(formSchema),
@@ -67,15 +71,13 @@ export default function RegisterForm() {
 				}),
 			});
 			if (res.ok) {
-				console.log("Success");
-				toast.success("Verification link sent to your mail.");
+				toast.success("Account created successfully!");
 				form.reset();
-				router.push("/auth/verify-mail");
+				router.push("/");
 			} else if (res.status === 400) {
 				toast.error("Email already registered.");
 			}
 		} catch (err: any) {
-			console.log("Error: ", err.message);
 			toast.error(err.message);
 		} finally {
 			setDisabled(false);
@@ -148,14 +150,28 @@ export default function RegisterForm() {
 							render={({ field, fieldState }) => (
 								<Field data-invalid={!!fieldState.error}>
 									<FieldLabel htmlFor="password">Password</FieldLabel>
-									<Input
-										id="password"
-										type="password"
-										placeholder="********"
-										autoComplete="new-password"
-										disabled={disabled}
-										{...field}
-									/>
+									<div className="relative">
+										<Input
+											id="password"
+											type={showPassword ? "text" : "password"}
+											placeholder="********"
+											autoComplete="new-password"
+											disabled={disabled}
+											className="pr-10"
+											{...field}
+										/>
+										<button
+											type="button"
+											onClick={() => setShowPassword((prev) => !prev)}
+											className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none flex items-center justify-center"
+										>
+											{showPassword ? (
+												<IoEyeOffOutline className="h-5 w-5" />
+											) : (
+												<IoEyeOutline className="h-5 w-5" />
+											)}
+										</button>
+									</div>
 									{fieldState.error && (
 										<FieldError>{fieldState.error.message}</FieldError>
 									)}
@@ -170,14 +186,28 @@ export default function RegisterForm() {
 									<FieldLabel htmlFor="confirmPassword">
 										Confirm Password
 									</FieldLabel>
-									<Input
-										id="confirmPassword"
-										type="password"
-										autoComplete="new-password"
-										placeholder="********"
-										disabled={disabled}
-										{...field}
-									/>
+									<div className="relative">
+										<Input
+											id="confirmPassword"
+											type={showConfirmPassword ? "text" : "password"}
+											autoComplete="new-password"
+											placeholder="********"
+											disabled={disabled}
+											className="pr-10"
+											{...field}
+										/>
+										<button
+											type="button"
+											onClick={() => setShowConfirmPassword((prev) => !prev)}
+											className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none flex items-center justify-center"
+										>
+											{showConfirmPassword ? (
+												<IoEyeOffOutline className="h-5 w-5" />
+											) : (
+												<IoEyeOutline className="h-5 w-5" />
+											)}
+										</button>
+									</div>
 									{fieldState.error && (
 										<FieldError>{fieldState.error.message}</FieldError>
 									)}
