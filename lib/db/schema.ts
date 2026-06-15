@@ -201,6 +201,7 @@ export const conversationMembers = pgTable(
 		userId: uuid("user_id")
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
+		lastReadAt: timestamp("last_read_at", { withTimezone: true }),
 	},
 	(t) => [primaryKey({ columns: [t.conversationId, t.userId] })],
 );

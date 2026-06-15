@@ -62,6 +62,14 @@ export async function sendMessage(message: string, conversationId: string) {
 	}
 }
 
+export async function markConversationAsRead(conversationId: string) {
+	try {
+		await fetch(`/api/conversation/${conversationId}`, { method: "PATCH" });
+	} catch (err) {
+		console.log(err);
+	}
+}
+
 export async function deleteConversation(
 	conversationId: string,
 	otherUserId: string,

@@ -6,12 +6,20 @@ import {
 	conversationMembers,
 	messages,
 } from "@/lib/db/schema";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, desc, lt } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 
 type Params = {
 	params: Promise<{ id: string }>;
 };
+
+const PAGE_SIZE = 25;
+
+function resolveLimit(searchParams: URLSearchParams): number {
+	const raw = Number(searchParams.get("limit"));
+	if (Number.isFinite(raw) && raw > 0) return Math.min(raw, 100);
+	return PAGE_SIZE;
+}
 
 export async function GET(request: NextRequest, props: Params) {
 	const params = await props.params;
@@ -19,13 +27,17 @@ export async function GET(request: NextRequest, props: Params) {
 		const userId = await getDataFromToken(request);
 		const otherUserId = params.id;
 
+		const { searchParams } = new URL(request.url);
+		const before = searchParams.get("before");
+		const limit = resolveLimit(searchParams);
+
 		// find a conversation where both users are members
 		const myConversations = await db
 			.select({ conversationId: conversationMembers.conversationId })
 			.from(conversationMembers)
 			.where(eq(conversationMembers.userId, userId));
 
-		let foundMessages: any[] = [];
+		let conversationId: string | null = null;
 		for (const conv of myConversations) {
 			const [otherMember] = await db
 				.select()
@@ -38,21 +50,37 @@ export async function GET(request: NextRequest, props: Params) {
 				);
 
 			if (otherMember) {
-				const convMessages = await db
-					.select({
-						senderId: messages.senderId,
-						content: messages.content,
-						createdAt: messages.createdAt,
-					})
-					.from(messages)
-					.where(eq(messages.conversationId, conv.conversationId))
-					.orderBy(asc(messages.createdAt));
-
-				foundMessages = convMessages.map((msg) => ({
-					[msg.senderId]: msg.content,
-				}));
+				conversationId = conv.conversationId;
 				break;
 			}
+		}
+
+		// Load the most recent window of messages (oldest first), if a
+		// conversation already exists. `before` pages backwards through history.
+		let foundMessages: any[] = [];
+		let hasMore = false;
+		if (conversationId) {
+			const rows = await db
+				.select({
+					id: messages.id,
+					senderId: messages.senderId,
+					content: messages.content,
+					createdAt: messages.createdAt,
+				})
+				.from(messages)
+				.where(
+					before
+						? and(
+								eq(messages.conversationId, conversationId),
+								lt(messages.createdAt, new Date(before)),
+							)
+						: eq(messages.conversationId, conversationId),
+				)
+				.orderBy(desc(messages.createdAt))
+				.limit(limit + 1);
+
+			hasMore = rows.length > limit;
+			foundMessages = (hasMore ? rows.slice(0, limit) : rows).reverse();
 		}
 
 		const [otherUser] = await db
@@ -73,7 +101,9 @@ export async function GET(request: NextRequest, props: Params) {
 					profilePhoto: otherUser?.profilePhoto,
 				},
 				foundMessages,
-				"0",
+				// real id once a conversation exists; "0" sentinel for a brand-new chat
+				conversationId ?? "0",
+				hasMore,
 			],
 		});
 	} catch (error: any) {

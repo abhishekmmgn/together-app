@@ -1,18 +1,35 @@
+import { Suspense } from "react";
 import Messages from "@/components/messages/messages";
 import type { Metadata } from "next";
 import type { ConversationType } from "@/types";
 import { getUserIdFromCookies } from "@/lib/getDataFromToken";
 import { db } from "@/lib/db";
 import { users, conversationMembers, messages } from "@/lib/db/schema";
-import { eq, and, ne, desc } from "drizzle-orm";
+import { eq, and, ne, desc, gt, count, sql } from "drizzle-orm";
 
 export const metadata: Metadata = {
 	title: "Messages",
 };
 
+export default async function ConversationsPage() {
+	const userId = await getUserIdFromCookies();
+	const conversations = userId ? await getConversations(userId) : [];
+	return (
+		<Suspense>
+			<Messages
+				initialConversations={conversations}
+				currentUserId={userId ?? ""}
+			/>
+		</Suspense>
+	);
+}
+
 async function getConversations(userId: string): Promise<ConversationType[]> {
 	const memberships = await db
-		.select({ conversationId: conversationMembers.conversationId })
+		.select({
+			conversationId: conversationMembers.conversationId,
+			lastReadAt: conversationMembers.lastReadAt,
+		})
 		.from(conversationMembers)
 		.where(eq(conversationMembers.userId, userId));
 
@@ -21,6 +38,7 @@ async function getConversations(userId: string): Promise<ConversationType[]> {
 	const results = await Promise.all(
 		memberships.map(async (membership) => {
 			const convId = membership.conversationId;
+			const lastReadAt = membership.lastReadAt;
 
 			const [otherMember] = await db
 				.select({ userId: conversationMembers.userId })
@@ -51,6 +69,17 @@ async function getConversations(userId: string): Promise<ConversationType[]> {
 				.orderBy(desc(messages.createdAt))
 				.limit(1);
 
+			const [{ unreadCount }] = await db
+				.select({ unreadCount: count() })
+				.from(messages)
+				.where(
+					and(
+						eq(messages.conversationId, convId),
+						ne(messages.senderId, userId),
+						lastReadAt ? gt(messages.createdAt, lastReadAt) : sql`true`,
+					),
+				);
+
 			return {
 				conversationId: convId,
 				lastMessage: lastMessage
@@ -65,15 +94,10 @@ async function getConversations(userId: string): Promise<ConversationType[]> {
 					username: otherUser?.username ?? "",
 					profilePhoto: otherUser?.profilePhoto ?? "",
 				},
+				unreadCount,
 			} satisfies ConversationType;
 		}),
 	);
 
 	return results.filter((r): r is ConversationType => r !== null);
-}
-
-export default async function ConversationsPage() {
-	const userId = await getUserIdFromCookies();
-	const conversations = userId ? await getConversations(userId) : [];
-	return <Messages initialConversations={conversations} />;
 }

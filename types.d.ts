@@ -62,8 +62,29 @@ export type ConversationType = {
 		username: string;
 		profilePhoto: string;
 	};
+	unreadCount: number;
 };
 
 export interface MessageObject {
 	[key: string]: string;
 }
+
+export type Message = {
+	id: string;
+	senderId: string;
+	content: string;
+	createdAt: string;
+};
+
+export type ConversationData = {
+	otherUser: {
+		_id: string;
+		name: string;
+		username: string;
+		profilePhoto: string;
+	};
+	messages: Message[];
+	conversationId: string;
+	// Whether older messages exist before the currently loaded window.
+	hasMore: boolean;
+};

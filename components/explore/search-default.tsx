@@ -21,7 +21,7 @@ export default function SearchDefault({
 				People you may know
 			</h2>
 			{suggestions.length === 0 ? (
-				<div className="text-tertiary-foreground">No suggestions.</div>
+				<div className="text-muted-foreground">No suggestions.</div>
 			) : (
 				<div className="flex-1 overflow-y-auto pr-1">
 					{suggestions.map((person: PersonProfileType, index) => (

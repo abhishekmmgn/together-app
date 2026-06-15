@@ -34,7 +34,7 @@ export default function ProfileCard({
 					<h1 className="w-full overflow-x-hidden line-clamp-1 text-lg font-medium">
 						{name}
 					</h1>
-					<p className="w-full overflow-x-hidden text-sm line-clamp-1 text-tertiary-foreground">
+					<p className="w-full overflow-x-hidden text-sm line-clamp-1 text-muted-foreground">
 						{bio}
 					</p>
 				</div>

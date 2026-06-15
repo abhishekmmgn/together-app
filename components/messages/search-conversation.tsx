@@ -39,6 +39,7 @@ export default function SearchConversation(props: PropsType) {
 					setActiveConversation={props.setActiveConversation}
 					lastMessage={conversation.lastMessage}
 					user={conversation.user}
+					unreadCount={conversation.unreadCount}
 					key={conversation.conversationId}
 				/>
 			))}

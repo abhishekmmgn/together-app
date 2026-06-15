@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -10,12 +9,17 @@ import formatAvatarName from "@/lib/formatAvatarName";
 import type { ActiveConversationType, ConversationType } from "@/types";
 import formatDate from "@/lib/formatDate";
 import { useState } from "react";
-import { deleteConversation } from "@/lib/conversation-helpers";
+import {
+	deleteConversation,
+	markConversationAsRead,
+} from "@/lib/conversation-helpers";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Conversation({
 	conversationId,
 	lastMessage,
 	user,
+	unreadCount,
 	setActiveConversation,
 }: ConversationType & {
 	setActiveConversation: React.Dispatch<
@@ -23,8 +27,14 @@ export default function Conversation({
 	>;
 }) {
 	const [deleted, setDeleted] = useState(false);
-	const unread = 0;
+	const queryClient = useQueryClient();
 	const formattedTime = formatDate(lastMessage.time);
+
+	async function handleMarkAsRead(e: React.MouseEvent<HTMLElement>) {
+		e.stopPropagation();
+		await markConversationAsRead(conversationId);
+		queryClient.invalidateQueries({ queryKey: ["conversations"] });
+	}
 
 	async function handleDeleteConversation(e: React.MouseEvent<HTMLElement>) {
 		e.stopPropagation();
@@ -36,14 +46,14 @@ export default function Conversation({
 
 	return (
 		<div
-			className="cursor-pointer"
+			className="cursor-pointer py-1 px-5 lg:px-0"
 			onClick={() =>
 				setActiveConversation({ conversationId, otherUserId: user._id })
 			}
 		>
 			<ContextMenu>
 				<ContextMenuTrigger>
-					<div className="w-full h-[68px] flex items-center px-5 py-2 gap-4 hover:bg-muted/50 lg:px-0">
+					<div className="w-full h-17 flex items-center p-2 gap-4 rounded-xl hover:bg-muted/50">
 						<Avatar className="w-14 h-14">
 							<AvatarImage src={user.profilePhoto} alt={user.name} />
 							<AvatarFallback>{formatAvatarName(user.name)}</AvatarFallback>
@@ -58,12 +68,12 @@ export default function Conversation({
 								</p>
 							</div>
 							<div className="w-[calc(100%-32px)] flex items-center justify-between gap-5">
-								<p className="w-full line-clamp-1 text-tertiary-foreground">
+								<p className="w-full line-clamp-1 text-secondary-foreground/80">
 									{lastMessage.message}
 								</p>
-								{unread > 0 && (
-									<div className="w-5 h-5 rounded-full line-clamp-1 text-sm bg-primary text-primary-foreground flex items-center justify-center">
-										{unread}
+								{unreadCount > 0 && (
+									<div className="min-w-5 h-5 px-1 rounded-full text-xs bg-primary text-white flex items-center justify-center shrink-0">
+										{unreadCount > 10 ? "10+" : unreadCount}
 									</div>
 								)}
 							</div>
@@ -71,7 +81,9 @@ export default function Conversation({
 					</div>
 				</ContextMenuTrigger>
 				<ContextMenuContent>
-					<ContextMenuItem>Mark as Read</ContextMenuItem>
+					<ContextMenuItem onClick={handleMarkAsRead}>
+						Mark as Read
+					</ContextMenuItem>
 					<ContextMenuItem
 						className="text-destructive"
 						onClick={handleDeleteConversation}
@@ -80,7 +92,6 @@ export default function Conversation({
 					</ContextMenuItem>
 				</ContextMenuContent>
 			</ContextMenu>
-			<Separator />
 		</div>
 	);
 }

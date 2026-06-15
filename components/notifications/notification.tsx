@@ -40,7 +40,7 @@ export default function Notification(props: propsType) {
 				<h1 className="leading-tight line-clamp-3 sm:line-clamp-2">
 					{props.message}
 				</h1>
-				<p className="mt-1 text-sm line-clamp-1 text-tertiary-foreground">
+				<p className="mt-1 text-sm line-clamp-1 text-muted-foreground">
 					{formatedDate}
 				</p>
 			</div>

@@ -22,8 +22,7 @@ export default $config({
 		// Secrets — set per stage with: npx sst secret set <Name> <value>
 		const databaseUrl = new sst.Secret("DatabaseUrl");
 		const tokenSecret = new sst.Secret("TokenSecret");
-		const mailTrapUser = new sst.Secret("MailTrapUser");
-		const mailTrapPassword = new sst.Secret("MailTrapPassword");
+		const mailtrapApiToken = new sst.Secret("MailtrapApiToken");
 		const senderEmail = new sst.Secret("SenderEmail");
 
 		// S3 bucket for user-uploaded media (images)
@@ -31,13 +30,46 @@ export default $config({
 			public: true,
 		});
 
-		const site = new sst.aws.Nextjs("Together", {
-			link: [mediaBucket],
+		// WebSocket API for real-time messaging
+		const wsApi = new sst.aws.ApiGatewayWebSocket("WsApi");
+
+		wsApi.route("$connect", {
+			handler: "functions/ws-connect.handler",
+			link: [databaseUrl, tokenSecret],
 			environment: {
 				DATABASE_URL: databaseUrl.value,
 				TOKEN_SECRET: tokenSecret.value,
-				MAIL_TRAP_USER: mailTrapUser.value,
-				MAIL_TRAP_PASSWORD: mailTrapPassword.value,
+			},
+		});
+
+		wsApi.route("$disconnect", {
+			handler: "functions/ws-disconnect.handler",
+			link: [databaseUrl],
+			environment: {
+				DATABASE_URL: databaseUrl.value,
+			},
+		});
+
+		wsApi.route("sendMessage", {
+			handler: "functions/ws-send-message.handler",
+			link: [databaseUrl],
+			environment: {
+				DATABASE_URL: databaseUrl.value,
+			},
+			permissions: [
+				{
+					actions: ["execute-api:ManageConnections"],
+					resources: ["*"],
+				},
+			],
+		});
+
+		const site = new sst.aws.Nextjs("Together", {
+			link: [mediaBucket, wsApi],
+			environment: {
+				DATABASE_URL: databaseUrl.value,
+				TOKEN_SECRET: tokenSecret.value,
+				MAILTRAP_API_TOKEN: mailtrapApiToken.value,
 				SENDER_EMAIL: senderEmail.value,
 				// Public site origin. Until a custom domain is attached this is the
 				// CloudFront URL, which isn't known until the first deploy — set it
@@ -45,11 +77,13 @@ export default $config({
 				NEXT_PUBLIC_DOMAIN: process.env.NEXT_PUBLIC_DOMAIN ?? "",
 				S3_BUCKET_NAME: mediaBucket.name,
 				S3_BUCKET_REGION: "ap-south-1",
+				NEXT_PUBLIC_WS_URL: wsApi.url,
 			},
 		});
 
 		return {
 			url: site.url,
+			wsUrl: wsApi.url,
 		};
 	},
 });

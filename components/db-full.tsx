@@ -5,9 +5,7 @@ export default function DbFull() {
 		<>
 			<main className="grid h-screen place-items-center px-6 py-24 sm:py-32 lg:px-8">
 				<div className="text-center">
-					<p className=" font-semibold text-tertiary-foreground">
-						Database Full
-					</p>
+					<p className=" font-semibold text-muted-foreground">Database Full</p>
 					<h1 className="my-4 text-3xl font-bold tracking-tight text-secondary-foreground sm:text-5xl">
 						But you can deploy with your own database.
 					</h1>

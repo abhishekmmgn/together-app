@@ -1,21 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import {
-	users,
-	conversations,
-	conversationMembers,
-	messages,
-} from "@/lib/db/schema";
-import { eq, desc, and, ne, sql } from "drizzle-orm";
+import { users, conversationMembers, messages } from "@/lib/db/schema";
+import { eq, desc, and, ne, gt, count, sql } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
 
 export async function GET(request: NextRequest) {
 	try {
 		const _id = await getDataFromToken(request);
 
-		// find all conversations the user is a member of
 		const memberships = await db
-			.select({ conversationId: conversationMembers.conversationId })
+			.select({
+				conversationId: conversationMembers.conversationId,
+				lastReadAt: conversationMembers.lastReadAt,
+			})
 			.from(conversationMembers)
 			.where(eq(conversationMembers.userId, _id));
 
@@ -29,8 +26,8 @@ export async function GET(request: NextRequest) {
 		const updatedConversations = await Promise.all(
 			memberships.map(async (membership) => {
 				const convId = membership.conversationId;
+				const lastReadAt = membership.lastReadAt;
 
-				// get the other user in this conversation
 				const [otherMember] = await db
 					.select({ userId: conversationMembers.userId })
 					.from(conversationMembers)
@@ -43,7 +40,6 @@ export async function GET(request: NextRequest) {
 
 				if (!otherMember) return null;
 
-				// get other user's details
 				const [otherUser] = await db
 					.select({
 						id: users.id,
@@ -54,7 +50,6 @@ export async function GET(request: NextRequest) {
 					.from(users)
 					.where(eq(users.id, otherMember.userId));
 
-				// get the last message
 				const [lastMessage] = await db
 					.select({
 						content: messages.content,
@@ -65,13 +60,23 @@ export async function GET(request: NextRequest) {
 					.orderBy(desc(messages.createdAt))
 					.limit(1);
 
+				// Count messages from the other person that arrived after lastReadAt.
+				// If lastReadAt is null the user has never opened this conversation, so all their messages are unread.
+				const [{ unreadCount }] = await db
+					.select({ unreadCount: count() })
+					.from(messages)
+					.where(
+						and(
+							eq(messages.conversationId, convId),
+							ne(messages.senderId, _id),
+							lastReadAt ? gt(messages.createdAt, lastReadAt) : sql`true`,
+						),
+					);
+
 				return {
 					conversationId: convId,
 					lastMessage: lastMessage
-						? {
-								time: lastMessage.createdAt,
-								message: lastMessage.content,
-							}
+						? { time: lastMessage.createdAt, message: lastMessage.content }
 						: { time: null, message: "" },
 					user: {
 						_id: otherUser?.id,
@@ -79,6 +84,7 @@ export async function GET(request: NextRequest) {
 						username: otherUser?.username,
 						profilePhoto: otherUser?.profilePhoto,
 					},
+					unreadCount,
 				};
 			}),
 		);

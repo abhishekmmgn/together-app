@@ -9,7 +9,7 @@ export default function NoUser(props: { title: string }) {
 				<h1 className="font-semibold text-3xl md:text-4xl">
 					You&apos;re not logged in.
 				</h1>
-				<p className="text-tertiary-foreground md:+">
+				<p className="text-muted-foreground md:+">
 					Sign in to view your <span className="lowercase">{props.title}</span>.
 				</p>
 			</div>

@@ -6,6 +6,35 @@
 
 declare module "sst" {
   export interface Resource {
+    "DatabaseUrl": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "MailtrapApiToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "MediaBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "SenderEmail": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "Together": {
+      "type": "sst.aws.Nextjs"
+      "url": string
+    }
+    "TokenSecret": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "WsApi": {
+      "managementEndpoint": string
+      "type": "sst.aws.ApiGatewayWebSocket"
+      "url": string
+    }
   }
 }
 

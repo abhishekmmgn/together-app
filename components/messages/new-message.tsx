@@ -1,5 +1,4 @@
 import { Button } from "../ui/button";
-import { IoCreateOutline } from "react-icons/io5";
 import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import {
 	Command,
@@ -45,18 +44,17 @@ export default function NewMessage(props: PropsType) {
 				open={open}
 				onOpenChange={setOpen}
 				trigger={
-					<Button size="sm" className="h-10 flex items-center justify-center">
-						<IoCreateOutline className="w-6 h-6 mr-1" />
-						<span className="text-sm mt-1">New Message</span>
+					<Button size="sm" className="h-10">
+						New mesage
 					</Button>
 				}
 				title="New Message"
 			>
-				<Command>
+				<Command className="p-0">
 					<CommandInput placeholder="Search for friends" />
 					<CommandList className="no-scrollbar">
 						<CommandEmpty>No friends found.</CommandEmpty>
-						<CommandGroup heading="Friends">
+						<CommandGroup className="mt-1">
 							{loading ? (
 								<>
 									{loadingArray.map((index) => (

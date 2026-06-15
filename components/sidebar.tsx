@@ -33,7 +33,7 @@ export function GlobalSidebar() {
 											className={`h-10 flex justify-start items-center gap-3 px-3 py-1 rounded-lg text-base transition-colors ${
 												isActive
 													? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-													: "text-tertiary-foreground hover:bg-secondary hover:text-secondary-foreground"
+													: "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
 											}`}
 											render={
 												<Link href={tab.link}>

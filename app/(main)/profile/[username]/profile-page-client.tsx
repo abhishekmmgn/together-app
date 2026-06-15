@@ -93,7 +93,7 @@ export default function ExternalProfile({
 					<h1 className="-mt-1 capitalize font-medium text-2xl md:text-3xl">
 						{data.name}
 					</h1>
-					<p className="-mt-1 mb-1 text-tertiary-foreground">{data.bio}</p>
+					<p className="-mt-1 mb-1 text-muted-foreground">{data.bio}</p>
 				</div>
 				<div className="flex flex-col gap-3">
 					{isFriend ? (

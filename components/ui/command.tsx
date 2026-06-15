@@ -22,7 +22,7 @@ function Command({
 		<CommandPrimitive
 			data-slot="command"
 			className={cn(
-				"flex size-full flex-col overflow-hidden rounded-3xl bg-popover p-1 text-popover-foreground",
+				"flex size-full flex-col overflow-hidden rounded-2xl bg-popover p-1 text-popover-foreground",
 				className,
 			)}
 			{...props}
@@ -69,7 +69,7 @@ function CommandInput({
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
 	return (
 		<div data-slot="command-input-wrapper" className="p-1 pb-0">
-			<InputGroup className="h-8! bg-input/50">
+			<InputGroup className="h-9 bg-input/50 rounded-xl">
 				<CommandPrimitive.Input
 					data-slot="command-input"
 					className={cn(

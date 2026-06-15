@@ -71,7 +71,7 @@ export default function SearchBar(props: PropsType) {
 			)}
 		>
 			<div className="relative w-full group">
-				<IoSearch className="text-muted-foreground size-4 absolute top-3 left-3 md:top-3 md:left-3.5" />
+				<IoSearch className="text-muted-foreground size-4 absolute left-3 top-1/2 -translate-y-1/2 " />
 				<Input
 					type="text"
 					value={searchTerm}

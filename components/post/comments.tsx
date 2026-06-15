@@ -72,7 +72,7 @@ export default function Comments({
 						size="icon"
 						variant="ghost"
 						disabled={message.length === 0 || disabled}
-						className="mt-1 hover:bg-transparent"
+						className="hover:bg-transparent"
 					>
 						<IoArrowUpCircle className="size-7 text-primary" />
 					</Button>

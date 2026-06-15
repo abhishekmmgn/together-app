@@ -22,7 +22,7 @@ export default function MessageHeading(props: propsType) {
 						})
 					}
 				>
-					<IoChevronBack className="w-6 h-6 text-tertiary-foreground absolute left-2 top-10 cursor-pointer sm:top-8" />
+					<IoChevronBack className="w-6 h-6 text-muted-foreground absolute left-2 top-10 cursor-pointer sm:top-8" />
 				</div>
 
 				<div className="w-full flex flex-col gap-1 items-center justify-center">

@@ -24,7 +24,7 @@ export default function Navbar() {
 						className={`w-1/6 flex items-center justify-center ${
 							segment === tab.link || segment.startsWith(`${tab.link}/`)
 								? "text-primary"
-								: "text-tertiary-foreground hover:text-primary"
+								: "text-muted-foreground hover:text-primary"
 						}`}
 						key={index}
 					>

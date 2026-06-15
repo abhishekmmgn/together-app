@@ -9,18 +9,20 @@ export const metadata: Metadata = {
 
 export default function NotificationPage() {
 	return (
-		<Suspense
-			fallback={
-				<div className="p-5 space-y-4">
-					{Array(8)
-						.fill(null)
-						.map((_, i) => (
-							<NotificationSkeleton key={i} />
-						))}
-				</div>
-			}
-		>
-			<Notifications />
-		</Suspense>
+		<div className="p-5 space-y-4">
+			<Suspense
+				fallback={
+					<>
+						{Array(8)
+							.fill(null)
+							.map((_, i) => (
+								<NotificationSkeleton key={i} />
+							))}
+					</>
+				}
+			>
+				<Notifications />
+			</Suspense>
+		</div>
 	);
 }
