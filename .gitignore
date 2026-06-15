@@ -11,6 +11,7 @@ node_modules/
 
 # next.js
 .next/
+.open-next/
 out/
 
 # production
@@ -40,3 +41,12 @@ yarn-error.log*
 next-env.d.ts
 
 .gitignore
+
+
+# ai
+.agents/
+.claude/
+.codex/
+.cursor/
+.zed/
+skills-lock.json
