@@ -8,27 +8,9 @@ import {
 	type PropsWithChildren,
 } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn, formatBytes } from "@/lib/utils";
 import { type UseS3UploadReturn } from "@/hooks/use-s3-upload";
 import { Button } from "@/components/ui/button";
-
-export const formatBytes = (
-	bytes: number,
-	decimals = 2,
-	size?: "bytes" | "KB" | "MB" | "GB" | "TB" | "PB" | "EB" | "ZB" | "YB",
-) => {
-	const k = 1000;
-	const dm = decimals < 0 ? 0 : decimals;
-	const sizes = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-
-	if (bytes === 0 || bytes === undefined)
-		return size !== undefined ? `0 ${size}` : "0 bytes";
-	const i =
-		size !== undefined
-			? sizes.indexOf(size)
-			: Math.floor(Math.log(bytes) / Math.log(k));
-	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-};
 
 type DropzoneContextType = Omit<
 	UseS3UploadReturn,
@@ -148,7 +130,7 @@ const DropzoneContent = ({ className }: { className?: string }) => {
 									{file.errors
 										.map((e) =>
 											e.message.startsWith("File is larger than")
-												? `File is larger than ${formatBytes(maxFileSize, 2)} (Size: ${formatBytes(file.size, 2)})`
+												? `File is larger than ${formatBytes(maxFileSize, 2, "MB")} (Size: ${formatBytes(file.size, 2, "MB")})`
 												: e.message,
 										)
 										.join(", ")}
@@ -244,7 +226,7 @@ const DropzoneEmptyState = ({ className }: { className?: string }) => {
 				</p>
 				{maxFileSize !== Number.POSITIVE_INFINITY && (
 					<p className="text-xs text-muted-foreground">
-						Maximum file size: {formatBytes(maxFileSize, 2)}
+						Maximum file size: {formatBytes(maxFileSize, 2, "MB")}
 					</p>
 				)}
 			</div>

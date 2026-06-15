@@ -3,6 +3,30 @@ import { db } from "@/lib/db";
 import { users, posts, comments, postLikes } from "@/lib/db/schema";
 import { eq, sql, and } from "drizzle-orm";
 import { getDataFromToken } from "@/lib/getDataFromToken";
+import { S3Client, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+
+const s3 = new S3Client({
+	region: process.env.S3_BUCKET_REGION ?? "ap-south-1",
+	credentials:
+		process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+			? {
+					accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+					secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+				}
+			: undefined, // falls back to ambient IAM role in Lambda / SST
+});
+
+/** Extract the S3 object key from a full public URL.
+ *  https://bucket.s3.region.amazonaws.com/uploads/images/…  →  uploads/images/…
+ */
+function s3KeyFromUrl(url: string): string | null {
+	try {
+		const { pathname } = new URL(url);
+		return pathname.startsWith("/") ? pathname.slice(1) : pathname;
+	} catch {
+		return null;
+	}
+}
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -176,6 +200,30 @@ export async function DELETE(request: NextRequest, props: Props) {
 				{ error: "User or post does not exists" },
 				{ status: 400 },
 			);
+		}
+
+		// Delete media from S3 before removing the DB row
+		const bucketName = process.env.S3_BUCKET_NAME;
+		const mediaUrls = (post.image ?? []).filter(Boolean);
+		if (bucketName && mediaUrls.length > 0) {
+			const objects = mediaUrls
+				.map((url) => s3KeyFromUrl(url))
+				.filter((key): key is string => key !== null)
+				.map((key) => ({ Key: key }));
+
+			if (objects.length > 0) {
+				try {
+					await s3.send(
+						new DeleteObjectsCommand({
+							Bucket: bucketName,
+							Delete: { Objects: objects, Quiet: true },
+						}),
+					);
+				} catch (err) {
+					// Non-fatal: log but don't block the delete
+					console.error("[DELETE /api/post] S3 cleanup failed:", err);
+				}
+			}
 		}
 
 		// cascade will delete related likes and comments automatically

@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { IoArrowUpCircle } from "react-icons/io5";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useOptimistic } from "react";
 import { Comment } from "./comment";
 import type { CommentsType } from "@/types";
 import { checkLoggedIn } from "@/lib/checkLoggedIn";
@@ -25,6 +25,11 @@ export default function Comments({
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 
+	const [optimisticComments, addOptimisticComment] = useOptimistic(
+		comments || [],
+		(state: CommentsType[], newComment: CommentsType) => [...state, newComment]
+	);
+
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
@@ -37,6 +42,21 @@ export default function Comments({
 
 		const commentText = message;
 		setMessage("");
+
+		startTransition(() => {
+			addOptimisticComment({
+				_id: Math.random().toString(),
+				message: commentText,
+				createdBy: {
+					_id: currentUserId || "",
+					name: "",
+					username: "",
+					profilePhoto: "",
+				},
+				createdAt: new Date(),
+			});
+		});
+
 		setIsSubmitting(true);
 
 		try {
@@ -79,7 +99,7 @@ export default function Comments({
 				</div>
 			</form>
 			<div className="space-y-3">
-				{comments?.map((comment: CommentsType, index: number) => (
+				{optimisticComments.map((comment: CommentsType, index: number) => (
 					<Comment
 						type={
 							comment.createdBy?._id === currentUserId ? "sent" : "recieved"

@@ -28,6 +28,11 @@ export default $config({
 		// S3 bucket for user-uploaded media (images)
 		const mediaBucket = new sst.aws.Bucket("MediaBucket", {
 			public: true,
+			cors: {
+				allowMethods: ["GET", "PUT", "POST", "DELETE", "HEAD"],
+				allowOrigins: ["*"],
+				allowHeaders: ["*"],
+			},
 		});
 
 		// WebSocket API for real-time messaging

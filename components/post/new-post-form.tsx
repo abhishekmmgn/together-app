@@ -20,11 +20,7 @@ import { Input } from "@/components/ui/input";
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useS3Upload } from "@/hooks/use-s3-upload";
-import {
-	Dropzone,
-	DropzoneEmptyState,
-	formatBytes,
-} from "@/components/dropzone";
+import { MAX_IMAGE_SIZE, MAX_VIDEO_SIZE } from "@/lib/constants";
 import sendNotification from "@/lib/sendNotification";
 import {
 	IoCheckmarkCircle,
@@ -33,14 +29,7 @@ import {
 	IoVideocam,
 	IoImage,
 } from "react-icons/io5";
-import { cn } from "@/lib/utils";
-
-// ─── Constants ───────────────────────────────────────────────────────────────
-
-const MAX_IMAGE_SIZE = 3 * 1024 * 1024; // 3 MB
-const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20 MB
-
-// ─── Form schema (step 2 only) ───────────────────────────────────────────────
+import { cn, formatBytes } from "@/lib/utils";
 
 const formSchema = z.object({
 	thread: z
@@ -73,38 +62,58 @@ function StepDots({ step }: { step: 1 | 2 }) {
 	);
 }
 
-// ─── Upload progress ring ─────────────────────────────────────────────────────
+// ─── Inline upload status banner (shown in step 2) ────────────────────────────
 
-function ProgressRing({ percent }: { percent: number }) {
-	const r = 28;
-	const circ = 2 * Math.PI * r;
-	const offset = circ - (percent / 100) * circ;
+function UploadStatusBanner({
+	loading,
+	progress,
+	success,
+	error,
+}: {
+	loading: boolean;
+	progress: number;
+	success: boolean;
+	error: boolean;
+}) {
+	if (success) {
+		return (
+			<div className="flex items-center gap-2 rounded-lg bg-green-500/10 border border-green-500/20 px-3 py-2 text-sm text-green-600 dark:text-green-400">
+				<IoCheckmarkCircle size={16} className="shrink-0" />
+				<span>Media uploaded successfully</span>
+			</div>
+		);
+	}
 
-	return (
-		<svg className="-rotate-90" width={72} height={72}>
-			<circle
-				cx={36}
-				cy={36}
-				r={r}
-				fill="none"
-				stroke="currentColor"
-				strokeWidth={5}
-				className="text-muted/40"
-			/>
-			<circle
-				cx={36}
-				cy={36}
-				r={r}
-				fill="none"
-				stroke="currentColor"
-				strokeWidth={5}
-				strokeLinecap="round"
-				strokeDasharray={circ}
-				strokeDashoffset={offset}
-				className="text-primary transition-all duration-150"
-			/>
-		</svg>
-	);
+	if (error) {
+		return (
+			<div className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">
+				<IoClose size={16} className="shrink-0" />
+				<span>Upload failed — go back and try again</span>
+			</div>
+		);
+	}
+
+	if (loading) {
+		return (
+			<div className="space-y-1.5">
+				<div className="flex items-center justify-between text-xs text-muted-foreground">
+					<span className="flex items-center gap-1.5">
+						<IoCloudUpload size={13} />
+						Uploading media…
+					</span>
+					<span>{progress}%</span>
+				</div>
+				<div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+					<div
+						className="h-full rounded-full bg-primary transition-all duration-150"
+						style={{ width: `${progress}%` }}
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	return null;
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -115,14 +124,18 @@ export default function NewPostForm() {
 	// Step 1 or 2
 	const [step, setStep] = useState<1 | 2>(1);
 
-	// The confirmed media URL (set after user proceeds to step 2)
+	// The confirmed media URL (populated asynchronously after background upload)
 	const [mediaUrl, setMediaUrl] = useState<string>("");
 	const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
 
-	// Tracks whether we should delete the uploaded file on dialog close / media change
-	const pendingDeleteUrl = useRef<string>("");
+	// Whether the upload has been fired (so we show the status banner in step 2)
+	const [uploadInitiated, setUploadInitiated] = useState(false);
 
-	// ── S3 upload hook (upload starts when Continue is clicked) ──
+	// Mirrors mediaUrl in a ref so the unmount cleanup can read the latest value
+	// without needing it as a dependency (avoids re-registering the effect).
+	const mediaUrlRef = useRef<string>("");
+
+	// ── S3 upload hook ──
 	const {
 		files,
 		setFiles,
@@ -145,24 +158,25 @@ export default function NewPostForm() {
 		autoUpload: false,
 	});
 
-	// Advance to step 2 once upload completes
+	// Keep the ref in sync so the unmount cleanup always has the latest URL.
+	useEffect(() => {
+		mediaUrlRef.current = mediaUrl;
+	}, [mediaUrl]);
+
+	// Capture the uploaded URL once the background upload completes.
 	useEffect(() => {
 		if (uploadSuccess && uploadedUrls.length > 0) {
 			const url = uploadedUrls[uploadedUrls.length - 1];
-			// Track for potential cleanup
-			pendingDeleteUrl.current = url;
 			setMediaUrl(url);
 			setMediaType(files[0]?.type.startsWith("video/") ? "video" : "image");
-			pendingDeleteUrl.current = "";
-			setStep(2);
 		}
 	}, [uploadSuccess, uploadedUrls, files]);
 
-	// ── Delete on dialog close (if user never posted) ──
+	// If the dialog is closed without posting, delete the orphaned S3 object.
 	useEffect(() => {
 		return () => {
-			if (pendingDeleteUrl.current) {
-				deleteUploadedFile(pendingDeleteUrl.current);
+			if (mediaUrlRef.current) {
+				deleteUploadedFile(mediaUrlRef.current);
 			}
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -182,41 +196,48 @@ export default function NewPostForm() {
 	const currentFile = files[0];
 	const fileError = currentFile?.errors?.[0];
 
-	// Per-file size validation for display (hook-level validation runs on drop)
 	const fileSizeError =
 		currentFile && !fileError
 			? currentFile.type.startsWith("video/") &&
 				currentFile.size > MAX_VIDEO_SIZE
-				? `Video must be smaller than ${formatBytes(MAX_VIDEO_SIZE)}`
+				? `Video must be smaller than ${formatBytes(MAX_VIDEO_SIZE, 2, "MB")}`
 				: currentFile.type.startsWith("image/") &&
 						currentFile.size > MAX_IMAGE_SIZE
-					? `Image must be smaller than ${formatBytes(MAX_IMAGE_SIZE)}`
+					? `Image must be smaller than ${formatBytes(MAX_IMAGE_SIZE, 2, "MB")}`
 					: null
 			: null;
 
-	// ── Continue: start upload then advance to step 2 ──
-	const handleContinue = useCallback(async () => {
+	// ── Continue: fire upload in background, advance to step 2 immediately ──
+	const handleContinue = useCallback(() => {
 		if (!currentFile || uploadLoading || !!fileSizeError || !!fileError) return;
-		await onUpload();
-		// uploadedUrls state updates asynchronously — read from the hook's resolved result
-		// The useEffect below will pick up the new URL and advance the step
-	}, [currentFile, uploadLoading, fileSizeError, fileError, onUpload]);
-
-	// ── Step 1: remove / change media ──
-	const handleRemoveMedia = useCallback(() => {
-		if (pendingDeleteUrl.current) {
-			deleteUploadedFile(pendingDeleteUrl.current);
-			pendingDeleteUrl.current = "";
+		// If a previous upload already landed (user went back and re-selected),
+		// delete the old S3 object before starting a fresh upload.
+		if (mediaUrl) {
+			deleteUploadedFile(mediaUrl);
+			setMediaUrl("");
+			setMediaType(null);
 		}
-		setFiles([]);
-	}, [deleteUploadedFile, setFiles]);
+		setUploadInitiated(true);
+		onUpload(); // fire-and-forget — intentionally NOT awaited
+		setStep(2);
+	}, [currentFile, uploadLoading, fileSizeError, fileError, mediaUrl, deleteUploadedFile, onUpload]);
+
+	// ── Back: clean up any already-uploaded S3 object, reset upload state ──
+	const handleBack = useCallback(() => {
+		if (mediaUrl) {
+			deleteUploadedFile(mediaUrl);
+			setMediaUrl("");
+			setMediaType(null);
+		}
+		setUploadInitiated(false);
+		setStep(1);
+	}, [mediaUrl, deleteUploadedFile]);
 
 	// ── Submit post ──
 	const [submitting, setSubmitting] = useState(false);
 
 	async function onSubmit(data: FormSchemaType) {
 		setSubmitting(true);
-
 		const toastId = toast.loading("Creating post...");
 		try {
 			const res = await fetch("/api/post", {
@@ -232,6 +253,8 @@ export default function NewPostForm() {
 			if (res.ok) {
 				toast.success("Post created!", { id: toastId });
 				form.reset();
+				// Media is now part of the post — skip orphan cleanup on unmount.
+				mediaUrlRef.current = "";
 				sendNotification("There are new posts.", "/");
 				closeDialog();
 			} else {
@@ -252,13 +275,17 @@ export default function NewPostForm() {
 		!!fileSizeError ||
 		uploadErrors.length > 0;
 
+	// Derived upload state used in step 2
+	const uploadInProgress = uploadInitiated && uploadLoading;
+	const uploadFailed = uploadInitiated && uploadErrors.length > 0;
+
 	// ── Render ────────────────────────────────────────────────────────────────
 
 	return (
 		<div className="w-full">
 			<StepDots step={step} />
 
-			{/* ── STEP 1: Media upload ── */}
+			{/* ── STEP 1: Media selection ── */}
 			{step === 1 && (
 				<div className="space-y-4">
 					<p className="text-sm text-muted-foreground text-center -mt-2 mb-4">
@@ -281,7 +308,7 @@ export default function NewPostForm() {
 					>
 						<input {...getInputProps()} />
 
-						{/* Preview */}
+						{/* Local preview (only in step 1, before any upload) */}
 						{currentFile?.preview && !fileError && !fileSizeError ? (
 							<>
 								{currentFile.type.startsWith("video/") ? (
@@ -300,19 +327,8 @@ export default function NewPostForm() {
 										sizes="600px"
 									/>
 								)}
-
-								{/* Overlay: only show while uploading */}
-								{uploadLoading && (
-									<div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 text-white">
-										<ProgressRing percent={uploadProgress} />
-										<p className="text-sm font-medium">
-											Uploading… {uploadProgress}%
-										</p>
-									</div>
-								)}
 							</>
 						) : (
-							/* Empty / error state */
 							<div className="flex flex-col items-center gap-3 px-6 text-center">
 								<div className="rounded-full bg-muted p-4">
 									<IoCloudUpload
@@ -329,18 +345,22 @@ export default function NewPostForm() {
 									</p>
 									<div className="flex items-center justify-center gap-3 mt-2 text-xs text-muted-foreground">
 										<span className="flex items-center gap-1">
-											<IoImage size={14} /> Image up to 3 MB
+											<IoImage size={14} /> Image up to{" "}
+											{formatBytes(MAX_IMAGE_SIZE, 0)}
 										</span>
 										<span className="text-muted-foreground/40">|</span>
 										<span className="flex items-center gap-1">
-											<IoVideocam size={14} /> Video up to 20 MB
+											<IoVideocam size={14} /> Video up to{" "}
+											{formatBytes(MAX_VIDEO_SIZE, 0)}
 										</span>
 									</div>
 								</div>
 
 								{(fileError || fileSizeError) && (
 									<p className="text-xs text-destructive">
-										{fileError?.message ?? fileSizeError}
+										{fileError?.code === "file-too-large"
+											? `File is larger than ${formatBytes(MAX_VIDEO_SIZE, 2, "MB")}`
+											: fileError?.message ?? fileSizeError}
 									</p>
 								)}
 							</div>
@@ -352,8 +372,6 @@ export default function NewPostForm() {
 						disabled={
 							!currentFile || uploadLoading || !!fileSizeError || !!fileError
 						}
-						loading={uploadLoading}
-						loadingText={`Uploading… ${uploadProgress}%`}
 						onClick={handleContinue}
 					>
 						Continue
@@ -369,44 +387,17 @@ export default function NewPostForm() {
 				</div>
 			)}
 
-			{/* ── STEP 2: Thread + tags ── */}
+			{/* ── STEP 2: Thread + tags (no media preview) ── */}
 			{step === 2 && (
 				<div className="space-y-4">
-					{/* Media thumbnail */}
-					{mediaUrl && (
-						<div className="relative w-full aspect-4/3 rounded-xl overflow-hidden border bg-muted">
-							{mediaType === "video" ? (
-								<video
-									src={mediaUrl}
-									className="w-full h-full object-cover"
-									muted
-									playsInline
-								/>
-							) : (
-								<Image
-									src={mediaUrl}
-									alt="Post media"
-									fill
-									className="object-cover"
-									sizes="600px"
-								/>
-							)}
-							<button
-								type="button"
-								onClick={() => {
-									// Delete the claimed URL and go back to step 1
-									deleteUploadedFile(mediaUrl);
-									setMediaUrl("");
-									setMediaType(null);
-									setFiles([]);
-									pendingDeleteUrl.current = "";
-									setStep(1);
-								}}
-								className="absolute top-2 right-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80 transition"
-							>
-								<IoClose size={16} />
-							</button>
-						</div>
+					{/* Compact upload status — shown only when media was selected */}
+					{uploadInitiated && (
+						<UploadStatusBanner
+							loading={uploadLoading}
+							progress={uploadProgress}
+							success={uploadSuccess}
+							error={uploadFailed}
+						/>
 					)}
 
 					<Form {...form}>
@@ -452,18 +443,18 @@ export default function NewPostForm() {
 									type="button"
 									variant="outline"
 									className="flex-1"
-									onClick={() => setStep(1)}
+									onClick={handleBack}
 								>
 									Back
 								</Button>
 								<Button
 									type="submit"
 									className="flex-1"
-									disabled={!hasDataChanged || submitting}
+									disabled={!hasDataChanged || submitting || uploadInProgress}
 									loading={submitting}
 									loadingText="Posting…"
 								>
-									Post
+									{uploadInProgress ? `Uploading… ${uploadProgress}%` : "Post"}
 								</Button>
 							</div>
 						</form>

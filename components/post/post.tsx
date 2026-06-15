@@ -30,6 +30,16 @@ import { checkLoggedIn } from "@/lib/checkLoggedIn";
 import { useRouter } from "next/navigation";
 import { ErrorBoundary } from "@/components/error-boundary";
 
+/** Returns true if the URL points to a video file (based on S3 path or extension). */
+function isVideoUrl(url: string): boolean {
+	try {
+		const path = new URL(url).pathname.toLowerCase();
+		return path.includes("/videos/") || /\.(mp4|webm|mov|ogg)$/.test(path);
+	} catch {
+		return /\.(mp4|webm|mov|ogg)$/i.test(url);
+	}
+}
+
 function PostErrorFallback({
 	post,
 	paddingX,
@@ -306,7 +316,7 @@ function PostContent(props: {
 					>
 						{props.post?.thread}
 					</p>
-					{props.post?.image && (
+					{props.post?.image && !isVideoUrl(props.post.image) && (
 						<Image
 							src={props.post?.image}
 							alt="Post Photo"
@@ -316,6 +326,15 @@ function PostContent(props: {
 						/>
 					)}
 				</Link>
+				{props.post?.image && isVideoUrl(props.post.image) && (
+					<video
+						src={props.post.image}
+						className="object-cover w-full aspect-3/2 bg-secondary shadow-sm"
+						preload="metadata"
+						controls
+						playsInline
+					/>
+				)}
 				<div
 					className={`${
 						!props.paddingX && "px-4 lg:px-0"
